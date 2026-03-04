@@ -1,0 +1,5 @@
+{
+    "panel_de_tareas.bundle.js": [
+        "gestion_contable/page/panel_de_tareas/panel_de_tareas.js"
+    ]
+}
