@@ -6,9 +6,9 @@
     "modified": "2024-03-04 14:00:00.000000",
     "modified_by": "Administrator",
     "module": "Gestion Contable",
-    "name": "panel-de-tareas",
+    "name": "panel_de_tareas",
     "owner": "Administrator",
-    "page_name": "panel-de-tareas",
+    "page_name": "panel_de_tareas",
     "roles": [
         {
             "role": "System Manager"
