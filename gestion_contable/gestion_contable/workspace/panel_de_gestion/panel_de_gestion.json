@@ -1,0 +1,107 @@
+{
+    "charts": [
+        {
+            "chart_name": "Estado de Tareas por Cierre",
+            "label": "Estado de Tareas por Cierre"
+        }
+    ],
+    "content": "[{\"id\":\"Ww_k-nZJd-\",\"type\":\"header\",\"data\":{\"text\":\"M\\u00e9tricas Clave\",\"level\":4,\"col\":12}},{\"id\":\"qB6zM0Vj_M\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Tareas Pendientes Gral\"}},{\"id\":\"eR-v9qK_N1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Documentos Recibidos Hoy\"}},{\"id\":\"_YjG4HkLc_\",\"type\":\"header\",\"data\":{\"text\":\"Panel de Vencimientos\",\"level\":4,\"col\":12}},{\"id\":\"KpH_Q1a_lM\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Estado de Tareas por Cierre\",\"col\":12}},{\"id\":\"aX9qP_mZl3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Clientes Activos\",\"col\":4}},{\"id\":\"sT5kR_pWn2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Nueva Tarea\",\"col\":4}},{\"id\":\"xZ2mN_qXy4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Periodo Actual\",\"col\":4}}]",
+    "creation": "2024-03-04 14:00:00.000000",
+    "custom_blocks": [],
+    "docstatus": 0,
+    "doctype": "Workspace",
+    "for_user": "",
+    "hide_custom": 0,
+    "icon": "pie-chart",
+    "idx": 0,
+    "indicator_color": "blue",
+    "is_hidden": 0,
+    "label": "Panel de Gesti\u00f3n",
+    "links": [
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Clientes",
+            "link_count": 0,
+            "link_to": "Cliente Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Periodos",
+            "link_count": 0,
+            "link_to": "Periodo Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Tareas",
+            "link_count": 0,
+            "link_to": "Tarea Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Documentos",
+            "link_count": 0,
+            "link_to": "Documento Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        }
+    ],
+    "modified": "2024-03-04 14:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Panel de Gestion",
+    "number_cards": [
+        {
+            "label": "Tareas Pendientes",
+            "number_card_name": "Tareas Pendientes Gral"
+        },
+        {
+            "label": "Comunicaciones Recientes",
+            "number_card_name": "Documentos Recibidos Hoy"
+        }
+    ],
+    "owner": "Administrator",
+    "parent_page": "",
+    "public": 1,
+    "quick_lists": [],
+    "roles": [
+        {
+            "role": "System Manager"
+        },
+        {
+            "role": "Contador del Despacho"
+        },
+        {
+            "role": "Auxiliar Contable del Despacho"
+        }
+    ],
+    "sequence_id": 1.0,
+    "shortcuts": [
+        {
+            "label": "Clientes Activos",
+            "shortcut_name": "Clientes Activos"
+        },
+        {
+            "label": "Nueva Tarea",
+            "shortcut_name": "Nueva Tarea"
+        },
+        {
+            "label": "Periodo Actual",
+            "shortcut_name": "Periodo Actual"
+        }
+    ],
+    "title": "Panel de Gesti\u00f3n"
+}

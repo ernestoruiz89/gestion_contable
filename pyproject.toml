@@ -1,0 +1,19 @@
+[project]
+name = "gestion_contable"
+authors = [
+    { name = "Despacho", email = "contacto@despacho.com"}
+]
+description = "App para Gestión Contable"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    # "frappe~=15.0.0" 
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.dev-dependencies]
+# package_name = "~=1.1.0"

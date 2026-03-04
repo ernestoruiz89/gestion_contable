@@ -1,0 +1,146 @@
+{
+    "actions": [],
+    "creation": "2024-03-04 14:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "datos_generales_section",
+        "customer",
+        "identificacion_fiscal",
+        "column_break_1",
+        "estado",
+        "frecuencia_de_cierre",
+        "contacto_section",
+        "telefono",
+        "correo_electronico",
+        "column_break_2",
+        "cuenta_de_correo_vinculada"
+    ],
+    "fields": [
+        {
+            "fieldname": "datos_generales_section",
+            "fieldtype": "Section Break",
+            "label": "Datos Generales"
+        },
+        {
+            "fieldname": "customer",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Cliente (Customer)",
+            "options": "Customer",
+            "reqd": 1
+        },
+        {
+            "fetch_from": "customer.tax_id",
+            "fieldname": "identificacion_fiscal",
+            "fieldtype": "Data",
+            "label": "Identificaci\u00f3n Fiscal (RFC/NIT)",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "Activo",
+            "fieldname": "estado",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Estado",
+            "options": "Activo\nInactivo"
+        },
+        {
+            "default": "Mensual",
+            "fieldname": "frecuencia_de_cierre",
+            "fieldtype": "Select",
+            "label": "Frecuencia de Cierre",
+            "options": "Mensual\nBimestral\nAnual"
+        },
+        {
+            "fieldname": "contacto_section",
+            "fieldtype": "Section Break",
+            "label": "Contacto y Comunicaci\u00f3n"
+        },
+        {
+            "fieldname": "telefono",
+            "fieldtype": "Data",
+            "label": "Tel\u00e9fono",
+            "options": "Phone"
+        },
+        {
+            "fieldname": "correo_electronico",
+            "fieldtype": "Data",
+            "label": "Correo Electr\u00f3nico",
+            "options": "Email"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "cuenta_de_correo_vinculada",
+            "fieldtype": "Link",
+            "label": "Cuenta de Correo Vinculada",
+            "options": "Email Account"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "group": "Tareas",
+            "link_doctype": "Tarea Contable",
+            "link_fieldname": "cliente"
+        },
+        {
+            "group": "Documentos",
+            "link_doctype": "Documento Contable",
+            "link_fieldname": "cliente"
+        }
+    ],
+    "modified": "2024-03-04 14:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Cliente Contable",
+    "naming_rule": "By fieldname",
+    "autoname": "field:customer",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Contador del Despacho",
+            "share": 1,
+            "write": 1,
+            "delete": 1,
+            "export": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Auxiliar Contable del Despacho",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}
