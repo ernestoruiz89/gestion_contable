@@ -54,13 +54,14 @@ La app incluye validaciones server-side automáticas:
 | **Contador del Despacho** | CRUD completo + delete + export |
 | **Auxiliar Contable del Despacho** | Crear, leer, escribir, email, imprimir, reportes, compartir |
 
-## Workspace: Panel de Gestión
+## Workspace y Páginas
 
-El espacio de trabajo incluye:
+La app incluye un **Panel de Gestión** (workspace) y una página personalizada:
 
-- 📊 **Gráfico**: Estado de Tareas por Cierre
-- 🔢 **Tarjetas numéricas**: Tareas Pendientes, Documentos Recibidos Hoy
-- ⚡ **Accesos rápidos**: Clientes Activos, Nueva Tarea, Periodo Actual
+- 📋 **Panel de Tareas** (Página): Visualización estilo Kanban de todas las tareas por estado, con filtros por Empresa, Cliente, Periodo, Tipo y Asignado.
+- 📊 **Gráfico**: Estado de Tareas por Cierre.
+- 🔢 **Tarjetas numéricas**: Tareas Pendientes, Documentos Recibidos Hoy.
+- ⚡ **Accesos rápidos**: Clientes Activos, Nueva Tarea, Periodo Actual.
 
 ## Requisitos Previos
 
