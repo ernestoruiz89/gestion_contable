@@ -1,4 +1,4 @@
-frappe.pages["panel_de_tareas"].on_page_load = function (wrapper) {
+frappe.pages["panel-de-tareas"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: "Panel de Tareas",

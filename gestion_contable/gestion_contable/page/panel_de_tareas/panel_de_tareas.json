@@ -1,14 +1,11 @@
 {
-    "creation": "2024-03-04 14:00:00.000000",
+    "title": "Panel de Tareas",
+    "content": "",
     "doctype": "Page",
     "icon": "task",
-    "idx": 0,
-    "modified": "2024-03-04 14:00:00.000000",
-    "modified_by": "Administrator",
     "module": "Gestion Contable",
-    "name": "panel_de_tareas",
-    "owner": "Administrator",
-    "page_name": "panel_de_tareas",
+    "name": "panel-de-tareas",
+    "standard": "Yes",
     "roles": [
         {
             "role": "System Manager"
@@ -19,8 +16,5 @@
         {
             "role": "Auxiliar Contable del Despacho"
         }
-    ],
-    "standard": "Yes",
-    "system_page": 0,
-    "title": "Panel de Tareas"
+    ]
 }
