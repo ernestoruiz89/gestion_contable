@@ -267,12 +267,6 @@ class PanelDeTareas {
 		const filtersRow = this.wrapper.find(".filters-row");
 		filtersRow.html(`
 			<div class="filter-group">
-				<label>Empresa</label>
-				<select class="filter-empresa">
-					<option value="">Todas</option>
-				</select>
-			</div>
-			<div class="filter-group">
 				<label>Cliente</label>
 				<select class="filter-cliente">
 					<option value="">Todos</option>
@@ -371,48 +365,7 @@ class PanelDeTareas {
 
 	load_data() {
 		const filters = this.get_filters();
-		const empresa = this.wrapper.find(".filter-empresa").val();
-
-		if (!empresa) {
-			this.fetch_tasks(filters);
-			return;
-		}
-
-		frappe.call({
-			method: "frappe.client.get_list",
-			args: {
-				doctype: "Customer",
-				fields: ["name"],
-				filters: { company: empresa },
-				limit_page_length: 0,
-			},
-			callback: (customerResponse) => {
-				const customerNames = (customerResponse.message || []).map((c) => c.name);
-				if (!customerNames.length) {
-					this.render([]);
-					return;
-				}
-
-				frappe.call({
-					method: "frappe.client.get_list",
-					args: {
-						doctype: "Cliente Contable",
-						fields: ["name"],
-						filters: [["Cliente Contable", "customer", "in", customerNames]],
-						limit_page_length: 0,
-					},
-					callback: (clienteResponse) => {
-						const clienteNames = (clienteResponse.message || []).map((c) => c.name);
-						if (!clienteNames.length) {
-							this.render([]);
-							return;
-						}
-						filters.cliente = ["in", clienteNames];
-						this.fetch_tasks(filters);
-					},
-				});
-			},
-		});
+		this.fetch_tasks(filters);
 	}
 	fetch_tasks(filters) {
 		frappe.call({
