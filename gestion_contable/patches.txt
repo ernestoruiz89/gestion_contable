@@ -1,0 +1,2 @@
+[post_model_sync]
+gestion_contable.patches.reload_panel_de_gestion_workspace_v1

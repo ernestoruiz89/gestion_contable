@@ -465,11 +465,11 @@ class PanelDeTareas {
 
 		const fechaFormatted = task.fecha_de_vencimiento
 			? frappe.datetime.str_to_user(task.fecha_de_vencimiento)
-			: "â€”";
+			: "-";
 
 		const asignadoLabel = task.asignado_a
 			? frappe.utils.get_abbr(task.asignado_a)
-			: "â€”";
+			: "-";
 
 		const asignadoName = task.asignado_a || "Sin asignar";
 
@@ -483,19 +483,19 @@ class PanelDeTareas {
 				<div class="task-title">${task.titulo}</div>
 				<div class="task-meta">
 					<div class="task-meta-row">
-						<span class="meta-icon">ðŸ‘¤</span>
-						<span>${frappe.utils.escape_html(task.cliente || "â€”")}</span>
+						<span class="meta-icon">[C]</span>
+						<span>${frappe.utils.escape_html(task.cliente || "-")}</span>
 					</div>
 					<div class="task-meta-row">
-						<span class="meta-icon">ðŸ“…</span>
+						<span class="meta-icon">[V]</span>
 						<span class="task-vencimiento ${vencClass}">${fechaFormatted}</span>
 					</div>
 					<div class="task-meta-row">
-						<span class="meta-icon">ðŸ“‹</span>
-						<span>${frappe.utils.escape_html(task.periodo || "â€”")}</span>
+						<span class="meta-icon">[P]</span>
+						<span>${frappe.utils.escape_html(task.periodo || "-")}</span>
 					</div>
 					<div class="task-meta-row">
-						${task.asignado_a ? `<span class="avatar-small">${asignadoLabel}</span>` : '<span class="meta-icon">â€”</span>'}
+						${task.asignado_a ? `<span class="avatar-small">${asignadoLabel}</span>` : '<span class="meta-icon">-</span>'}
 						<span>${frappe.utils.escape_html(asignadoName)}</span>
 					</div>
 				</div>
