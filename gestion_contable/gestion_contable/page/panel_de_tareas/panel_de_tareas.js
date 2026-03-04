@@ -22,11 +22,11 @@ class PanelDeTareas {
 		this.page = page;
 		this.wrapper = page.main;
 		this.filters = {};
-		this.statuses = ["Pendiente", "En Proceso", "En Revisión", "Completada"];
+		this.statuses = ["Pendiente", "En Proceso", "En RevisiÃ³n", "Completada"];
 		this.status_colors = {
 			Pendiente: { bg: "#fff3e0", border: "#ff9800", text: "#e65100", badge: "#ff9800" },
 			"En Proceso": { bg: "#e3f2fd", border: "#2196f3", text: "#0d47a1", badge: "#2196f3" },
-			"En Revisión": { bg: "#f3e5f5", border: "#9c27b0", text: "#4a148c", badge: "#9c27b0" },
+			"En RevisiÃ³n": { bg: "#f3e5f5", border: "#9c27b0", text: "#4a148c", badge: "#9c27b0" },
 			Completada: { bg: "#e8f5e9", border: "#4caf50", text: "#1b5e20", badge: "#4caf50" },
 		};
 	}
@@ -303,7 +303,7 @@ class PanelDeTareas {
 			method: "frappe.client.get_list",
 			args: { doctype: "Company", fields: ["name"], limit_page_length: 0, order_by: "name asc" },
 			callback: (r) => {
-				r.message.forEach((c) => {
+				(r.message || []).forEach((c) => {
 					filtersRow.find(".filter-empresa").append(`<option value="${c.name}">${c.name}</option>`);
 				});
 			},
@@ -313,7 +313,7 @@ class PanelDeTareas {
 			method: "frappe.client.get_list",
 			args: { doctype: "Cliente Contable", fields: ["name"], limit_page_length: 0, order_by: "name asc" },
 			callback: (r) => {
-				r.message.forEach((c) => {
+				(r.message || []).forEach((c) => {
 					filtersRow.find(".filter-cliente").append(`<option value="${c.name}">${c.name}</option>`);
 				});
 			},
@@ -323,17 +323,17 @@ class PanelDeTareas {
 			method: "frappe.client.get_list",
 			args: { doctype: "Periodo Contable", fields: ["name"], limit_page_length: 0, order_by: "name asc" },
 			callback: (r) => {
-				r.message.forEach((p) => {
+				(r.message || []).forEach((p) => {
 					filtersRow.find(".filter-periodo").append(`<option value="${p.name}">${p.name}</option>`);
 				});
 			},
 		});
 
 		const tipos = [
-			"Impuestos", "Nómina", "Cierre Contable", "Auditoría",
-			"Conciliación Bancaria", "Declaración Anual", "Dictamen Fiscal",
-			"Estados Financieros", "Facturación", "Atención a Requerimiento",
-			"Trámite Fiscal", "Consultoría", "Otro",
+			"Impuestos", "NÃ³mina", "Cierre Contable", "AuditorÃ­a",
+			"ConciliaciÃ³n Bancaria", "DeclaraciÃ³n Anual", "Dictamen Fiscal",
+			"Estados Financieros", "FacturaciÃ³n", "AtenciÃ³n a Requerimiento",
+			"TrÃ¡mite Fiscal", "ConsultorÃ­a", "Otro",
 		];
 		tipos.forEach((t) => {
 			filtersRow.find(".filter-tipo").append(`<option value="${t}">${t}</option>`);
@@ -343,7 +343,7 @@ class PanelDeTareas {
 			method: "frappe.client.get_list",
 			args: { doctype: "User", fields: ["name", "full_name"], filters: { enabled: 1, user_type: "System User" }, limit_page_length: 0 },
 			callback: (r) => {
-				r.message.forEach((u) => {
+				(r.message || []).forEach((u) => {
 					const label = u.full_name || u.name;
 					filtersRow.find(".filter-asignado").append(`<option value="${u.name}">${label}</option>`);
 				});
@@ -373,39 +373,47 @@ class PanelDeTareas {
 		const filters = this.get_filters();
 		const empresa = this.wrapper.find(".filter-empresa").val();
 
-		if (empresa) {
-			// First get clients belonging to this company, then filter tasks
-			frappe.call({
-				method: "frappe.client.get_list",
-				args: {
-					doctype: "Cliente Contable",
-					fields: ["name"],
-					filters: [["Cliente Contable", "customer", "in",
-						frappe.call({
-							method: "frappe.client.get_list",
-							args: { doctype: "Customer", filters: { company: empresa }, fields: ["name"], limit_page_length: 0 },
-							async: false,
-						}).message?.map(c => c.name) || []
-					]],
-					limit_page_length: 0,
-				},
-				callback: (r) => {
-					const clienteNames = (r.message || []).map(c => c.name);
-					if (clienteNames.length > 0) {
-						filters.cliente = ["in", clienteNames];
-					} else {
-						// No clients for this company — show empty
-						this.render([]);
-						return;
-					}
-					this.fetch_tasks(filters);
-				},
-			});
-		} else {
+		if (!empresa) {
 			this.fetch_tasks(filters);
+			return;
 		}
-	}
 
+		frappe.call({
+			method: "frappe.client.get_list",
+			args: {
+				doctype: "Customer",
+				fields: ["name"],
+				filters: { company: empresa },
+				limit_page_length: 0,
+			},
+			callback: (customerResponse) => {
+				const customerNames = (customerResponse.message || []).map((c) => c.name);
+				if (!customerNames.length) {
+					this.render([]);
+					return;
+				}
+
+				frappe.call({
+					method: "frappe.client.get_list",
+					args: {
+						doctype: "Cliente Contable",
+						fields: ["name"],
+						filters: [["Cliente Contable", "customer", "in", customerNames]],
+						limit_page_length: 0,
+					},
+					callback: (clienteResponse) => {
+						const clienteNames = (clienteResponse.message || []).map((c) => c.name);
+						if (!clienteNames.length) {
+							this.render([]);
+							return;
+						}
+						filters.cliente = ["in", clienteNames];
+						this.fetch_tasks(filters);
+					},
+				});
+			},
+		});
+	}
 	fetch_tasks(filters) {
 		frappe.call({
 			method: "frappe.client.get_list",
@@ -504,11 +512,11 @@ class PanelDeTareas {
 
 		const fechaFormatted = task.fecha_de_vencimiento
 			? frappe.datetime.str_to_user(task.fecha_de_vencimiento)
-			: "—";
+			: "â€”";
 
 		const asignadoLabel = task.asignado_a
 			? frappe.utils.get_abbr(task.asignado_a)
-			: "—";
+			: "â€”";
 
 		const asignadoName = task.asignado_a || "Sin asignar";
 
@@ -522,19 +530,19 @@ class PanelDeTareas {
 				<div class="task-title">${task.titulo}</div>
 				<div class="task-meta">
 					<div class="task-meta-row">
-						<span class="meta-icon">👤</span>
-						<span>${frappe.utils.escape_html(task.cliente || "—")}</span>
+						<span class="meta-icon">ðŸ‘¤</span>
+						<span>${frappe.utils.escape_html(task.cliente || "â€”")}</span>
 					</div>
 					<div class="task-meta-row">
-						<span class="meta-icon">📅</span>
+						<span class="meta-icon">ðŸ“…</span>
 						<span class="task-vencimiento ${vencClass}">${fechaFormatted}</span>
 					</div>
 					<div class="task-meta-row">
-						<span class="meta-icon">📋</span>
-						<span>${frappe.utils.escape_html(task.periodo || "—")}</span>
+						<span class="meta-icon">ðŸ“‹</span>
+						<span>${frappe.utils.escape_html(task.periodo || "â€”")}</span>
 					</div>
 					<div class="task-meta-row">
-						${task.asignado_a ? `<span class="avatar-small">${asignadoLabel}</span>` : '<span class="meta-icon">—</span>'}
+						${task.asignado_a ? `<span class="avatar-small">${asignadoLabel}</span>` : '<span class="meta-icon">â€”</span>'}
 						<span>${frappe.utils.escape_html(asignadoName)}</span>
 					</div>
 				</div>
@@ -542,3 +550,4 @@ class PanelDeTareas {
 		`;
 	}
 }
+
