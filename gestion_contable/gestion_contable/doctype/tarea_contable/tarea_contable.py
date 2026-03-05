@@ -20,7 +20,7 @@ class TareaContable(Document):
                 )
 
     def validar_periodo_abierto(self):
-        if self.periodo and not self.flags.ignore_period_validation:
+        if self.periodo:
             estado = frappe.db.get_value("Periodo Contable", self.periodo, "estado")
             if estado != "Abierto":
                 frappe.throw(
