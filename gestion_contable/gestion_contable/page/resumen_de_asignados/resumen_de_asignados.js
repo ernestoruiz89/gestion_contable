@@ -341,22 +341,28 @@ class ResumenAsignados {
 
             // Binding click events for each specific stat block to route to pre-filtered Panel de Tareas
             row.find('.ra-stat-totales').on('click', () => {
-                frappe.set_route('panel-de-tareas', { asignado_a: user.name });
+                frappe.route_options = { asignado_a: user.name };
+                frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-pendientes').on('click', () => {
-                frappe.set_route('panel-de-tareas', { asignado_a: user.name, estado: 'Pendiente' });
+                frappe.route_options = { asignado_a: user.name, estado: 'Pendiente' };
+                frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-proceso').on('click', () => {
-                frappe.set_route('panel-de-tareas', { asignado_a: user.name, estado: 'En Proceso' });
+                frappe.route_options = { asignado_a: user.name, estado: 'En Proceso' };
+                frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-revision').on('click', () => {
-                frappe.set_route('panel-de-tareas', { asignado_a: user.name, estado: 'En Revisión' });
+                frappe.route_options = { asignado_a: user.name, estado: 'En Revisión' };
+                frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-completadas').on('click', () => {
-                frappe.set_route('panel-de-tareas', { asignado_a: user.name, estado: 'Completada' });
+                frappe.route_options = { asignado_a: user.name, estado: 'Completada' };
+                frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-atrasadas').on('click', () => {
-                frappe.set_route('panel-de-tareas', { asignado_a: user.name, vencimiento: 'Vencidas' });
+                frappe.route_options = { asignado_a: user.name, vencimiento: 'Vencidas' };
+                frappe.set_route('panel-de-tareas');
             });
 
             list.append(row);

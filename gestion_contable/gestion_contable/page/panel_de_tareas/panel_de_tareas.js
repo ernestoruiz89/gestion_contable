@@ -35,7 +35,28 @@ class PanelDeTareas {
 		this.render_shell();
 		this.setup_filters();
 		this.setup_actions();
+		this.apply_route_options();
 		this.load_data();
+	}
+
+	apply_route_options() {
+		if (frappe.route_options) {
+			const ro = frappe.route_options;
+			if (ro.asignado_a) {
+				// Agregamos opción para que no se pierda si la carga asíncrona es más lenta
+				this.wrapper.find(".filter-asignado").append(`<option value="${ro.asignado_a}">${ro.asignado_a}</option>`);
+				this.wrapper.find(".filter-asignado").val(ro.asignado_a);
+			}
+			if (ro.estado) {
+				this.wrapper.find(".filter-estado").val(ro.estado);
+			}
+			if (ro.vencimiento) {
+				let v = ro.vencimiento.toLowerCase();
+				this.wrapper.find(".filter-vencimiento").val(v);
+				this.sync_kpi_highlight();
+			}
+			frappe.route_options = null; // consume
+		}
 	}
 
 	setup_styles() {
@@ -561,6 +582,16 @@ class PanelDeTareas {
 				<select class="filter-tipo"><option value="">Todos</option></select>
 			</div>
 			<div class="pt-field">
+				<label>Estado</label>
+				<select class="filter-estado">
+					<option value="">Todos</option>
+					<option value="Pendiente">Pendiente</option>
+					<option value="En Proceso">En Proceso</option>
+					<option value="En Revisión">En Revisión</option>
+					<option value="Completada">Completada</option>
+				</select>
+			</div>
+			<div class="pt-field">
 				<label>Asignado</label>
 				<select class="filter-asignado"><option value="">Todos</option></select>
 			</div>
@@ -671,6 +702,7 @@ class PanelDeTareas {
 		const cliente = shell.find(".filter-cliente").val();
 		const periodo = shell.find(".filter-periodo").val();
 		const tipo = shell.find(".filter-tipo").val();
+		const estado = shell.find(".filter-estado").val();
 		const asignado = shell.find(".filter-asignado").val();
 		const vencimiento = shell.find(".filter-vencimiento").val();
 		const search = (shell.find(".filter-search").val() || "").trim();
@@ -678,6 +710,7 @@ class PanelDeTareas {
 		if (cliente) filters.cliente = cliente;
 		if (periodo) filters.periodo = periodo;
 		if (tipo) filters.tipo_de_tarea = tipo;
+		if (estado) filters.estado = estado;
 		if (asignado) filters.asignado_a = asignado;
 
 		return { filters, search, vencimiento };
