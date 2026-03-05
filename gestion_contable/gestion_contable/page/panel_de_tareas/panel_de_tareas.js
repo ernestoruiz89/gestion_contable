@@ -256,7 +256,7 @@ class PanelDeTareas {
 				display: flex;
 				flex-direction: column;
 				gap: 8px;
-				max-height: 560px;
+				max-height: 75vh;
 				overflow-y: auto;
 			}
 
@@ -274,9 +274,9 @@ class PanelDeTareas {
 				background: #fff;
 				border: 1px solid var(--pt-border);
 				border-radius: 10px;
-				overflow: hidden;
 				box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
 				transition: transform .15s ease, box-shadow .15s ease;
+				flex-shrink: 0;
 			}
 
 			.pt-task:hover {
@@ -998,10 +998,6 @@ class PanelDeTareas {
 		const readonly_html = `
 			<div class="pt-modal-body">
 				<div class="pt-modal-field">
-					<div class="pt-modal-label">T\u00edtulo</div>
-					<div class="pt-modal-value">${frappe.utils.escape_html(task.titulo || "")}</div>
-				</div>
-				<div class="pt-modal-field">
 					<div class="pt-modal-label">Cliente</div>
 					<div class="pt-modal-value">${frappe.utils.escape_html(task.cliente || "-")}</div>
 				</div>
@@ -1094,34 +1090,60 @@ class PanelDeTareas {
 				dialog.$body.html(edit_html);
 				dialog.set_primary_action("Guardar", () => {
 					const body = dialog.$body;
-					const values = {
-						titulo: body.find(".pt-edit-titulo").val(),
+					const newTitulo = body.find(".pt-edit-titulo").val();
+					const otherValues = {
 						tipo_de_tarea: body.find(".pt-edit-tipo").val(),
 						estado: body.find(".pt-edit-estado").val(),
 						fecha_de_vencimiento: body.find(".pt-edit-fecha").val(),
 						notas: body.find(".pt-edit-notas").val(),
 					};
 
-					frappe.call({
-						method: "frappe.client.set_value",
-						args: {
-							doctype: "Tarea Contable",
-							name: task.name,
-							fieldname: values,
-						},
-						freeze: true,
-						freeze_message: "Guardando...",
-						callback: (r) => {
-							if (!r.exc) {
-								frappe.show_alert({ message: "Tarea actualizada", indicator: "green" });
-								dialog.hide();
-								me.load_data();
+					const save_fields = (docName) => {
+						frappe.call({
+							method: "frappe.client.set_value",
+							args: {
+								doctype: "Tarea Contable",
+								name: docName,
+								fieldname: otherValues,
+							},
+							freeze: true,
+							freeze_message: "Guardando...",
+							callback: (r) => {
+								if (!r.exc) {
+									frappe.show_alert({ message: "Tarea actualizada", indicator: "green" });
+									dialog.hide();
+									me.load_data();
+								}
+							},
+							error: () => {
+								frappe.msgprint("Error al guardar la tarea.");
 							}
-						},
-						error: () => {
-							frappe.msgprint("Error al guardar la tarea.");
-						}
-					});
+						});
+					};
+
+					// Si cambió el titulo (que es el name), renombrar primero
+					if (newTitulo && newTitulo !== task.name) {
+						frappe.call({
+							method: "frappe.client.rename_doc",
+							args: {
+								doctype: "Tarea Contable",
+								old: task.name,
+								new: newTitulo,
+							},
+							freeze: true,
+							freeze_message: "Renombrando...",
+							callback: (r) => {
+								if (!r.exc) {
+									save_fields(newTitulo);
+								}
+							},
+							error: () => {
+								frappe.msgprint("Error al renombrar la tarea.");
+							}
+						});
+					} else {
+						save_fields(task.name);
+					}
 				});
 
 				// Change secondary to "Cancelar" that goes back to read-only
