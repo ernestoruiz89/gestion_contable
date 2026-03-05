@@ -1,451 +1,577 @@
-frappe.pages["panel-de-tareas"].on_page_load = function (wrapper) {
+﻿frappe.pages["panel-de-tareas"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: "Panel de Tareas",
 		single_column: true,
 	});
 
-	page.main.html(`
-		<div class="panel-tareas-container">
-			<div class="filters-row"></div>
-			<div class="stats-row"></div>
-			<div class="kanban-board"></div>
-		</div>
-	`);
-
-	const panelTareas = new PanelDeTareas(page);
-	panelTareas.init();
+	const panel = new PanelDeTareas(page);
+	panel.init();
 };
 
 class PanelDeTareas {
 	constructor(page) {
 		this.page = page;
 		this.wrapper = page.main;
-		this.filters = {};
-		this.statuses = ["Pendiente", "En Proceso", "En RevisiÃ³n", "Completada"];
-		this.status_colors = {
-			Pendiente: { bg: "#fff3e0", border: "#ff9800", text: "#e65100", badge: "#ff9800" },
-			"En Proceso": { bg: "#e3f2fd", border: "#2196f3", text: "#0d47a1", badge: "#2196f3" },
-			"En RevisiÃ³n": { bg: "#f3e5f5", border: "#9c27b0", text: "#4a148c", badge: "#9c27b0" },
-			Completada: { bg: "#e8f5e9", border: "#4caf50", text: "#1b5e20", badge: "#4caf50" },
+		this.statuses = ["Pendiente", "En Proceso", "En Revisi\u00f3n", "Completada"];
+		this.statusMeta = {
+			Pendiente: { border: "#f59e0b", chip: "#fef3c7", text: "#92400e" },
+			"En Proceso": { border: "#3b82f6", chip: "#dbeafe", text: "#1e3a8a" },
+			"En Revisi\u00f3n": { border: "#a855f7", chip: "#f3e8ff", text: "#6b21a8" },
+			Completada: { border: "#10b981", chip: "#d1fae5", text: "#065f46" },
 		};
 	}
 
 	init() {
 		this.setup_styles();
+		this.render_shell();
 		this.setup_filters();
 		this.load_data();
 	}
 
 	setup_styles() {
-		if (document.getElementById("panel-tareas-styles")) return;
+		if (document.getElementById("panel-tareas-v2-styles")) return;
 
 		const style = document.createElement("style");
-		style.id = "panel-tareas-styles";
+		style.id = "panel-tareas-v2-styles";
 		style.textContent = `
-			.panel-tareas-container {
-				padding: 15px;
-				max-width: 100%;
+			:root {
+				--pt-bg-soft: linear-gradient(140deg, #f8fafc 0%, #eef2ff 55%, #ecfeff 100%);
+				--pt-card: #ffffff;
+				--pt-border: #dbe3ef;
+				--pt-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
 			}
 
-			.filters-row {
-				display: flex;
-				gap: 12px;
-				margin-bottom: 20px;
-				flex-wrap: wrap;
-				align-items: flex-end;
+			.panel-tareas-shell {
+				background: var(--pt-bg-soft);
+				border: 1px solid var(--pt-border);
+				border-radius: 16px;
+				padding: 18px;
 			}
 
-			.filter-group {
+			.panel-tareas-hero {
+				display: grid;
+				grid-template-columns: 1.2fr .8fr;
+				gap: 14px;
+				margin-bottom: 14px;
+			}
+
+			.panel-tareas-title {
+				background: rgba(255, 255, 255, 0.74);
+				border: 1px solid var(--pt-border);
+				border-radius: 14px;
+				padding: 16px;
+				box-shadow: var(--pt-shadow);
+			}
+
+			.panel-tareas-title h2 {
+				margin: 0;
+				font-size: 24px;
+				font-weight: 800;
+				letter-spacing: .2px;
+				color: #1f2937;
+			}
+
+			.panel-tareas-title p {
+				margin: 6px 0 0;
+				font-size: 13px;
+				color: #475569;
+			}
+
+			.panel-tareas-kpis {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 10px;
+			}
+
+			.pt-kpi {
+				background: var(--pt-card);
+				border: 1px solid var(--pt-border);
+				border-radius: 12px;
+				padding: 10px 12px;
+				box-shadow: var(--pt-shadow);
+			}
+
+			.pt-kpi .v {
+				display: block;
+				font-size: 24px;
+				font-weight: 800;
+				line-height: 1;
+				color: #0f172a;
+			}
+
+			.pt-kpi .l {
+				display: block;
+				margin-top: 4px;
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: .5px;
+				color: #64748b;
+			}
+
+			.panel-tareas-filters {
+				display: grid;
+				grid-template-columns: repeat(6, minmax(130px, 1fr));
+				gap: 10px;
+				margin-bottom: 14px;
+			}
+
+			.pt-field {
 				display: flex;
 				flex-direction: column;
 				gap: 4px;
 			}
 
-			.filter-group label {
+			.pt-field label {
 				font-size: 11px;
-				font-weight: 600;
-				color: var(--text-muted);
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-			}
-
-			.filter-group select,
-			.filter-group input {
-				padding: 6px 10px;
-				border: 1px solid var(--border-color);
-				border-radius: 6px;
-				font-size: 13px;
-				min-width: 160px;
-				background: var(--control-bg);
-				color: var(--text-color);
-			}
-
-			.stats-row {
-				display: flex;
-				gap: 12px;
-				margin-bottom: 20px;
-				flex-wrap: wrap;
-			}
-
-			.stat-card {
-				flex: 1;
-				min-width: 140px;
-				padding: 16px 20px;
-				border-radius: 10px;
-				text-align: center;
-				border-left: 4px solid;
-				background: var(--card-bg);
-				box-shadow: var(--shadow-sm);
-			}
-
-			.stat-card .stat-number {
-				font-size: 28px;
 				font-weight: 700;
-				line-height: 1.2;
-			}
-
-			.stat-card .stat-label {
-				font-size: 12px;
-				font-weight: 600;
 				text-transform: uppercase;
-				letter-spacing: 0.5px;
-				margin-top: 4px;
-				color: var(--text-muted);
+				letter-spacing: .5px;
+				color: #64748b;
 			}
 
-			.kanban-board {
-				display: grid;
-				grid-template-columns: repeat(4, 1fr);
-				gap: 16px;
-				min-height: 400px;
-			}
-
-			.kanban-column {
-				background: var(--subtle-bg, var(--bg-color));
+			.pt-field select,
+			.pt-field input,
+			.pt-reset {
+				height: 36px;
 				border-radius: 10px;
-				padding: 0;
-				display: flex;
-				flex-direction: column;
-				min-height: 300px;
+				border: 1px solid var(--pt-border);
+				padding: 0 10px;
+				font-size: 13px;
+				background: #fff;
 			}
 
-			.kanban-column-header {
-				padding: 14px 16px;
-				border-radius: 10px 10px 0 0;
+			.pt-reset {
+				cursor: pointer;
+				font-weight: 700;
+				color: #0f172a;
+				background: #f8fafc;
+			}
+
+			.panel-tareas-stats {
+				display: grid;
+				grid-template-columns: repeat(4, minmax(150px, 1fr));
+				gap: 10px;
+				margin-bottom: 14px;
+			}
+
+			.pt-stat {
+				background: var(--pt-card);
+				border-radius: 12px;
+				padding: 12px;
+				border: 1px solid var(--pt-border);
+				border-left: 4px solid;
+				box-shadow: var(--pt-shadow);
+			}
+
+			.pt-stat .n {
+				font-size: 30px;
+				font-weight: 800;
+				line-height: 1;
+			}
+
+			.pt-stat .t {
+				margin-top: 4px;
+				font-size: 12px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: .4px;
+				color: #64748b;
+			}
+
+			.panel-tareas-board {
+				display: grid;
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+				gap: 12px;
+			}
+
+			.pt-col {
+				background: #f8fafc;
+				border: 1px solid var(--pt-border);
+				border-radius: 12px;
+				min-height: 360px;
+				overflow: hidden;
+			}
+
+			.pt-col-h {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
-				font-weight: 700;
-				font-size: 13px;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-			}
-
-			.kanban-column-header .count-badge {
+				padding: 10px 12px;
+				border-bottom: 1px solid var(--pt-border);
 				font-size: 12px;
-				font-weight: 700;
-				padding: 2px 10px;
-				border-radius: 12px;
-				color: white;
+				font-weight: 800;
+				text-transform: uppercase;
+				letter-spacing: .5px;
 			}
 
-			.kanban-column-body {
+			.pt-count {
+				padding: 2px 8px;
+				border-radius: 999px;
+				font-size: 11px;
+				font-weight: 800;
+			}
+
+			.pt-col-b {
 				padding: 10px;
-				flex: 1;
-				overflow-y: auto;
 				display: flex;
 				flex-direction: column;
 				gap: 8px;
+				max-height: 560px;
+				overflow-y: auto;
 			}
 
-			.task-card {
-				background: var(--card-bg);
-				border-radius: 8px;
-				padding: 12px 14px;
-				box-shadow: var(--shadow-sm);
+			.pt-task {
+				background: #fff;
+				border: 1px solid var(--pt-border);
+				border-radius: 10px;
+				padding: 10px;
 				cursor: pointer;
-				transition: box-shadow 0.2s, transform 0.15s;
-				border: 1px solid var(--border-color);
+				box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+				transition: transform .15s ease, box-shadow .15s ease;
 			}
 
-			.task-card:hover {
-				box-shadow: var(--shadow-base);
+			.pt-task:hover {
 				transform: translateY(-1px);
+				box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
 			}
 
-			.task-card .task-title {
-				font-weight: 600;
+			.pt-task-kind {
+				display: inline-flex;
+				padding: 2px 7px;
+				border-radius: 6px;
+				font-size: 10px;
+				font-weight: 700;
+				text-transform: uppercase;
+				background: #eef2ff;
+				color: #4338ca;
+				margin-bottom: 6px;
+			}
+
+			.pt-task-title {
 				font-size: 13px;
-				color: var(--text-color);
-				margin-bottom: 8px;
-				line-height: 1.4;
+				font-weight: 700;
+				color: #111827;
+				line-height: 1.35;
+				margin-bottom: 7px;
 			}
 
-			.task-card .task-meta {
-				display: flex;
-				flex-direction: column;
+			.pt-task-meta {
+				display: grid;
 				gap: 4px;
 			}
 
-			.task-card .task-meta-row {
-				display: flex;
-				align-items: center;
-				gap: 6px;
-				font-size: 11.5px;
-				color: var(--text-muted);
+			.pt-task-meta-row {
+				font-size: 11px;
+				color: #64748b;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 
-			.task-card .task-meta-row .meta-icon {
-				width: 14px;
-				text-align: center;
-				color: var(--text-light);
+			.pt-task-meta-row strong {
+				color: #334155;
 			}
 
-			.task-card .task-tipo {
-				display: inline-block;
-				font-size: 10px;
-				font-weight: 600;
-				padding: 2px 8px;
-				border-radius: 4px;
-				background: var(--subtle-fg, var(--bg-color));
-				color: var(--text-muted);
-				margin-bottom: 6px;
-				text-transform: uppercase;
-				letter-spacing: 0.3px;
-			}
-
-			.task-card .task-vencimiento {
-				font-weight: 600;
-			}
-
-			.task-card .task-vencimiento.vencida {
-				color: var(--red-500, #e53935);
-			}
-
-			.task-card .task-vencimiento.proxima {
-				color: var(--orange-500, #ff9800);
-			}
-
-			.kanban-empty {
-				text-align: center;
-				padding: 30px 10px;
-				color: var(--text-muted);
-				font-size: 12px;
-				font-style: italic;
-			}
-
-			.avatar-small {
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				width: 20px;
-				height: 20px;
-				border-radius: 50%;
-				background: var(--primary);
-				color: white;
-				font-size: 10px;
+			.pt-due-danger {
+				color: #b91c1c;
 				font-weight: 700;
 			}
 
+			.pt-due-warn {
+				color: #b45309;
+				font-weight: 700;
+			}
+
+			.pt-empty {
+				padding: 26px 10px;
+				text-align: center;
+				font-size: 12px;
+				color: #94a3b8;
+				font-style: italic;
+			}
+
 			@media (max-width: 1200px) {
-				.kanban-board {
-					grid-template-columns: repeat(2, 1fr);
+				.panel-tareas-filters {
+					grid-template-columns: repeat(3, minmax(130px, 1fr));
+				}
+
+				.panel-tareas-board {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
 				}
 			}
 
-			@media (max-width: 768px) {
-				.kanban-board {
+			@media (max-width: 900px) {
+				.panel-tareas-hero {
+					grid-template-columns: 1fr;
+				}
+
+				.panel-tareas-kpis {
+					grid-template-columns: repeat(4, minmax(0, 1fr));
+				}
+
+				.panel-tareas-stats {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+				}
+			}
+
+			@media (max-width: 640px) {
+				.panel-tareas-filters {
+					grid-template-columns: 1fr;
+				}
+
+				.panel-tareas-kpis {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+				}
+
+				.panel-tareas-stats,
+				.panel-tareas-board {
 					grid-template-columns: 1fr;
 				}
 			}
 		`;
+
 		document.head.appendChild(style);
 	}
 
+	render_shell() {
+		this.wrapper.html(`
+			<div class="panel-tareas-shell">
+				<div class="panel-tareas-hero">
+					<div class="panel-tareas-title">
+						<h2>Panel de Tareas</h2>
+						<p>Seguimiento operativo por estado, vencimiento y responsable.</p>
+					</div>
+					<div class="panel-tareas-kpis">
+						<div class="pt-kpi"><span class="v" data-kpi="total">0</span><span class="l">Total</span></div>
+						<div class="pt-kpi"><span class="v" data-kpi="vencidas">0</span><span class="l">Vencidas</span></div>
+						<div class="pt-kpi"><span class="v" data-kpi="hoy">0</span><span class="l">Vencen Hoy</span></div>
+						<div class="pt-kpi"><span class="v" data-kpi="semana">0</span><span class="l">Próx 7 Días</span></div>
+					</div>
+				</div>
+				<div class="panel-tareas-filters"></div>
+				<div class="panel-tareas-stats"></div>
+				<div class="panel-tareas-board"></div>
+			</div>
+		`);
+	}
+
 	setup_filters() {
-		const filtersRow = this.wrapper.find(".filters-row");
-		filtersRow.html(`
-			<div class="filter-group">
+		const filters = this.wrapper.find(".panel-tareas-filters");
+		filters.html(`
+			<div class="pt-field">
 				<label>Cliente</label>
-				<select class="filter-cliente">
-					<option value="">Todos</option>
-				</select>
+				<select class="filter-cliente"><option value="">Todos</option></select>
 			</div>
-			<div class="filter-group">
+			<div class="pt-field">
 				<label>Periodo</label>
-				<select class="filter-periodo">
-					<option value="">Todos</option>
-				</select>
+				<select class="filter-periodo"><option value="">Todos</option></select>
 			</div>
-			<div class="filter-group">
-				<label>Tipo de Tarea</label>
-				<select class="filter-tipo">
-					<option value="">Todos</option>
-				</select>
+			<div class="pt-field">
+				<label>Tipo</label>
+				<select class="filter-tipo"><option value="">Todos</option></select>
 			</div>
-			<div class="filter-group">
-				<label>Asignado a</label>
-				<select class="filter-asignado">
-					<option value="">Todos</option>
-				</select>
+			<div class="pt-field">
+				<label>Asignado</label>
+				<select class="filter-asignado"><option value="">Todos</option></select>
+			</div>
+			<div class="pt-field">
+				<label>Buscar Título</label>
+				<input type="text" class="filter-search" placeholder="Ej. IVA mayo" />
+			</div>
+			<div class="pt-field">
+				<label>&nbsp;</label>
+				<button class="pt-reset" type="button">Limpiar</button>
 			</div>
 		`);
 
-		// Load filter options
-		frappe.call({
-			method: "frappe.client.get_list",
-			args: { doctype: "Company", fields: ["name"], limit_page_length: 0, order_by: "name asc" },
-			callback: (r) => {
-				(r.message || []).forEach((c) => {
-					filtersRow.find(".filter-empresa").append(`<option value="${c.name}">${c.name}</option>`);
-				});
-			},
+		this.fill_select_options();
+
+		filters.find("select").on("change", () => this.load_data());
+		filters.find(".filter-search").on("input", frappe.utils.debounce(() => this.load_data(), 240));
+		filters.find(".pt-reset").on("click", () => {
+			filters.find("select").val("");
+			filters.find(".filter-search").val("");
+			this.load_data();
 		});
+	}
+
+	fill_select_options() {
+		const filters = this.wrapper.find(".panel-tareas-filters");
 
 		frappe.call({
 			method: "frappe.client.get_list",
 			args: { doctype: "Cliente Contable", fields: ["name"], limit_page_length: 0, order_by: "name asc" },
 			callback: (r) => {
-				(r.message || []).forEach((c) => {
-					filtersRow.find(".filter-cliente").append(`<option value="${c.name}">${c.name}</option>`);
+				(r.message || []).forEach((row) => {
+					filters.find(".filter-cliente").append(`<option value="${row.name}">${row.name}</option>`);
 				});
 			},
 		});
 
 		frappe.call({
 			method: "frappe.client.get_list",
-			args: { doctype: "Periodo Contable", fields: ["name"], limit_page_length: 0, order_by: "name asc" },
+			args: { doctype: "Periodo Contable", fields: ["name"], limit_page_length: 0, order_by: "name desc" },
 			callback: (r) => {
-				(r.message || []).forEach((p) => {
-					filtersRow.find(".filter-periodo").append(`<option value="${p.name}">${p.name}</option>`);
+				(r.message || []).forEach((row) => {
+					filters.find(".filter-periodo").append(`<option value="${row.name}">${row.name}</option>`);
 				});
 			},
 		});
 
 		const tipos = [
-			"Impuestos", "NÃ³mina", "Cierre Contable", "AuditorÃ­a",
-			"ConciliaciÃ³n Bancaria", "DeclaraciÃ³n Anual", "Dictamen Fiscal",
-			"Estados Financieros", "FacturaciÃ³n", "AtenciÃ³n a Requerimiento",
-			"TrÃ¡mite Fiscal", "ConsultorÃ­a", "Otro",
+			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
+			"Declaraci\u00f3n Anual", "Dictamen Fiscal", "Estados Financieros", "Facturaci\u00f3n",
+			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite Fiscal", "Consultor\u00eda", "Otro",
 		];
-		tipos.forEach((t) => {
-			filtersRow.find(".filter-tipo").append(`<option value="${t}">${t}</option>`);
+		tipos.forEach((tipo) => {
+			filters.find(".filter-tipo").append(`<option value="${tipo}">${tipo}</option>`);
 		});
 
 		frappe.call({
 			method: "frappe.client.get_list",
-			args: { doctype: "User", fields: ["name", "full_name"], filters: { enabled: 1, user_type: "System User" }, limit_page_length: 0 },
+			args: {
+				doctype: "User",
+				fields: ["name", "full_name"],
+				filters: { enabled: 1, user_type: "System User" },
+				limit_page_length: 0,
+				order_by: "full_name asc",
+			},
 			callback: (r) => {
-				(r.message || []).forEach((u) => {
-					const label = u.full_name || u.name;
-					filtersRow.find(".filter-asignado").append(`<option value="${u.name}">${label}</option>`);
+				(r.message || []).forEach((row) => {
+					const label = row.full_name || row.name;
+					filters.find(".filter-asignado").append(`<option value="${row.name}">${label}</option>`);
 				});
 			},
 		});
-
-		// Bind filter change events
-		filtersRow.find("select").on("change", () => this.load_data());
 	}
 
 	get_filters() {
 		const filters = {};
-		const cliente = this.wrapper.find(".filter-cliente").val();
-		const periodo = this.wrapper.find(".filter-periodo").val();
-		const tipo = this.wrapper.find(".filter-tipo").val();
-		const asignado = this.wrapper.find(".filter-asignado").val();
+		const shell = this.wrapper;
+		const cliente = shell.find(".filter-cliente").val();
+		const periodo = shell.find(".filter-periodo").val();
+		const tipo = shell.find(".filter-tipo").val();
+		const asignado = shell.find(".filter-asignado").val();
+		const search = (shell.find(".filter-search").val() || "").trim();
 
 		if (cliente) filters.cliente = cliente;
 		if (periodo) filters.periodo = periodo;
 		if (tipo) filters.tipo_de_tarea = tipo;
 		if (asignado) filters.asignado_a = asignado;
 
-		return filters;
+		return { filters, search };
 	}
 
 	load_data() {
-		const filters = this.get_filters();
-		this.fetch_tasks(filters);
+		const { filters, search } = this.get_filters();
+		this.fetch_tasks(filters, search);
 	}
-	fetch_tasks(filters) {
+
+	fetch_tasks(filters, search) {
+		const args = {
+			doctype: "Tarea Contable",
+			fields: ["name", "titulo", "cliente", "periodo", "tipo_de_tarea", "estado", "fecha_de_vencimiento", "asignado_a"],
+			filters,
+			limit_page_length: 0,
+			order_by: "fecha_de_vencimiento asc",
+		};
+
+		if (search) {
+			args.or_filters = [["Tarea Contable", "titulo", "like", `%${search}%`]];
+		}
+
 		frappe.call({
 			method: "frappe.client.get_list",
-			args: {
-				doctype: "Tarea Contable",
-				fields: ["name", "titulo", "cliente", "periodo", "tipo_de_tarea", "estado", "fecha_de_vencimiento", "asignado_a"],
-				filters: filters,
-				limit_page_length: 0,
-				order_by: "fecha_de_vencimiento asc",
-			},
-			callback: (r) => {
-				this.render(r.message || []);
-			},
+			args,
+			callback: (r) => this.render(r.message || []),
 		});
 	}
 
 	render(tasks) {
+		this.render_kpis(tasks);
 		this.render_stats(tasks);
-		this.render_kanban(tasks);
+		this.render_board(tasks);
+	}
+
+	render_kpis(tasks) {
+		const today = frappe.datetime.get_today();
+		let vencidas = 0;
+		let hoy = 0;
+		let semana = 0;
+
+		tasks.forEach((task) => {
+			if (!task.fecha_de_vencimiento || task.estado === "Completada") return;
+			const diff = frappe.datetime.get_diff(task.fecha_de_vencimiento, today);
+			if (diff < 0) vencidas += 1;
+			if (diff === 0) hoy += 1;
+			if (diff >= 0 && diff <= 7) semana += 1;
+		});
+
+		this.wrapper.find("[data-kpi='total']").text(tasks.length);
+		this.wrapper.find("[data-kpi='vencidas']").text(vencidas);
+		this.wrapper.find("[data-kpi='hoy']").text(hoy);
+		this.wrapper.find("[data-kpi='semana']").text(semana);
 	}
 
 	render_stats(tasks) {
-		const statsRow = this.wrapper.find(".stats-row");
-		const counts = {};
-		this.statuses.forEach((s) => (counts[s] = 0));
-		tasks.forEach((t) => {
-			if (counts[t.estado] !== undefined) counts[t.estado]++;
+		const stats = this.wrapper.find(".panel-tareas-stats");
+		const count = {};
+		this.statuses.forEach((s) => { count[s] = 0; });
+
+		tasks.forEach((task) => {
+			if (count[task.estado] !== undefined) count[task.estado] += 1;
 		});
 
 		let html = "";
 		this.statuses.forEach((status) => {
-			const colors = this.status_colors[status];
+			const meta = this.statusMeta[status];
 			html += `
-				<div class="stat-card" style="border-left-color: ${colors.border};">
-					<div class="stat-number" style="color: ${colors.badge};">${counts[status]}</div>
-					<div class="stat-label">${status}</div>
+				<div class="pt-stat" style="border-left-color:${meta.border};">
+					<div class="n" style="color:${meta.text};">${count[status]}</div>
+					<div class="t">${status}</div>
 				</div>
 			`;
 		});
-		statsRow.html(html);
+
+		stats.html(html);
 	}
 
-	render_kanban(tasks) {
-		const board = this.wrapper.find(".kanban-board");
+	render_board(tasks) {
+		const board = this.wrapper.find(".panel-tareas-board");
 		const grouped = {};
-		this.statuses.forEach((s) => (grouped[s] = []));
-		tasks.forEach((t) => {
-			if (grouped[t.estado]) grouped[t.estado].push(t);
+		this.statuses.forEach((s) => { grouped[s] = []; });
+
+		tasks.forEach((task) => {
+			if (grouped[task.estado]) grouped[task.estado].push(task);
 		});
 
 		let html = "";
 		this.statuses.forEach((status) => {
-			const colors = this.status_colors[status];
-			const items = grouped[status];
+			const meta = this.statusMeta[status];
+			const rows = grouped[status];
 
 			html += `
-				<div class="kanban-column">
-					<div class="kanban-column-header" style="background: ${colors.bg}; color: ${colors.text};">
+				<div class="pt-col">
+					<div class="pt-col-h" style="border-left:4px solid ${meta.border};">
 						<span>${status}</span>
-						<span class="count-badge" style="background: ${colors.badge};">${items.length}</span>
+						<span class="pt-count" style="background:${meta.chip};color:${meta.text};">${rows.length}</span>
 					</div>
-					<div class="kanban-column-body">
+					<div class="pt-col-b">
 			`;
 
-			if (items.length === 0) {
-				html += `<div class="kanban-empty">Sin tareas</div>`;
+			if (!rows.length) {
+				html += '<div class="pt-empty">Sin tareas en esta etapa</div>';
 			} else {
-				items.forEach((task) => {
-					html += this.render_task_card(task);
-				});
+				rows.forEach((task) => { html += this.render_task_card(task); });
 			}
 
-			html += `</div></div>`;
+			html += "</div></div>";
 		});
 
 		board.html(html);
-
-		// Bind click to open task
-		board.find(".task-card").on("click", function () {
+		board.find(".pt-task").on("click", function () {
 			const name = $(this).data("name");
 			frappe.set_route("Form", "Tarea Contable", name);
 		});
@@ -453,54 +579,35 @@ class PanelDeTareas {
 
 	render_task_card(task) {
 		const today = frappe.datetime.get_today();
-		let vencClass = "";
+		let dueClass = "";
+
 		if (task.estado !== "Completada" && task.fecha_de_vencimiento) {
-			if (task.fecha_de_vencimiento < today) {
-				vencClass = "vencida";
-			} else {
-				const diff = frappe.datetime.get_diff(task.fecha_de_vencimiento, today);
-				if (diff <= 3) vencClass = "proxima";
-			}
+			const diff = frappe.datetime.get_diff(task.fecha_de_vencimiento, today);
+			if (diff < 0) dueClass = "pt-due-danger";
+			else if (diff <= 3) dueClass = "pt-due-warn";
 		}
 
-		const fechaFormatted = task.fecha_de_vencimiento
+		const fecha = task.fecha_de_vencimiento
 			? frappe.datetime.str_to_user(task.fecha_de_vencimiento)
 			: "-";
 
-		const asignadoLabel = task.asignado_a
-			? frappe.utils.get_abbr(task.asignado_a)
-			: "-";
-
-		const asignadoName = task.asignado_a || "Sin asignar";
-
-		const tipoHtml = task.tipo_de_tarea
-			? `<span class="task-tipo">${task.tipo_de_tarea}</span>`
-			: "";
+		const asignado = task.asignado_a || "Sin asignar";
+		const titulo = frappe.utils.escape_html(task.titulo || "Sin titulo");
+		const cliente = frappe.utils.escape_html(task.cliente || "-");
+		const periodo = frappe.utils.escape_html(task.periodo || "-");
+		const tipo = task.tipo_de_tarea ? `<span class="pt-task-kind">${frappe.utils.escape_html(task.tipo_de_tarea)}</span>` : "";
 
 		return `
-			<div class="task-card" data-name="${task.name}">
-				${tipoHtml}
-				<div class="task-title">${task.titulo}</div>
-				<div class="task-meta">
-					<div class="task-meta-row">
-						<span class="meta-icon">[C]</span>
-						<span>${frappe.utils.escape_html(task.cliente || "-")}</span>
-					</div>
-					<div class="task-meta-row">
-						<span class="meta-icon">[V]</span>
-						<span class="task-vencimiento ${vencClass}">${fechaFormatted}</span>
-					</div>
-					<div class="task-meta-row">
-						<span class="meta-icon">[P]</span>
-						<span>${frappe.utils.escape_html(task.periodo || "-")}</span>
-					</div>
-					<div class="task-meta-row">
-						${task.asignado_a ? `<span class="avatar-small">${asignadoLabel}</span>` : '<span class="meta-icon">-</span>'}
-						<span>${frappe.utils.escape_html(asignadoName)}</span>
-					</div>
+			<div class="pt-task" data-name="${task.name}">
+				${tipo}
+				<div class="pt-task-title">${titulo}</div>
+				<div class="pt-task-meta">
+					<div class="pt-task-meta-row"><strong>Cliente:</strong> ${cliente}</div>
+					<div class="pt-task-meta-row ${dueClass}"><strong>Vence:</strong> ${fecha}</div>
+					<div class="pt-task-meta-row"><strong>Periodo:</strong> ${periodo}</div>
+					<div class="pt-task-meta-row"><strong>Asignado:</strong> ${frappe.utils.escape_html(asignado)}</div>
 				</div>
 			</div>
 		`;
 	}
 }
-
