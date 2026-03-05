@@ -14,12 +14,20 @@ class PanelDeTareas {
 		this.page = page;
 		this.wrapper = page.main;
 		this.statuses = ["Pendiente", "En Proceso", "En Revisi\u00f3n", "Completada"];
+		this.canMoveCards = this.has_any_role(["Contador del Despacho", "System Manager"]);
+		this.draggedTask = null;
+		this.blockCardClickUntil = 0;
 		this.statusMeta = {
 			Pendiente: { border: "#f59e0b", chip: "#fef3c7", text: "#92400e" },
 			"En Proceso": { border: "#3b82f6", chip: "#dbeafe", text: "#1e3a8a" },
 			"En Revisi\u00f3n": { border: "#a855f7", chip: "#f3e8ff", text: "#6b21a8" },
 			Completada: { border: "#10b981", chip: "#d1fae5", text: "#065f46" },
 		};
+	}
+
+	has_any_role(roles) {
+		const userRoles = frappe.user_roles || [];
+		return roles.some((role) => userRoles.includes(role));
 	}
 
 	init() {
@@ -30,10 +38,10 @@ class PanelDeTareas {
 	}
 
 	setup_styles() {
-		if (document.getElementById("panel-tareas-v2-styles")) return;
+		if (document.getElementById("panel-tareas-v3-styles")) return;
 
 		const style = document.createElement("style");
-		style.id = "panel-tareas-v2-styles";
+		style.id = "panel-tareas-v3-styles";
 		style.textContent = `
 			:root {
 				--pt-bg-soft: linear-gradient(140deg, #f8fafc 0%, #eef2ff 55%, #ecfeff 100%);
@@ -76,6 +84,13 @@ class PanelDeTareas {
 				margin: 6px 0 0;
 				font-size: 13px;
 				color: #475569;
+			}
+
+			.pt-move-note {
+				margin: 8px 0 0;
+				font-size: 12px;
+				font-weight: 700;
+				color: #065f46;
 			}
 
 			.panel-tareas-kpis {
@@ -222,6 +237,14 @@ class PanelDeTareas {
 				overflow-y: auto;
 			}
 
+			.pt-col-b.pt-dropzone {
+				transition: background-color .12s ease;
+			}
+
+			.pt-col-b.pt-dropzone.pt-drop-active {
+				background: #e2e8f0;
+			}
+
 			.pt-task {
 				background: #fff;
 				border: 1px solid var(--pt-border);
@@ -230,6 +253,18 @@ class PanelDeTareas {
 				cursor: pointer;
 				box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
 				transition: transform .15s ease, box-shadow .15s ease;
+			}
+
+			.pt-task.pt-draggable {
+				cursor: grab;
+			}
+
+			.pt-task.pt-draggable:active {
+				cursor: grabbing;
+			}
+
+			.pt-task.pt-dragging {
+				opacity: 0.45;
 			}
 
 			.pt-task:hover {
@@ -249,12 +284,27 @@ class PanelDeTareas {
 				margin-bottom: 6px;
 			}
 
+			.pt-task-head {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				gap: 8px;
+			}
+
 			.pt-task-title {
 				font-size: 13px;
 				font-weight: 700;
 				color: #111827;
 				line-height: 1.35;
 				margin-bottom: 7px;
+			}
+
+			.pt-drag-handle {
+				font-size: 12px;
+				line-height: 1;
+				font-weight: 900;
+				color: #64748b;
+				letter-spacing: 1px;
 			}
 
 			.pt-task-meta {
@@ -336,18 +386,23 @@ class PanelDeTareas {
 	}
 
 	render_shell() {
+		const moveHint = this.canMoveCards
+			? '<p class="pt-move-note">Arrastra tarjetas entre columnas para cambiar su estado.</p>'
+			: "";
+
 		this.wrapper.html(`
 			<div class="panel-tareas-shell">
 				<div class="panel-tareas-hero">
 					<div class="panel-tareas-title">
 						<h2>Panel de Tareas</h2>
 						<p>Seguimiento operativo por estado, vencimiento y responsable.</p>
+						${moveHint}
 					</div>
 					<div class="panel-tareas-kpis">
 						<div class="pt-kpi"><span class="v" data-kpi="total">0</span><span class="l">Total</span></div>
 						<div class="pt-kpi"><span class="v" data-kpi="vencidas">0</span><span class="l">Vencidas</span></div>
 						<div class="pt-kpi"><span class="v" data-kpi="hoy">0</span><span class="l">Vencen Hoy</span></div>
-						<div class="pt-kpi"><span class="v" data-kpi="semana">0</span><span class="l">Próx 7 Días</span></div>
+						<div class="pt-kpi"><span class="v" data-kpi="semana">0</span><span class="l">Prox 7 Dias</span></div>
 					</div>
 				</div>
 				<div class="panel-tareas-filters"></div>
@@ -377,7 +432,7 @@ class PanelDeTareas {
 				<select class="filter-asignado"><option value="">Todos</option></select>
 			</div>
 			<div class="pt-field">
-				<label>Buscar Título</label>
+				<label>Buscar Titulo</label>
 				<input type="text" class="filter-search" placeholder="Ej. IVA mayo" />
 			</div>
 			<div class="pt-field">
@@ -551,6 +606,7 @@ class PanelDeTareas {
 		this.statuses.forEach((status) => {
 			const meta = this.statusMeta[status];
 			const rows = grouped[status];
+			const dropzoneClass = this.canMoveCards ? " pt-dropzone" : "";
 
 			html += `
 				<div class="pt-col">
@@ -558,7 +614,7 @@ class PanelDeTareas {
 						<span>${status}</span>
 						<span class="pt-count" style="background:${meta.chip};color:${meta.text};">${rows.length}</span>
 					</div>
-					<div class="pt-col-b">
+					<div class="pt-col-b${dropzoneClass}" data-status="${status}">
 			`;
 
 			if (!rows.length) {
@@ -571,9 +627,99 @@ class PanelDeTareas {
 		});
 
 		board.html(html);
-		board.find(".pt-task").on("click", function () {
-			const name = $(this).data("name");
+
+		board.find(".pt-task").on("click", (event) => {
+			if (Date.now() < this.blockCardClickUntil) return;
+			const name = $(event.currentTarget).data("name");
 			frappe.set_route("Form", "Tarea Contable", name);
+		});
+
+		if (this.canMoveCards) {
+			this.bind_drag_and_drop();
+		}
+	}
+
+	bind_drag_and_drop() {
+		const board = this.wrapper.find(".panel-tareas-board");
+		const cards = board.find(".pt-task");
+		const zones = board.find(".pt-col-b.pt-dropzone");
+
+		cards.attr("draggable", "true").addClass("pt-draggable");
+
+		cards.on("dragstart", (event) => {
+			const card = $(event.currentTarget);
+			this.draggedTask = {
+				name: card.data("name"),
+				status: card.data("status"),
+			};
+			card.addClass("pt-dragging");
+
+			if (event.originalEvent && event.originalEvent.dataTransfer) {
+				event.originalEvent.dataTransfer.effectAllowed = "move";
+				event.originalEvent.dataTransfer.setData("text/plain", this.draggedTask.name);
+			}
+		});
+
+		cards.on("dragend", (event) => {
+			$(event.currentTarget).removeClass("pt-dragging");
+			zones.removeClass("pt-drop-active");
+			this.draggedTask = null;
+			this.blockCardClickUntil = Date.now() + 250;
+		});
+
+		zones.on("dragover", (event) => {
+			event.preventDefault();
+			if (!this.draggedTask) return;
+			const zone = $(event.currentTarget);
+			if (zone.data("status") !== this.draggedTask.status) {
+				zone.addClass("pt-drop-active");
+			}
+		});
+
+		zones.on("dragleave", (event) => {
+			$(event.currentTarget).removeClass("pt-drop-active");
+		});
+
+		zones.on("drop", (event) => {
+			event.preventDefault();
+			const zone = $(event.currentTarget);
+			zone.removeClass("pt-drop-active");
+
+			if (!this.draggedTask) return;
+
+			const targetStatus = zone.data("status");
+			if (!targetStatus || targetStatus === this.draggedTask.status) return;
+
+			this.blockCardClickUntil = Date.now() + 350;
+			this.move_task_to_status(this.draggedTask.name, targetStatus);
+		});
+	}
+
+	move_task_to_status(taskName, targetStatus) {
+		frappe.call({
+			method: "frappe.client.set_value",
+			args: {
+				doctype: "Tarea Contable",
+				name: taskName,
+				fieldname: "estado",
+				value: targetStatus,
+			},
+			freeze: true,
+			freeze_message: "Actualizando estado...",
+			callback: (r) => {
+				if (r.exc) {
+					frappe.msgprint("No se pudo mover la tarea.");
+					this.load_data();
+					return;
+				}
+
+				frappe.show_alert({ message: `Tarea movida a ${targetStatus}`, indicator: "green" });
+				this.load_data();
+			},
+			error: () => {
+				frappe.msgprint("Ocurrio un error al mover la tarea.");
+				this.load_data();
+			},
 		});
 	}
 
@@ -596,11 +742,15 @@ class PanelDeTareas {
 		const cliente = frappe.utils.escape_html(task.cliente || "-");
 		const periodo = frappe.utils.escape_html(task.periodo || "-");
 		const tipo = task.tipo_de_tarea ? `<span class="pt-task-kind">${frappe.utils.escape_html(task.tipo_de_tarea)}</span>` : "";
+		const dragHandle = this.canMoveCards ? '<span class="pt-drag-handle" title="Arrastrar">::</span>' : "";
 
 		return `
-			<div class="pt-task" data-name="${task.name}">
+			<div class="pt-task" data-name="${task.name}" data-status="${task.estado || ""}">
 				${tipo}
-				<div class="pt-task-title">${titulo}</div>
+				<div class="pt-task-head">
+					<div class="pt-task-title">${titulo}</div>
+					${dragHandle}
+				</div>
 				<div class="pt-task-meta">
 					<div class="pt-task-meta-row"><strong>Cliente:</strong> ${cliente}</div>
 					<div class="pt-task-meta-row ${dueClass}"><strong>Vence:</strong> ${fecha}</div>
