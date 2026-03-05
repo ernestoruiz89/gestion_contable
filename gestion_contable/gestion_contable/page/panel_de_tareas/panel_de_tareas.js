@@ -632,8 +632,8 @@ class PanelDeTareas {
 
 		const tipos = [
 			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
-			"Declaraci\u00f3n Anual", "Dictamen Fiscal", "Estados Financieros", "Facturaci\u00f3n",
-			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite Fiscal", "Consultor\u00eda", "Otro",
+			"Declaraci\u00f3n DGI", "Estados Financieros", "Facturaci\u00f3n",
+			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite DGI", "Consultor\u00eda", "Otro",
 		];
 		tipos.forEach((tipo) => {
 			filters.find(".filter-tipo").append(`<option value="${tipo}">${tipo}</option>`);
@@ -1035,8 +1035,8 @@ class PanelDeTareas {
 
 		const tipos = [
 			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
-			"Declaraci\u00f3n Anual", "Dictamen Fiscal", "Estados Financieros", "Facturaci\u00f3n",
-			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite Fiscal", "Consultor\u00eda", "Otro",
+			"Declaraci\u00f3n DGI", "Estados Financieros", "Facturaci\u00f3n",
+			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite DGI", "Consultor\u00eda", "Otro",
 		];
 		const estados = ["Pendiente", "En Proceso", "En Revisi\u00f3n", "Completada"];
 
@@ -1171,8 +1171,8 @@ class PanelDeTareas {
 		const me = this;
 		const tipos = [
 			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
-			"Declaraci\u00f3n Anual", "Dictamen Fiscal", "Estados Financieros", "Facturaci\u00f3n",
-			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite Fiscal", "Consultor\u00eda", "Otro",
+			"Declaraci\u00f3n DGI", "Estados Financieros", "Facturaci\u00f3n",
+			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite DGI", "Consultor\u00eda", "Otro",
 		];
 
 		const dialog = new frappe.ui.Dialog({
