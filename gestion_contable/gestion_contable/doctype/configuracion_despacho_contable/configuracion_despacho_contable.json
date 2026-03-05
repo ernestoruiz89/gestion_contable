@@ -4,17 +4,23 @@
     "doctype": "DocType",
     "engine": "InnoDB",
     "field_order": [
-        "generar_datos_dummy"
+        "generar_datos_dummy",
+        "limpiar_datos_dummy"
     ],
     "fields": [
         {
             "fieldname": "generar_datos_dummy",
             "fieldtype": "Button",
             "label": "Generar Datos Dummy"
+        },
+        {
+            "fieldname": "limpiar_datos_dummy",
+            "fieldtype": "Button",
+            "label": "Limpiar Datos Dummy"
         }
     ],
     "issingle": 1,
-    "modified": "2024-03-05 09:00:00.000000",
+    "modified": "2024-03-05 09:30:00.000000",
     "modified_by": "Administrator",
     "module": "Gestion Contable",
     "name": "Configuracion Despacho Contable",

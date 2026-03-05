@@ -30,6 +30,63 @@ def generar_datos_dummy():
 	frappe.db.commit()
 	return True
 
+@frappe.whitelist()
+def limpiar_datos_dummy():
+	if frappe.session.user != "Administrator":
+		frappe.throw("Solo el usuario Administrator puede ejecutar esta acción.")
+
+	# 1. Eliminar comunicaciones vinculadas a tareas dummy
+	frappe.publish_realtime("msgprint", dict(message="Eliminando comunicaciones...", title="Limpieza"))
+	tareas_dummy = frappe.get_all("Tarea Contable",
+		filters={"notas": ("like", "%pruebas de carga%")},
+		pluck="name"
+	)
+	for tarea_name in tareas_dummy:
+		comms = frappe.get_all("Communication",
+			filters={"reference_doctype": "Tarea Contable", "reference_name": tarea_name},
+			pluck="name"
+		)
+		for comm in comms:
+			frappe.delete_doc("Communication", comm, ignore_permissions=True, force=True)
+
+	# 2. Eliminar tareas dummy
+	frappe.publish_realtime("msgprint", dict(message="Eliminando tareas...", title="Limpieza"))
+	for tarea_name in tareas_dummy:
+		frappe.delete_doc("Tarea Contable", tarea_name, ignore_permissions=True, force=True)
+
+	# 3. Eliminar periodos contables generados
+	frappe.publish_realtime("msgprint", dict(message="Eliminando periodos...", title="Limpieza"))
+	periodos = frappe.get_all("Periodo Contable", pluck="name")
+	for periodo in periodos:
+		frappe.delete_doc("Periodo Contable", periodo, ignore_permissions=True, force=True)
+
+	# 4. Eliminar clientes contables dummy
+	frappe.publish_realtime("msgprint", dict(message="Eliminando clientes contables...", title="Limpieza"))
+	for i in range(1, 16):
+		customer_name = f"Cliente Dummy {i} SA de CV"
+		if frappe.db.exists("Cliente Contable", {"customer": customer_name}):
+			doc_name = frappe.db.get_value("Cliente Contable", {"customer": customer_name})
+			frappe.delete_doc("Cliente Contable", doc_name, ignore_permissions=True, force=True)
+
+	# 5. Eliminar customers dummy
+	frappe.publish_realtime("msgprint", dict(message="Eliminando customers...", title="Limpieza"))
+	for i in range(1, 16):
+		customer_name = f"Cliente Dummy {i} SA de CV"
+		if frappe.db.exists("Customer", customer_name):
+			frappe.delete_doc("Customer", customer_name, ignore_permissions=True, force=True)
+
+	# 6. Eliminar usuarios dummy
+	frappe.publish_realtime("msgprint", dict(message="Eliminando usuarios dummy...", title="Limpieza"))
+	dummy_users = frappe.get_all("User",
+		filters={"name": ("like", "%dummy%@despacho.com")},
+		pluck="name"
+	)
+	for user in dummy_users:
+		frappe.delete_doc("User", user, ignore_permissions=True, force=True)
+
+	frappe.db.commit()
+	return True
+
 def crear_usuarios_dummy():
 	# 5 Auxiliares y 2 Contadores
 	roles = {
@@ -120,7 +177,7 @@ def crear_tareas_y_comunicaciones():
 			
 			for i in range(num_tareas):
 				tipo = random.choice(tipos_tarea)
-				titulo = f"{tipo} - {cliente} - {periodo.name} - {i}" # Added suffix i to minimize collisions
+				titulo = f"{tipo} - {cliente} - {periodo.name} - {i}"
 				
 				# Si ya existe, saltar
 				if frappe.db.exists("Tarea Contable", {"titulo": titulo}):
@@ -137,7 +194,7 @@ def crear_tareas_y_comunicaciones():
 				# Fecha de vencimiento a mitades/fines de ese mes
 				dias_vencimiento = random.randint(15, 28)
 				
-				# Safe parsing: Make sure it's a date before relativedelta addition
+				# Safe parsing
 				fecha_inicio_date = periodo.fecha_de_inicio
 				if isinstance(fecha_inicio_date, str):
 					from frappe.utils import getdate
@@ -154,13 +211,13 @@ def crear_tareas_y_comunicaciones():
 					"estado": estado_tarea,
 					"fecha_de_vencimiento": fecha_vencimiento,
 					"asignado_a": asignado,
-					"notas": f"Tarea generada automáticamente para pruebas de carga."
+					"notas": "Tarea generada automáticamente para pruebas de carga."
 				})
 				tarea.flags.ignore_validate = True
 				tarea.insert(ignore_permissions=True)
 				
 				# Crear algunas comunicaciones
-				if random.random() > 0.6:  # 40% de chance de tener comunicación
+				if random.random() > 0.6:
 					mensaje = random.choice([
 						"He revisado los documentos, todo parece en orden.",
 						"Falta la factura de papelería, por favor solicitar al cliente.",

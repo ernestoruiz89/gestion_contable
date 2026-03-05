@@ -23,5 +23,28 @@ frappe.ui.form.on('Configuracion Despacho Contable', {
                 });
             }
         );
+    },
+
+    limpiar_datos_dummy: function (frm) {
+        if (frappe.session.user !== "Administrator") {
+            frappe.msgprint(__("Solo el usuario Administrator puede ejecutar esta acción."));
+            return;
+        }
+
+        frappe.confirm(
+            __('⚠️ ¿Estás seguro? Esto ELIMINARÁ todas las tareas, comunicaciones, periodos, clientes contables, customers y usuarios dummy. Esta acción no se puede deshacer.'),
+            () => {
+                frappe.call({
+                    method: "gestion_contable.gestion_contable.doctype.configuracion_despacho_contable.configuracion_despacho_contable.limpiar_datos_dummy",
+                    freeze: true,
+                    freeze_message: __("Limpiando datos dummy..."),
+                    callback: function (r) {
+                        if (!r.exc) {
+                            frappe.msgprint(__("Datos dummy eliminados exitosamente."));
+                        }
+                    }
+                });
+            }
+        );
     }
 });
