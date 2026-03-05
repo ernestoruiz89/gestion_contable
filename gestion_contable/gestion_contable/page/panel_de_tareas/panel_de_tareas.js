@@ -298,8 +298,8 @@ class PanelDeTareas {
 			}
 
 			.pt-task {
-				display: flex;
-				align-items: stretch;
+				position: relative;
+				display: block;
 				background: #fff;
 				border: 1px solid var(--pt-border);
 				border-radius: 10px;
@@ -314,10 +314,8 @@ class PanelDeTareas {
 			}
 
 			.pt-task-content {
-				flex: 1;
-				padding: 10px;
+				padding: 12px;
 				cursor: pointer;
-				min-width: 0;
 			}
 
 
@@ -326,18 +324,18 @@ class PanelDeTareas {
 				padding: 2px 7px;
 				border-radius: 6px;
 				font-size: 10px;
-				font-weight: 700;
+				font-weight: 800;
 				text-transform: uppercase;
 				background: #eef2ff;
 				color: #4338ca;
-				margin-bottom: 6px;
+				margin-bottom: 0;
 			}
 
 			.pt-task-head {
 				display: flex;
 				justify-content: space-between;
 				align-items: flex-start;
-				gap: 8px;
+				margin-bottom: 8px;
 			}
 
 			.pt-task-title {
@@ -345,40 +343,35 @@ class PanelDeTareas {
 				font-weight: 700;
 				color: #111827;
 				line-height: 1.35;
-				margin-bottom: 7px;
+				margin-bottom: 8px;
 			}
 
 			.pt-drag-handle {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 28px;
-				min-width: 28px;
-				background: #f8fafc;
-				border-left: 1px solid var(--pt-border);
+				padding: 2px 4px;
+				border-radius: 6px;
 				cursor: grab;
 				transition: background .12s ease;
-				flex-shrink: 0;
+				margin: -2px -4px 0 0;
 			}
 
 			.pt-drag-handle:hover {
-				background: #e2e8f0;
+				background: #f1f5f9;
 			}
 
 			.pt-drag-handle:active {
 				cursor: grabbing;
-				background: #cbd5e1;
+				background: #e2e8f0;
 			}
 
 			.pt-drag-dots {
 				display: grid;
-				grid-template-columns: repeat(2, 5px);
-				gap: 3px;
+				grid-template-columns: repeat(2, 4px);
+				gap: 2px;
 			}
 
 			.pt-drag-dots span {
-				width: 5px;
-				height: 5px;
+				width: 4px;
+				height: 4px;
 				border-radius: 50%;
 				background: #94a3b8;
 			}
@@ -1048,7 +1041,10 @@ class PanelDeTareas {
 		return `
 			<div class="pt-task" data-name="${task.name}" data-status="${task.estado || ""}">
 				<div class="pt-task-content">
-					${tipo}
+					<div class="pt-task-head">
+						${tipo}
+						${dragHandle}
+					</div>
 					<div class="pt-task-title">${titulo}</div>
 					<div class="pt-task-meta">
 						<div class="pt-task-meta-row"><strong>Cliente:</strong> ${cliente}</div>
@@ -1057,7 +1053,6 @@ class PanelDeTareas {
 						<div class="pt-task-meta-row"><strong>Asignado:</strong> ${frappe.utils.escape_html(asignado)}</div>
 					</div>
 				</div>
-				${dragHandle}
 			</div>
 		`;
 	}
@@ -1280,6 +1275,11 @@ class PanelDeTareas {
 			secondary_action_label: "Descartar",
 			secondary_action: () => dialog.hide(),
 			secondary_action: () => dialog.hide(),
+		});
+
+		dialog.add_custom_action("Ver Detalle", () => {
+			dialog.hide();
+			frappe.set_route("Form", "Tarea Contable", task.name);
 		});
 
 		dialog.$body.html(readonly_html);
