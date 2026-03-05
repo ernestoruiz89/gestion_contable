@@ -34,6 +34,7 @@ class PanelDeTareas {
 		this.setup_styles();
 		this.render_shell();
 		this.setup_filters();
+		this.setup_actions();
 		this.load_data();
 	}
 
@@ -70,6 +71,9 @@ class PanelDeTareas {
 				border-radius: 14px;
 				padding: 16px;
 				box-shadow: var(--pt-shadow);
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
 			}
 
 			.panel-tareas-title h2 {
@@ -84,6 +88,25 @@ class PanelDeTareas {
 				margin: 6px 0 0;
 				font-size: 13px;
 				color: #475569;
+			}
+
+			.pt-btn-nueva-tarea {
+				background: linear-gradient(135deg, #3b82f6, #2563eb);
+				color: #fff;
+				border: none;
+				border-radius: 10px;
+				padding: 9px 18px;
+				font-size: 13px;
+				font-weight: 700;
+				cursor: pointer;
+				white-space: nowrap;
+				transition: transform .12s ease, box-shadow .12s ease;
+				box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+			}
+
+			.pt-btn-nueva-tarea:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
 			}
 
 			.pt-move-note {
@@ -127,7 +150,7 @@ class PanelDeTareas {
 
 			.panel-tareas-filters {
 				display: grid;
-				grid-template-columns: repeat(6, minmax(130px, 1fr));
+				grid-template-columns: repeat(7, minmax(120px, 1fr));
 				gap: 10px;
 				margin-bottom: 14px;
 			}
@@ -246,31 +269,28 @@ class PanelDeTareas {
 			}
 
 			.pt-task {
+				display: flex;
+				align-items: stretch;
 				background: #fff;
 				border: 1px solid var(--pt-border);
 				border-radius: 10px;
-				padding: 10px;
-				cursor: pointer;
+				overflow: hidden;
 				box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
 				transition: transform .15s ease, box-shadow .15s ease;
-			}
-
-			.pt-task.pt-draggable {
-				cursor: grab;
-			}
-
-			.pt-task.pt-draggable:active {
-				cursor: grabbing;
-			}
-
-			.pt-task.pt-dragging {
-				opacity: 0.45;
 			}
 
 			.pt-task:hover {
 				transform: translateY(-1px);
 				box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
 			}
+
+			.pt-task-content {
+				flex: 1;
+				padding: 10px;
+				cursor: pointer;
+				min-width: 0;
+			}
+
 
 			.pt-task-kind {
 				display: inline-flex;
@@ -300,11 +320,42 @@ class PanelDeTareas {
 			}
 
 			.pt-drag-handle {
-				font-size: 12px;
-				line-height: 1;
-				font-weight: 900;
-				color: #64748b;
-				letter-spacing: 1px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 28px;
+				min-width: 28px;
+				background: #f8fafc;
+				border-left: 1px solid var(--pt-border);
+				cursor: grab;
+				transition: background .12s ease;
+				flex-shrink: 0;
+			}
+
+			.pt-drag-handle:hover {
+				background: #e2e8f0;
+			}
+
+			.pt-drag-handle:active {
+				cursor: grabbing;
+				background: #cbd5e1;
+			}
+
+			.pt-drag-dots {
+				display: grid;
+				grid-template-columns: repeat(2, 5px);
+				gap: 3px;
+			}
+
+			.pt-drag-dots span {
+				width: 5px;
+				height: 5px;
+				border-radius: 50%;
+				background: #94a3b8;
+			}
+
+			.pt-task.pt-dragging {
+				opacity: 0.45;
 			}
 
 			.pt-task-meta {
@@ -334,6 +385,70 @@ class PanelDeTareas {
 				font-weight: 700;
 			}
 
+			.pt-modal-body {
+				padding: 0;
+			}
+
+			.pt-modal-field {
+				padding: 10px 0;
+				border-bottom: 1px solid #f1f5f9;
+			}
+
+			.pt-modal-field:last-child {
+				border-bottom: none;
+			}
+
+			.pt-modal-label {
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: .4px;
+				color: #64748b;
+				margin-bottom: 4px;
+			}
+
+			.pt-modal-value {
+				font-size: 14px;
+				color: #1e293b;
+				font-weight: 500;
+			}
+
+			.pt-modal-value.pt-due-danger {
+				color: #b91c1c;
+				font-weight: 700;
+			}
+
+			.pt-modal-value.pt-due-warn {
+				color: #b45309;
+				font-weight: 700;
+			}
+
+			.pt-modal-notas {
+				background: #f8fafc;
+				border-radius: 8px;
+				padding: 10px;
+				font-size: 13px;
+				color: #475569;
+				min-height: 40px;
+				white-space: pre-wrap;
+			}
+
+			.pt-modal-edit-field select,
+			.pt-modal-edit-field input,
+			.pt-modal-edit-field textarea {
+				width: 100%;
+				border-radius: 8px;
+				border: 1px solid var(--pt-border);
+				padding: 8px 10px;
+				font-size: 13px;
+				background: #fff;
+			}
+
+			.pt-modal-edit-field textarea {
+				min-height: 70px;
+				resize: vertical;
+			}
+
 			.pt-empty {
 				padding: 26px 10px;
 				text-align: center;
@@ -342,9 +457,24 @@ class PanelDeTareas {
 				font-style: italic;
 			}
 
+			.pt-kpi[data-filter] {
+				cursor: pointer;
+				transition: transform .12s ease, box-shadow .12s ease;
+			}
+
+			.pt-kpi[data-filter]:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+			}
+
+			.pt-kpi[data-filter].pt-kpi-active {
+				outline: 2px solid #3b82f6;
+				outline-offset: -2px;
+			}
+
 			@media (max-width: 1200px) {
 				.panel-tareas-filters {
-					grid-template-columns: repeat(3, minmax(130px, 1fr));
+					grid-template-columns: repeat(4, minmax(120px, 1fr));
 				}
 
 				.panel-tareas-board {
@@ -394,15 +524,18 @@ class PanelDeTareas {
 			<div class="panel-tareas-shell">
 				<div class="panel-tareas-hero">
 					<div class="panel-tareas-title">
-						<h2>Panel de Tareas</h2>
-						<p>Seguimiento operativo por estado, vencimiento y responsable.</p>
-						${moveHint}
+						<div>
+							<h2>Panel de Tareas</h2>
+							<p>Seguimiento operativo por estado, vencimiento y responsable.</p>
+							${moveHint}
+						</div>
+						<button class="pt-btn-nueva-tarea" type="button">+ Nueva Tarea</button>
 					</div>
 					<div class="panel-tareas-kpis">
 						<div class="pt-kpi"><span class="v" data-kpi="total">0</span><span class="l">Total</span></div>
-						<div class="pt-kpi"><span class="v" data-kpi="vencidas">0</span><span class="l">Vencidas</span></div>
-						<div class="pt-kpi"><span class="v" data-kpi="hoy">0</span><span class="l">Vencen Hoy</span></div>
-						<div class="pt-kpi"><span class="v" data-kpi="semana">0</span><span class="l">Prox 7 Dias</span></div>
+						<div class="pt-kpi" data-filter="vencidas" title="Click para filtrar"><span class="v" data-kpi="vencidas">0</span><span class="l">Vencidas</span></div>
+						<div class="pt-kpi" data-filter="hoy" title="Click para filtrar"><span class="v" data-kpi="hoy">0</span><span class="l">Vencen Hoy</span></div>
+						<div class="pt-kpi" data-filter="semana" title="Click para filtrar"><span class="v" data-kpi="semana">0</span><span class="l">Prox 7 Dias</span></div>
 					</div>
 				</div>
 				<div class="panel-tareas-filters"></div>
@@ -432,6 +565,15 @@ class PanelDeTareas {
 				<select class="filter-asignado"><option value="">Todos</option></select>
 			</div>
 			<div class="pt-field">
+				<label>Vencimiento</label>
+				<select class="filter-vencimiento">
+					<option value="">Todos</option>
+					<option value="vencidas">Vencidas</option>
+					<option value="hoy">Vencen Hoy</option>
+					<option value="semana">Pr\u00f3x 7 D\u00edas</option>
+				</select>
+			</div>
+			<div class="pt-field">
 				<label>Buscar Titulo</label>
 				<input type="text" class="filter-search" placeholder="Ej. IVA mayo" />
 			</div>
@@ -443,11 +585,24 @@ class PanelDeTareas {
 
 		this.fill_select_options();
 
-		filters.find("select").on("change", () => this.load_data());
+		filters.find("select").on("change", () => {
+			this.sync_kpi_highlight();
+			this.load_data();
+		});
 		filters.find(".filter-search").on("input", frappe.utils.debounce(() => this.load_data(), 240));
 		filters.find(".pt-reset").on("click", () => {
 			filters.find("select").val("");
 			filters.find(".filter-search").val("");
+			this.sync_kpi_highlight();
+			this.load_data();
+		});
+
+		// KPI click → set vencimiento filter
+		this.wrapper.find(".pt-kpi[data-filter]").on("click", (e) => {
+			const filterVal = $(e.currentTarget).data("filter");
+			const sel = this.wrapper.find(".filter-vencimiento");
+			sel.val(sel.val() === filterVal ? "" : filterVal);
+			this.sync_kpi_highlight();
 			this.load_data();
 		});
 	}
@@ -502,6 +657,14 @@ class PanelDeTareas {
 		});
 	}
 
+	sync_kpi_highlight() {
+		const activeVal = this.wrapper.find(".filter-vencimiento").val();
+		this.wrapper.find(".pt-kpi[data-filter]").removeClass("pt-kpi-active");
+		if (activeVal) {
+			this.wrapper.find(`.pt-kpi[data-filter='${activeVal}']`).addClass("pt-kpi-active");
+		}
+	}
+
 	get_filters() {
 		const filters = {};
 		const shell = this.wrapper;
@@ -509,6 +672,7 @@ class PanelDeTareas {
 		const periodo = shell.find(".filter-periodo").val();
 		const tipo = shell.find(".filter-tipo").val();
 		const asignado = shell.find(".filter-asignado").val();
+		const vencimiento = shell.find(".filter-vencimiento").val();
 		const search = (shell.find(".filter-search").val() || "").trim();
 
 		if (cliente) filters.cliente = cliente;
@@ -516,11 +680,12 @@ class PanelDeTareas {
 		if (tipo) filters.tipo_de_tarea = tipo;
 		if (asignado) filters.asignado_a = asignado;
 
-		return { filters, search };
+		return { filters, search, vencimiento };
 	}
 
 	load_data() {
-		const { filters, search } = this.get_filters();
+		const { filters, search, vencimiento } = this.get_filters();
+		this.currentVencimiento = vencimiento;
 		this.fetch_tasks(filters, search);
 	}
 
@@ -540,7 +705,25 @@ class PanelDeTareas {
 		frappe.call({
 			method: "frappe.client.get_list",
 			args,
-			callback: (r) => this.render(r.message || []),
+			callback: (r) => {
+				let tasks = r.message || [];
+				if (this.currentVencimiento) {
+					tasks = this.apply_due_filter(tasks, this.currentVencimiento);
+				}
+				this.render(tasks);
+			},
+		});
+	}
+
+	apply_due_filter(tasks, vencimiento) {
+		const today = frappe.datetime.get_today();
+		return tasks.filter((task) => {
+			if (task.estado === "Completada" || !task.fecha_de_vencimiento) return false;
+			const diff = frappe.datetime.get_diff(task.fecha_de_vencimiento, today);
+			if (vencimiento === "vencidas") return diff < 0;
+			if (vencimiento === "hoy") return diff === 0;
+			if (vencimiento === "semana") return diff >= 0 && diff <= 7;
+			return true;
 		});
 	}
 
@@ -628,10 +811,10 @@ class PanelDeTareas {
 
 		board.html(html);
 
-		board.find(".pt-task").on("click", (event) => {
+		board.find(".pt-task-content").on("click", (event) => {
 			if (Date.now() < this.blockCardClickUntil) return;
-			const name = $(event.currentTarget).data("name");
-			frappe.set_route("Form", "Tarea Contable", name);
+			const name = $(event.currentTarget).closest(".pt-task").data("name");
+			this.open_task_modal(name);
 		});
 
 		if (this.canMoveCards) {
@@ -641,10 +824,22 @@ class PanelDeTareas {
 
 	bind_drag_and_drop() {
 		const board = this.wrapper.find(".panel-tareas-board");
+		const handles = board.find(".pt-drag-handle");
 		const cards = board.find(".pt-task");
 		const zones = board.find(".pt-col-b.pt-dropzone");
 
-		cards.attr("draggable", "true").addClass("pt-draggable");
+		// Only allow drag from the handle
+		cards.attr("draggable", "false");
+
+		handles.on("mousedown", (event) => {
+			const card = $(event.currentTarget).closest(".pt-task");
+			card.attr("draggable", "true");
+		});
+
+		handles.on("mouseup", (event) => {
+			const card = $(event.currentTarget).closest(".pt-task");
+			card.attr("draggable", "false");
+		});
 
 		cards.on("dragstart", (event) => {
 			const card = $(event.currentTarget);
@@ -742,22 +937,275 @@ class PanelDeTareas {
 		const cliente = frappe.utils.escape_html(task.cliente || "-");
 		const periodo = frappe.utils.escape_html(task.periodo || "-");
 		const tipo = task.tipo_de_tarea ? `<span class="pt-task-kind">${frappe.utils.escape_html(task.tipo_de_tarea)}</span>` : "";
-		const dragHandle = this.canMoveCards ? '<span class="pt-drag-handle" title="Arrastrar">::</span>' : "";
+
+		const dragHandle = this.canMoveCards
+			? `<div class="pt-drag-handle" title="Arrastrar para cambiar estado">
+				<div class="pt-drag-dots">
+					<span></span><span></span>
+					<span></span><span></span>
+					<span></span><span></span>
+				</div>
+			   </div>`
+			: "";
 
 		return `
 			<div class="pt-task" data-name="${task.name}" data-status="${task.estado || ""}">
-				${tipo}
-				<div class="pt-task-head">
+				<div class="pt-task-content">
+					${tipo}
 					<div class="pt-task-title">${titulo}</div>
-					${dragHandle}
+					<div class="pt-task-meta">
+						<div class="pt-task-meta-row"><strong>Cliente:</strong> ${cliente}</div>
+						<div class="pt-task-meta-row ${dueClass}"><strong>Vence:</strong> ${fecha}</div>
+						<div class="pt-task-meta-row"><strong>Periodo:</strong> ${periodo}</div>
+						<div class="pt-task-meta-row"><strong>Asignado:</strong> ${frappe.utils.escape_html(asignado)}</div>
+					</div>
 				</div>
-				<div class="pt-task-meta">
-					<div class="pt-task-meta-row"><strong>Cliente:</strong> ${cliente}</div>
-					<div class="pt-task-meta-row ${dueClass}"><strong>Vence:</strong> ${fecha}</div>
-					<div class="pt-task-meta-row"><strong>Periodo:</strong> ${periodo}</div>
-					<div class="pt-task-meta-row"><strong>Asignado:</strong> ${frappe.utils.escape_html(asignado)}</div>
+				${dragHandle}
+			</div>
+		`;
+	}
+
+	open_task_modal(taskName) {
+		frappe.call({
+			method: "frappe.client.get",
+			args: { doctype: "Tarea Contable", name: taskName },
+			freeze: true,
+			callback: (r) => {
+				if (!r.message) return;
+				this.show_task_dialog(r.message);
+			}
+		});
+	}
+
+	show_task_dialog(task) {
+		const me = this;
+		const isContador = this.has_any_role(["Contador del Despacho", "System Manager"]);
+		const today = frappe.datetime.get_today();
+		let dueClass = "";
+
+		if (task.estado !== "Completada" && task.fecha_de_vencimiento) {
+			const diff = frappe.datetime.get_diff(task.fecha_de_vencimiento, today);
+			if (diff < 0) dueClass = "pt-due-danger";
+			else if (diff <= 3) dueClass = "pt-due-warn";
+		}
+
+		const fecha_display = task.fecha_de_vencimiento
+			? frappe.datetime.str_to_user(task.fecha_de_vencimiento)
+			: "-";
+
+		const statusMeta = this.statusMeta[task.estado] || { chip: "#f1f5f9", text: "#475569" };
+
+		const readonly_html = `
+			<div class="pt-modal-body">
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">T\u00edtulo</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.titulo || "")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Cliente</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.cliente || "-")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Periodo</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.periodo || "-")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Tipo de Tarea</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.tipo_de_tarea || "-")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Estado</div>
+					<div class="pt-modal-value">
+						<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;
+							background:${statusMeta.chip};color:${statusMeta.text};">
+							${frappe.utils.escape_html(task.estado || "-")}
+						</span>
+					</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Fecha de Vencimiento</div>
+					<div class="pt-modal-value ${dueClass}">${fecha_display}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Asignado a</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.asignado_a || "Sin asignar")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Notas</div>
+					<div class="pt-modal-notas">${frappe.utils.escape_html(task.notas || "Sin notas")}</div>
 				</div>
 			</div>
 		`;
+
+		const tipos = [
+			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
+			"Declaraci\u00f3n Anual", "Dictamen Fiscal", "Estados Financieros", "Facturaci\u00f3n",
+			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite Fiscal", "Consultor\u00eda", "Otro",
+		];
+		const estados = ["Pendiente", "En Proceso", "En Revisi\u00f3n", "Completada"];
+
+		const tipo_options = tipos.map(t =>
+			`<option value="${t}" ${t === task.tipo_de_tarea ? "selected" : ""}>${t}</option>`
+		).join("");
+
+		const estado_options = estados.map(e =>
+			`<option value="${e}" ${e === task.estado ? "selected" : ""}>${e}</option>`
+		).join("");
+
+		const edit_html = `
+			<div class="pt-modal-body">
+				<div class="pt-modal-field pt-modal-edit-field">
+					<div class="pt-modal-label">T\u00edtulo</div>
+					<input type="text" class="pt-edit-titulo" value="${frappe.utils.escape_html(task.titulo || '')}" />
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Cliente</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.cliente || "-")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Periodo</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.periodo || "-")}</div>
+				</div>
+				<div class="pt-modal-field pt-modal-edit-field">
+					<div class="pt-modal-label">Tipo de Tarea</div>
+					<select class="pt-edit-tipo">${tipo_options}</select>
+				</div>
+				<div class="pt-modal-field pt-modal-edit-field">
+					<div class="pt-modal-label">Estado</div>
+					<select class="pt-edit-estado">${estado_options}</select>
+				</div>
+				<div class="pt-modal-field pt-modal-edit-field">
+					<div class="pt-modal-label">Fecha de Vencimiento</div>
+					<input type="date" class="pt-edit-fecha" value="${task.fecha_de_vencimiento || ''}" />
+				</div>
+				<div class="pt-modal-field pt-modal-edit-field">
+					<div class="pt-modal-label">Notas</div>
+					<textarea class="pt-edit-notas">${frappe.utils.escape_html(task.notas || '')}</textarea>
+				</div>
+			</div>
+		`;
+
+		const dialog = new frappe.ui.Dialog({
+			title: task.titulo || "Detalle de Tarea",
+			size: "large",
+			primary_action_label: "Editar",
+			primary_action: () => {
+				// Switch to edit mode
+				dialog.$body.html(edit_html);
+				dialog.set_primary_action("Guardar", () => {
+					const body = dialog.$body;
+					const values = {
+						titulo: body.find(".pt-edit-titulo").val(),
+						tipo_de_tarea: body.find(".pt-edit-tipo").val(),
+						estado: body.find(".pt-edit-estado").val(),
+						fecha_de_vencimiento: body.find(".pt-edit-fecha").val(),
+						notas: body.find(".pt-edit-notas").val(),
+					};
+
+					frappe.call({
+						method: "frappe.client.set_value",
+						args: {
+							doctype: "Tarea Contable",
+							name: task.name,
+							fieldname: values,
+						},
+						freeze: true,
+						freeze_message: "Guardando...",
+						callback: (r) => {
+							if (!r.exc) {
+								frappe.show_alert({ message: "Tarea actualizada", indicator: "green" });
+								dialog.hide();
+								me.load_data();
+							}
+						},
+						error: () => {
+							frappe.msgprint("Error al guardar la tarea.");
+						}
+					});
+				});
+
+				// Change secondary to "Cancelar" that goes back to read-only
+				dialog.set_secondary_action_label("Cancelar");
+				dialog.set_secondary_action(() => {
+					dialog.$body.html(readonly_html);
+					dialog.set_primary_action("Editar", dialog.primary_action);
+					dialog.set_secondary_action_label("Descartar");
+					dialog.set_secondary_action(() => dialog.hide());
+				});
+			},
+			secondary_action_label: "Descartar",
+			secondary_action: () => dialog.hide(),
+		});
+
+		dialog.$body.html(readonly_html);
+		dialog.show();
+	}
+
+	setup_actions() {
+		this.wrapper.find(".pt-btn-nueva-tarea").on("click", () => this.open_new_task_modal());
+	}
+
+	open_new_task_modal() {
+		const me = this;
+		const tipos = [
+			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
+			"Declaraci\u00f3n Anual", "Dictamen Fiscal", "Estados Financieros", "Facturaci\u00f3n",
+			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite Fiscal", "Consultor\u00eda", "Otro",
+		];
+
+		const dialog = new frappe.ui.Dialog({
+			title: "Nueva Tarea",
+			size: "large",
+			fields: [
+				{ fieldtype: "Data", fieldname: "titulo", label: "T\u00edtulo", reqd: 1 },
+				{ fieldtype: "Column Break" },
+				{ fieldtype: "Select", fieldname: "tipo_de_tarea", label: "Tipo de Tarea", options: tipos.join("\n"), reqd: 1 },
+				{ fieldtype: "Section Break" },
+				{ fieldtype: "Link", fieldname: "cliente", label: "Cliente", options: "Cliente Contable", reqd: 1 },
+				{ fieldtype: "Column Break" },
+				{ fieldtype: "Link", fieldname: "periodo", label: "Periodo", options: "Periodo Contable", reqd: 1 },
+				{ fieldtype: "Section Break" },
+				{ fieldtype: "Date", fieldname: "fecha_de_vencimiento", label: "Fecha de Vencimiento", reqd: 1 },
+				{ fieldtype: "Column Break" },
+				{ fieldtype: "Link", fieldname: "asignado_a", label: "Asignado a", options: "User" },
+				{ fieldtype: "Section Break" },
+				{ fieldtype: "Small Text", fieldname: "notas", label: "Notas" },
+			],
+			primary_action_label: "Crear Tarea",
+			primary_action: (values) => {
+				frappe.call({
+					method: "frappe.client.insert",
+					args: {
+						doc: {
+							doctype: "Tarea Contable",
+							titulo: values.titulo,
+							cliente: values.cliente,
+							periodo: values.periodo,
+							tipo_de_tarea: values.tipo_de_tarea,
+							estado: "Pendiente",
+							fecha_de_vencimiento: values.fecha_de_vencimiento,
+							asignado_a: values.asignado_a || null,
+							notas: values.notas || "",
+						}
+					},
+					freeze: true,
+					freeze_message: "Creando tarea...",
+					callback: (r) => {
+						if (!r.exc) {
+							frappe.show_alert({ message: "Tarea creada exitosamente", indicator: "green" });
+							dialog.hide();
+							me.load_data();
+						}
+					},
+					error: () => {
+						frappe.msgprint("Error al crear la tarea.");
+					}
+				});
+			},
+			secondary_action_label: "Cancelar",
+			secondary_action: () => dialog.hide(),
+		});
+
+		dialog.show();
 	}
 }
