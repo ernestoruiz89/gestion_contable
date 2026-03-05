@@ -643,6 +643,7 @@ class PanelDeTareas {
 				<label>Estado</label>
 				<select class="filter-estado">
 					<option value="">Todos</option>
+					<option value="!Completada">Todos (Excepto Completadas)</option>
 					<option value="Pendiente">Pendiente</option>
 					<option value="En Proceso">En Proceso</option>
 					<option value="En Revisión">En Revisión</option>
@@ -768,7 +769,13 @@ class PanelDeTareas {
 		if (cliente) filters.cliente = cliente;
 		if (periodo) filters.periodo = periodo;
 		if (tipo) filters.tipo_de_tarea = tipo;
-		if (estado) filters.estado = estado;
+		if (estado) {
+			if (estado === "!Completada") {
+				filters.estado = ["!=", "Completada"];
+			} else {
+				filters.estado = estado;
+			}
+		}
 		if (asignado) filters.asignado_a = asignado;
 
 		return { filters, search, vencimiento };
