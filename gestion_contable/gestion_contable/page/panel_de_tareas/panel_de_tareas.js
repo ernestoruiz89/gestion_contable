@@ -5,22 +5,30 @@
 		single_column: true,
 	});
 
-	const panel = new PanelDeTareas(page);
-	panel.init();
+	frappe.pages["panel-de-tareas"].panel = new PanelDeTareas(page);
+	frappe.pages["panel-de-tareas"].panel.init();
+};
+
+frappe.pages["panel-de-tareas"].on_page_show = function (wrapper) {
+	const panel = frappe.pages["panel-de-tareas"].panel;
+	if (panel) {
+		panel.apply_route_options();
+		panel.load_data();
+	}
 };
 
 class PanelDeTareas {
 	constructor(page) {
 		this.page = page;
 		this.wrapper = page.main;
-		this.statuses = ["Pendiente", "En Proceso", "En Revisi\u00f3n", "Completada"];
+		this.statuses = ["Pendiente", "En Proceso", "En Revisión", "Completada"];
 		this.canMoveCards = this.has_any_role(["Contador del Despacho", "System Manager"]);
 		this.draggedTask = null;
 		this.blockCardClickUntil = 0;
 		this.statusMeta = {
 			Pendiente: { border: "#f59e0b", chip: "#fef3c7", text: "#92400e" },
 			"En Proceso": { border: "#3b82f6", chip: "#dbeafe", text: "#1e3a8a" },
-			"En Revisi\u00f3n": { border: "#a855f7", chip: "#f3e8ff", text: "#6b21a8" },
+			"En Revisión": { border: "#a855f7", chip: "#f3e8ff", text: "#6b21a8" },
 			Completada: { border: "#10b981", chip: "#d1fae5", text: "#065f46" },
 		};
 	}
@@ -35,16 +43,16 @@ class PanelDeTareas {
 		this.render_shell();
 		this.setup_filters();
 		this.setup_actions();
-		this.apply_route_options();
-		this.load_data();
 	}
 
 	apply_route_options() {
 		if (frappe.route_options) {
 			const ro = frappe.route_options;
 			if (ro.asignado_a) {
-				// Agregamos opción para que no se pierda si la carga asíncrona es más lenta
-				this.wrapper.find(".filter-asignado").append(`<option value="${ro.asignado_a}">${ro.asignado_a}</option>`);
+				// Prevent empty options or overriding sync issues
+				if (this.wrapper.find(`.filter-asignado option[value="${ro.asignado_a}"]`).length === 0) {
+					this.wrapper.find(".filter-asignado").append(`<option value="${ro.asignado_a}">${ro.asignado_a}</option>`);
+				}
 				this.wrapper.find(".filter-asignado").val(ro.asignado_a);
 			}
 			if (ro.estado) {
@@ -53,8 +61,8 @@ class PanelDeTareas {
 			if (ro.vencimiento) {
 				let v = ro.vencimiento.toLowerCase();
 				this.wrapper.find(".filter-vencimiento").val(v);
-				this.sync_kpi_highlight();
 			}
+			this.sync_kpi_highlight();
 			frappe.route_options = null; // consume
 		}
 	}
