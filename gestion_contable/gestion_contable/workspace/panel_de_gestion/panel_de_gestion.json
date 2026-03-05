@@ -1,6 +1,6 @@
 {
     "charts": [],
-    "content": "[]",
+    "content": "[{\"id\":\"hdr_1\",\"type\":\"header\",\"data\":{\"text\":\"Panel de Gesti\\u00f3n Contable\",\"level\":3,\"col\":12}},{\"id\":\"hdr_2\",\"type\":\"header\",\"data\":{\"text\":\"Accesos desde la barra izquierda: Clientes, Periodos, Tareas y Documentos\",\"level\":5,\"col\":12}}]",
     "creation": "2024-03-04 14:00:00.000000",
     "custom_blocks": [],
     "docstatus": 0,
