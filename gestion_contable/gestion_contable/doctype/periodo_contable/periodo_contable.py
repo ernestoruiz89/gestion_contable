@@ -13,6 +13,11 @@ MESES = {
 
 
 class PeriodoContable(Document):
+    def autoname(self):
+        if self.anio and self.mes:
+            self.nombre_del_periodo = f"{self.mes} {self.anio}"
+            self.name = self.nombre_del_periodo
+
     def before_save(self):
         self.calcular_campos()
 
