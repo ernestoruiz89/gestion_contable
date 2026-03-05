@@ -156,6 +156,7 @@ def crear_tareas_y_comunicaciones():
 					"asignado_a": asignado,
 					"notas": f"Tarea generada automáticamente para pruebas de carga."
 				})
+				tarea.flags.ignore_period_validation = True
 				tarea.insert(ignore_permissions=True)
 				
 				# Crear algunas comunicaciones
