@@ -2,3 +2,4 @@
 
 [post_model_sync]
 gestion_contable.gestion_contable.patches.reload_panel_de_gestion_workspace_v4
+gestion_contable.patches.v1_2.reload_workspace

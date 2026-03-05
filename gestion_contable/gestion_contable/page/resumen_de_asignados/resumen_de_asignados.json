@@ -1,0 +1,20 @@
+{
+    "creation": "2024-03-05 11:10:00.000000",
+    "doctype": "Page",
+    "module": "Gestion Contable",
+    "name": "resumen-de-asignados",
+    "page_name": "Resumen de Asignados",
+    "title": "Resumen de Asignados",
+    "standard": "Yes",
+    "roles": [
+        {
+            "role": "System Manager"
+        },
+        {
+            "role": "Contador del Despacho"
+        },
+        {
+            "role": "Auxiliar Contable del Despacho"
+        }
+    ]
+}
