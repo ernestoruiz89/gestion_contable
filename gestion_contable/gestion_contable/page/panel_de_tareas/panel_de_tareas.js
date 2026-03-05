@@ -478,6 +478,62 @@ class PanelDeTareas {
 				resize: vertical;
 			}
 
+			/* Moda Split View & Comms */
+			.pt-modal-split {
+				display: flex;
+				flex-direction: row;
+				min-height: 480px;
+			}
+			.pt-modal-left {
+				flex: 1;
+				padding-right: 20px;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+			.pt-modal-right {
+				width: 320px;
+				background: #f8fafc;
+				border-left: 1px solid var(--pt-border);
+				padding-left: 20px;
+				display: flex;
+				flex-direction: column;
+			}
+			.pt-comm-header {
+				font-size: 14px;
+				font-weight: 800;
+				color: #1e293b;
+				margin-bottom: 12px;
+				display: flex;
+				justify-content: space-between;
+			}
+			.pt-comm-list {
+				flex: 1;
+				overflow-y: auto;
+				padding-right: 5px;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+			.pt-comm-item {
+				background: #fff;
+				border: 1px solid var(--pt-border);
+				border-radius: 8px;
+				padding: 10px;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+			}
+			.pt-comm-meta {
+				display: flex;
+				justify-content: space-between;
+				font-size: 11px;
+				color: #64748b;
+				margin-bottom: 6px;
+			}
+			.pt-comm-sender { font-weight: 700; color: #0f172a; }
+			.pt-comm-subject { font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+			.pt-comm-content { font-size: 12px; color: #475569; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+			.pt-comm-empty { font-size: 12px; color: #94a3b8; font-style: italic; margin-top: 10px; text-align: center; }
+
 			.pt-empty {
 				padding: 26px 10px;
 				text-align: center;
@@ -1037,10 +1093,12 @@ class PanelDeTareas {
 		const statusMeta = this.statusMeta[task.estado] || { chip: "#f1f5f9", text: "#475569" };
 
 		const readonly_html = `
-			<div class="pt-modal-body">
-				<div class="pt-modal-field">
-					<div class="pt-modal-label">Cliente</div>
-					<div class="pt-modal-value">${frappe.utils.escape_html(task.cliente || "-")}</div>
+			<div class="pt-modal-split">
+				<div class="pt-modal-left">
+					<div class="pt-modal-body">
+						<div class="pt-modal-field">
+							<div class="pt-modal-label">Cliente</div>
+							<div class="pt-modal-value">${frappe.utils.escape_html(task.cliente || "-")}</div>
 				</div>
 				<div class="pt-modal-field">
 					<div class="pt-modal-label">Periodo</div>
@@ -1068,9 +1126,17 @@ class PanelDeTareas {
 					<div class="pt-modal-value">${frappe.utils.escape_html(task.asignado_a || "Sin asignar")}</div>
 				</div>
 				<div class="pt-modal-field">
-					<div class="pt-modal-label">Notas</div>
-					<div class="pt-modal-notas">${frappe.utils.escape_html(task.notas || "Sin notas")}</div>
+						<div class="pt-modal-label">Notas</div>
+						<div class="pt-modal-notas">${frappe.utils.escape_html(task.notas || "Sin notas")}</div>
+					</div>
 				</div>
+			</div>
+			<div class="pt-modal-right">
+				<div class="pt-comm-header">Comunicaciones</div>
+				<div class="pt-comm-list" id="pt-dialog-comms">
+					<div class="pt-comm-empty">Cargando correos/comentarios...</div>
+				</div>
+			</div>
 			</div>
 		`;
 
@@ -1090,11 +1156,13 @@ class PanelDeTareas {
 		).join("");
 
 		const edit_html = `
-			<div class="pt-modal-body">
-				<div class="pt-modal-field pt-modal-edit-field">
-					<div class="pt-modal-label">T\u00edtulo</div>
-					<input type="text" class="pt-edit-titulo" value="${frappe.utils.escape_html(task.titulo || '')}" />
-				</div>
+			<div class="pt-modal-split">
+				<div class="pt-modal-left">
+					<div class="pt-modal-body">
+						<div class="pt-modal-field pt-modal-edit-field">
+							<div class="pt-modal-label">Título</div>
+							<input type="text" class="pt-edit-titulo" value="${frappe.utils.escape_html(task.titulo || '')}" />
+						</div>
 				<div class="pt-modal-field">
 					<div class="pt-modal-label">Cliente</div>
 					<div class="pt-modal-value">${frappe.utils.escape_html(task.cliente || "-")}</div>
@@ -1119,6 +1187,11 @@ class PanelDeTareas {
 					<div class="pt-modal-label">Notas</div>
 					<textarea class="pt-edit-notas">${frappe.utils.escape_html(task.notas || '')}</textarea>
 				</div>
+					</div>
+				</div>
+				<div class="pt-modal-right" id="pt-dialog-comms-edit">
+					<!-- Se copia el HTML luego -->
+				</div>
 			</div>
 		`;
 
@@ -1129,6 +1202,11 @@ class PanelDeTareas {
 			primary_action: () => {
 				// Switch to edit mode
 				dialog.$body.html(edit_html);
+				if (this.lastCommsHtml) {
+					dialog.$body.find("#pt-dialog-comms-edit").html(
+						'<div class="pt-comm-header">Comunicaciones</div><div class="pt-comm-list">' + this.lastCommsHtml + '</div>'
+					);
+				}
 				dialog.set_primary_action("Guardar", () => {
 					const body = dialog.$body;
 					const newTitulo = body.find(".pt-edit-titulo").val();
@@ -1191,6 +1269,9 @@ class PanelDeTareas {
 				dialog.set_secondary_action_label("Cancelar");
 				dialog.set_secondary_action(() => {
 					dialog.$body.html(readonly_html);
+					if (this.lastCommsHtml) {
+						dialog.$body.find("#pt-dialog-comms").html(this.lastCommsHtml);
+					}
 					dialog.set_primary_action("Editar", dialog.primary_action);
 					dialog.set_secondary_action_label("Descartar");
 					dialog.set_secondary_action(() => dialog.hide());
@@ -1198,10 +1279,59 @@ class PanelDeTareas {
 			},
 			secondary_action_label: "Descartar",
 			secondary_action: () => dialog.hide(),
+			secondary_action: () => dialog.hide(),
 		});
 
 		dialog.$body.html(readonly_html);
 		dialog.show();
+		this.fetch_communications(task.name, dialog);
+	}
+
+	fetch_communications(taskName, dialog) {
+		frappe.call({
+			method: "frappe.client.get_list",
+			args: {
+				doctype: "Communication",
+				filters: { reference_doctype: "Tarea Contable", reference_name: taskName },
+				fields: ["name", "subject", "sender_full_name", "content", "creation"],
+				order_by: "creation desc",
+				limit_page_length: 50
+			},
+			callback: (r) => {
+				const comms = r.message || [];
+				this.render_communications(comms, dialog);
+			}
+		});
+	}
+
+	render_communications(comms, dialog) {
+		const target = dialog.$body.find("#pt-dialog-comms, #pt-dialog-comms-edit");
+
+		if (!comms.length) {
+			target.html('<div class="pt-comm-empty">No hay comunicaciones.</div>');
+			return;
+		}
+
+		let html = "";
+		comms.forEach(c => {
+			const textPreview = frappe.utils.strip_html(c.content || "").substring(0, 100);
+			const when = frappe.datetime.comment_when(c.creation);
+
+			html += `
+				<div class="pt-comm-item">
+					<div class="pt-comm-meta">
+						<span class="pt-comm-sender">${frappe.utils.escape_html(c.sender_full_name || "Sistema")}</span>
+						<span>${when}</span>
+					</div>
+					<div class="pt-comm-subject">${frappe.utils.escape_html(c.subject || "Comentario")}</div>
+					<div class="pt-comm-content">${frappe.utils.escape_html(textPreview)}...</div>
+				</div>
+			`;
+		});
+
+		target.html(html);
+		// Keep a cached copy array to restore it when toggling edit view
+		this.lastCommsHtml = html;
 	}
 
 	setup_actions() {
