@@ -1314,7 +1314,10 @@ class PanelDeTareas {
 
 		let html = "";
 		comms.forEach(c => {
-			const textPreview = frappe.utils.strip_html(c.content || "").substring(0, 100);
+			// Strip HTML securely
+			const tmp = document.createElement("DIV");
+			tmp.innerHTML = c.content || "";
+			const textPreview = (tmp.textContent || tmp.innerText || "").substring(0, 100);
 			const when = frappe.datetime.comment_when(c.creation);
 
 			html += `
