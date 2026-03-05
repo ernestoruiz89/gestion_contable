@@ -165,16 +165,22 @@ def crear_tareas_y_comunicaciones():
 						"He revisado los documentos, todo parece en orden.",
 						"Falta la factura de papelería, por favor solicitar al cliente.",
 						"El pago de impuestos ya fue procesado.",
-						"Conciliación terminada con cero diferencias."
+						"Conciliación terminada con cero diferencias.",
+						"Se envió el requerimiento al cliente por correo.",
+						"El cliente confirmó la recepción de la documentación.",
+						"Pendiente revisar las pólizas de cierre.",
+						"Se detectó una diferencia en la conciliación, verificar con el banco."
 					])
 					comunicacion = frappe.get_doc({
 						"doctype": "Communication",
-						"communication_type": "Comment",
-						"communication_medium": "System",
+						"communication_type": "Communication",
+						"communication_medium": "Other",
 						"comment_type": "Comment",
+						"subject": f"Nota sobre: {titulo}",
 						"reference_doctype": "Tarea Contable",
 						"reference_name": tarea.name,
 						"content": f"<p>{mensaje}</p>",
 						"sender": asignado if asignado else "Administrator"
 					})
+					comunicacion.flags.ignore_validate = True
 					comunicacion.insert(ignore_permissions=True)
