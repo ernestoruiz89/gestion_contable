@@ -183,17 +183,13 @@ def crear_periodos_contables():
 		mes_target = mes_actual - relativedelta(months=i)
 		nombre_periodo = f"{meses_es[mes_target.month - 1]} {mes_target.year}"
 
-		siguiente_mes = mes_target + relativedelta(months=1)
-		ultimo_dia = siguiente_mes - relativedelta(days=1)
-
 		if not frappe.db.exists("Periodo Contable", nombre_periodo):
 			estado = "Abierto" if i == 0 else "Cerrado"
 			periodo = frappe.get_doc({
 				"doctype": "Periodo Contable",
-				"nombre_del_periodo": nombre_periodo,
+				"anio": mes_target.year,
+				"mes": meses_es[mes_target.month - 1],
 				"estado": estado,
-				"fecha_de_inicio": mes_target,
-				"fecha_de_fin": ultimo_dia
 			})
 			periodo.insert(ignore_permissions=True)
 
