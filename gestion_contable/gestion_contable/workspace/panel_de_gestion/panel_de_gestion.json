@@ -1,80 +1,108 @@
 {
-    "charts": [],
-    "content": "[{\"id\":\"hdr_1\",\"type\":\"header\",\"data\":{\"text\":\"Panel de Gesti\\u00f3n Contable\",\"level\":3,\"col\":12}},{\"id\":\"hdr_2\",\"type\":\"header\",\"data\":{\"text\":\"Accesos desde la barra izquierda: Clientes, Periodos, Tareas y Documentos\",\"level\":5,\"col\":12}}]",
-    "creation": "2024-03-04 14:00:00.000000",
-    "custom_blocks": [],
-    "docstatus": 0,
-    "doctype": "Workspace",
-    "for_user": "",
-    "hide_custom": 0,
-    "icon": "pie-chart",
-    "idx": 0,
-    "indicator_color": "blue",
-    "is_hidden": 0,
-    "label": "Panel de Gestion",
-    "links": [
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Clientes",
-            "link_count": 0,
-            "link_to": "Cliente Contable",
-            "link_type": "DocType",
-            "onboard": 0,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Periodos",
-            "link_count": 0,
-            "link_to": "Periodo Contable",
-            "link_type": "DocType",
-            "onboard": 0,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Tareas",
-            "link_count": 0,
-            "link_to": "Tarea Contable",
-            "link_type": "DocType",
-            "onboard": 0,
-            "type": "Link"
-        },
-        {
-            "hidden": 0,
-            "is_query_report": 0,
-            "label": "Documentos",
-            "link_count": 0,
-            "link_to": "Documento Contable",
-            "link_type": "DocType",
-            "onboard": 0,
-            "type": "Link"
-        }
-    ],
-    "modified": "2024-03-04 14:00:00.000000",
-    "modified_by": "Administrator",
-    "module": "Gestion Contable",
-    "name": "Panel de Gestion",
-    "number_cards": [],
-    "owner": "Administrator",
-    "parent_page": "",
-    "public": 1,
-    "quick_lists": [],
-    "roles": [
-        {
-            "role": "System Manager"
-        },
-        {
-            "role": "Contador del Despacho"
-        },
-        {
-            "role": "Auxiliar Contable del Despacho"
-        }
-    ],
-    "sequence_id": 1.0,
-    "shortcuts": [],
-    "title": "Panel de Gestion"
+  "charts": [],
+  "content": "[{\"id\":\"hdr_gc\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Panel de Gestion Contable</span>\",\"col\":12}},{\"id\":\"card_ops\",\"type\":\"card\",\"data\":{\"card_name\":\"Operaciones\",\"col\":6}},{\"id\":\"card_panel\",\"type\":\"card\",\"data\":{\"card_name\":\"Panel\",\"col\":6}}]",
+  "creation": "2024-03-04 14:00:00.000000",
+  "custom_blocks": [],
+  "docstatus": 0,
+  "doctype": "Workspace",
+  "for_user": "",
+  "hide_custom": 0,
+  "icon": "pie-chart",
+  "idx": 0,
+  "indicator_color": "blue",
+  "is_hidden": 0,
+  "label": "Panel de Gestion",
+  "links": [
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Operaciones",
+      "link_count": 4,
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Clientes",
+      "link_count": 0,
+      "link_to": "Cliente Contable",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Periodos",
+      "link_count": 0,
+      "link_to": "Periodo Contable",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Tareas",
+      "link_count": 0,
+      "link_to": "Tarea Contable",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Documentos",
+      "link_count": 0,
+      "link_to": "Documento Contable",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Panel",
+      "link_count": 1,
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Card Break"
+    },
+    {
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "Panel de Tareas",
+      "link_count": 0,
+      "link_to": "panel-de-tareas",
+      "link_type": "Page",
+      "onboard": 0,
+      "type": "Link"
+    }
+  ],
+  "modified": "2024-03-04 14:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Gestion Contable",
+  "name": "Panel de Gestion",
+  "number_cards": [],
+  "owner": "Administrator",
+  "parent_page": "",
+  "public": 1,
+  "quick_lists": [],
+  "roles": [
+    {
+      "role": "System Manager"
+    },
+    {
+      "role": "Contador del Despacho"
+    },
+    {
+      "role": "Auxiliar Contable del Despacho"
+    }
+  ],
+  "sequence_id": 1.0,
+  "shortcuts": [],
+  "title": "Panel de Gestion"
 }
