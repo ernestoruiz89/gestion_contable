@@ -4,6 +4,12 @@ from frappe.model.document import Document
 
 
 class TareaContable(Document):
+    def autoname(self):
+        # Auto-generar el título si están presentes los campos clave
+        if self.tipo_de_tarea and self.cliente and self.periodo:
+            self.titulo = f"{self.tipo_de_tarea} - {self.cliente} - {self.periodo}"
+            self.name = self.titulo
+
     def validate(self):
         self.validar_cliente_activo()
         self.validar_periodo_abierto()

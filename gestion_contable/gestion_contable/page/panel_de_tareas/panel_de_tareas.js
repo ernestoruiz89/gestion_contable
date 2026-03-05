@@ -1220,9 +1220,8 @@ class PanelDeTareas {
 			title: "Nueva Tarea",
 			size: "large",
 			fields: [
-				{ fieldtype: "Data", fieldname: "titulo", label: "T\u00edtulo", reqd: 1 },
-				{ fieldtype: "Column Break" },
 				{ fieldtype: "Select", fieldname: "tipo_de_tarea", label: "Tipo de Tarea", options: tipos.join("\n"), reqd: 1 },
+				{ fieldtype: "Column Break" },
 				{ fieldtype: "Section Break" },
 				{ fieldtype: "Link", fieldname: "cliente", label: "Cliente", options: "Cliente Contable", reqd: 1 },
 				{ fieldtype: "Column Break" },
@@ -1241,7 +1240,6 @@ class PanelDeTareas {
 					args: {
 						doc: {
 							doctype: "Tarea Contable",
-							titulo: values.titulo,
 							cliente: values.cliente,
 							periodo: values.periodo,
 							tipo_de_tarea: values.tipo_de_tarea,

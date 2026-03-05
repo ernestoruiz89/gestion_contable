@@ -21,8 +21,8 @@
             "fieldname": "titulo",
             "fieldtype": "Data",
             "in_list_view": 1,
-            "label": "T\u00edtulo",
-            "reqd": 1
+            "label": "Título",
+            "read_only": 1
         },
         {
             "fieldname": "cliente",
