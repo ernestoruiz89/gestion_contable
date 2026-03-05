@@ -188,6 +188,7 @@ class PanelDeTareas {
 				display: flex;
 				flex-direction: column;
 				gap: 4px;
+				justify-content: flex-end;
 			}
 
 			.pt-field label {
