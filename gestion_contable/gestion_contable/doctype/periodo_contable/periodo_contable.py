@@ -1,8 +1,10 @@
-import frappe
+﻿import frappe
 from frappe import _
 from frappe.model.document import Document
 from datetime import date
 from dateutil.relativedelta import relativedelta
+
+from gestion_contable.gestion_contable.utils.security import ensure_manager
 
 
 MESES = {
@@ -22,6 +24,7 @@ class PeriodoContable(Document):
         self.calcular_campos()
 
     def validate(self):
+        ensure_manager()
         self.validar_anio()
 
     def calcular_campos(self):
@@ -29,17 +32,20 @@ class PeriodoContable(Document):
             # Nombre del periodo: "Marzo 2025"
             self.nombre_del_periodo = f"{self.mes} {self.anio}"
 
-            # Fecha de inicio: primer día del mes
+            # Fecha de inicio: primer dia del mes
             num_mes = MESES.get(self.mes)
             if num_mes:
                 self.fecha_de_inicio = date(int(self.anio), num_mes, 1)
-                # Fecha de fin: último día del mes
+                # Fecha de fin: ultimo dia del mes
                 siguiente_mes = self.fecha_de_inicio + relativedelta(months=1)
                 self.fecha_de_fin = siguiente_mes - relativedelta(days=1)
 
     def validar_anio(self):
         if self.anio and (int(self.anio) < 2000 or int(self.anio) > 2099):
             frappe.throw(
-                _("El año debe estar entre 2000 y 2099."),
-                title=_("Error de Validación")
+                _("El anio debe estar entre 2000 y 2099."),
+                title=_("Error de Validacion")
             )
+
+    def on_trash(self):
+        ensure_manager()

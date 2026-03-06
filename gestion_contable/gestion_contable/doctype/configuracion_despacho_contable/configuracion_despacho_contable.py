@@ -255,14 +255,20 @@ def crear_tareas_y_comunicaciones():
 
 	for cliente in clientes:
 		for periodo in periodos:
-			num_tareas = random.randint(4, 10)
+			# Escoger un número de tareas aleatorias asegurándonos de no exceder
+			# los tipos disponibles para no repetir llaves primarias de Tarea Contable
+			num_tareas = random.randint(3, 7)
+			tipos_asignados = random.sample(tipos_tarea, min(num_tareas, len(tipos_tarea)))
 
-			for i in range(num_tareas):
-				tipo = random.choice(tipos_tarea)
+			for tipo in tipos_asignados:
 				titulo_base = random.choice(titulos_tarea[tipo])
-				titulo = f"{titulo_base} - {cliente} - {periodo.name} - {i}"
+				# El titulo ya no importa porque el backend TareaContable.autoname
+				# lo recalcula, pero lo mandamos por compatibilidad.
+				titulo = f"{titulo_base} - {cliente} - {periodo.name}"
 
-				if frappe.db.exists("Tarea Contable", {"titulo": titulo}):
+				# Comprobar si ya existe la llave primaria generada por autoname
+				expected_name = f"{tipo} - {cliente} - {periodo.name}"
+				if frappe.db.exists("Tarea Contable", expected_name):
 					continue
 
 				if periodo.estado == "Cerrado":

@@ -1,12 +1,15 @@
-import frappe
+﻿import frappe
 from frappe import _
 from frappe.model.document import Document
+
+from gestion_contable.gestion_contable.utils.security import ensure_manager, is_manager
 
 
 class DocumentoContable(Document):
     def validate(self):
         self.validar_cliente_activo()
         self.validar_periodo_abierto()
+        self.validar_permiso_de_edicion()
 
     def validar_cliente_activo(self):
         if self.cliente:
@@ -29,3 +32,15 @@ class DocumentoContable(Document):
                     ),
                     title=_("Periodo Cerrado")
                 )
+
+    def validar_permiso_de_edicion(self):
+        if self.is_new() or is_manager():
+            return
+
+        frappe.throw(
+            _("Solo el Contador del Despacho o System Manager pueden editar documentos ya registrados."),
+            frappe.PermissionError,
+        )
+
+    def on_trash(self):
+        ensure_manager(_("Solo el Contador del Despacho o System Manager pueden eliminar documentos."))

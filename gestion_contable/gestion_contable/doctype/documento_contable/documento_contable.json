@@ -1,104 +1,110 @@
-{
-    "actions": [],
-    "creation": "2024-03-04 14:00:00.000000",
-    "doctype": "DocType",
-    "engine": "InnoDB",
-    "field_order": [
-        "titulo_del_documento",
-        "cliente",
-        "periodo",
-        "column_break_1",
-        "tipo",
-        "archivo_adjunto"
-    ],
-    "fields": [
-        {
-            "fieldname": "titulo_del_documento",
-            "fieldtype": "Data",
-            "in_list_view": 1,
-            "label": "T\u00edtulo del Documento",
-            "reqd": 1
-        },
-        {
-            "fieldname": "cliente",
-            "fieldtype": "Link",
-            "in_list_view": 1,
-            "label": "Cliente",
-            "options": "Cliente Contable",
-            "reqd": 1
-        },
-        {
-            "fieldname": "periodo",
-            "fieldtype": "Link",
-            "in_list_view": 1,
-            "label": "Periodo",
-            "options": "Periodo Contable",
-            "reqd": 1
-        },
-        {
-            "fieldname": "column_break_1",
-            "fieldtype": "Column Break"
-        },
-        {
-            "fieldname": "tipo",
-            "fieldtype": "Select",
-            "in_list_view": 1,
-            "label": "Tipo",
-            "options": "Factura\nEstado de Cuenta\nDeclaraci\u00f3n\nRecibo\nOtro"
-        },
-        {
-            "fieldname": "archivo_adjunto",
-            "fieldtype": "Attach",
-            "label": "Archivo",
-            "reqd": 1
-        }
-    ],
-    "index_web_pages_for_search": 1,
-    "links": [],
-    "modified": "2024-03-04 14:00:00.000000",
-    "modified_by": "Administrator",
-    "module": "Gestion Contable",
-    "name": "Documento Contable",
-    "naming_rule": "By fieldname",
-    "autoname": "field:titulo_del_documento",
-    "owner": "Administrator",
-    "permissions": [
-        {
-            "create": 1,
-            "delete": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "System Manager",
-            "share": 1,
-            "write": 1
-        },
-        {
-            "create": 1,
-            "email": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "Contador del Despacho",
-            "share": 1,
-            "write": 1,
-            "delete": 1,
-            "export": 1
-        },
-        {
-            "create": 1,
-            "email": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "Auxiliar Contable del Despacho",
-            "share": 1,
-            "write": 1
-        }
-    ],
-    "sort_field": "modified",
-    "sort_order": "DESC",
-    "track_changes": 1
+﻿{
+    "actions":  [
+
+                ],
+    "creation":  "2024-03-04 14:00:00.000000",
+    "doctype":  "DocType",
+    "engine":  "InnoDB",
+    "field_order":  [
+                        "titulo_del_documento",
+                        "cliente",
+                        "periodo",
+                        "column_break_1",
+                        "tipo",
+                        "archivo_adjunto"
+                    ],
+    "fields":  [
+                   {
+                       "fieldname":  "titulo_del_documento",
+                       "fieldtype":  "Data",
+                       "in_list_view":  1,
+                       "label":  "Título del Documento",
+                       "reqd":  1
+                   },
+                   {
+                       "fieldname":  "cliente",
+                       "fieldtype":  "Link",
+                       "in_list_view":  1,
+                       "label":  "Cliente",
+                       "options":  "Cliente Contable",
+                       "reqd":  1
+                   },
+                   {
+                       "fieldname":  "periodo",
+                       "fieldtype":  "Link",
+                       "in_list_view":  1,
+                       "label":  "Periodo",
+                       "options":  "Periodo Contable",
+                       "reqd":  1
+                   },
+                   {
+                       "fieldname":  "column_break_1",
+                       "fieldtype":  "Column Break"
+                   },
+                   {
+                       "fieldname":  "tipo",
+                       "fieldtype":  "Select",
+                       "in_list_view":  1,
+                       "label":  "Tipo",
+                       "options":  "Factura\nEstado de Cuenta\nDeclaración\nRecibo\nOtro"
+                   },
+                   {
+                       "fieldname":  "archivo_adjunto",
+                       "fieldtype":  "Attach",
+                       "label":  "Archivo",
+                       "reqd":  1
+                   }
+               ],
+    "index_web_pages_for_search":  1,
+    "links":  [
+
+              ],
+    "modified":  "2024-03-04 14:00:00.000000",
+    "modified_by":  "Administrator",
+    "module":  "Gestion Contable",
+    "name":  "Documento Contable",
+    "naming_rule":  "By fieldname",
+    "autoname":  "field:titulo_del_documento",
+    "owner":  "Administrator",
+    "permissions":  [
+                        {
+                            "create":  1,
+                            "delete":  1,
+                            "email":  1,
+                            "export":  1,
+                            "print":  1,
+                            "read":  1,
+                            "report":  1,
+                            "role":  "System Manager",
+                            "share":  1,
+                            "write":  1
+                        },
+                        {
+                            "create":  1,
+                            "email":  1,
+                            "print":  1,
+                            "read":  1,
+                            "report":  1,
+                            "role":  "Contador del Despacho",
+                            "share":  1,
+                            "write":  1,
+                            "delete":  1,
+                            "export":  1
+                        },
+                        {
+                            "create":  1,
+                            "email":  1,
+                            "print":  1,
+                            "read":  1,
+                            "report":  1,
+                            "role":  "Auxiliar Contable del Despacho",
+                            "share":  1,
+                            "write":  0,
+                            "delete":  0,
+                            "export":  0
+                        }
+                    ],
+    "sort_field":  "modified",
+    "sort_order":  "DESC",
+    "track_changes":  1
 }

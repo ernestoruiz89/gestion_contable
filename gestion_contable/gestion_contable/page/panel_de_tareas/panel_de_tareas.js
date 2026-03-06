@@ -22,7 +22,9 @@ class PanelDeTareas {
 		this.page = page;
 		this.wrapper = page.main;
 		this.statuses = ["Pendiente", "En Proceso", "En Revisión", "Completada"];
-		this.canMoveCards = this.has_any_role(["Contador del Despacho", "System Manager"]);
+				this.canMoveCards = this.has_any_role(["Contador del Despacho", "System Manager"]);
+		this.canCreateTasks = this.has_any_role(["Contador del Despacho", "System Manager"]);
+		this.canEditTasks = this.has_any_role(["Contador del Despacho", "System Manager"]);
 		this.draggedTask = null;
 		this.blockCardClickUntil = 0;
 		this.statusMeta = {
@@ -599,6 +601,10 @@ class PanelDeTareas {
 			? '<p class="pt-move-note">Arrastra tarjetas entre columnas para cambiar su estado.</p>'
 			: "";
 
+		const createTaskButton = this.canCreateTasks
+			? '<button class="pt-btn-nueva-tarea" type="button">+ Nueva Tarea</button>'
+			: '<span class="pt-move-note" style="color:#64748b;">Solo Contador/System Manager pueden crear tareas.</span>';
+
 		this.wrapper.html(`
 			<div class="panel-tareas-shell">
 				<div class="panel-tareas-hero">
@@ -608,7 +614,7 @@ class PanelDeTareas {
 							<p>Seguimiento operativo por estado, vencimiento y responsable.</p>
 							${moveHint}
 						</div>
-						<button class="pt-btn-nueva-tarea" type="button">+ Nueva Tarea</button>
+						${createTaskButton}
 					</div>
 					<div class="panel-tareas-kpis">
 						<div class="pt-kpi"><span class="v" data-kpi="total">0</span><span class="l">Total</span></div>
@@ -1079,7 +1085,7 @@ class PanelDeTareas {
 
 	show_task_dialog(task) {
 		const me = this;
-		const isContador = this.has_any_role(["Contador del Despacho", "System Manager"]);
+		const isContador = this.canEditTasks;
 		const today = frappe.datetime.get_today();
 		let dueClass = "";
 
@@ -1203,6 +1209,10 @@ class PanelDeTareas {
 			size: "large",
 			primary_action_label: "Editar",
 			primary_action: () => {
+				if (!isContador) {
+					frappe.msgprint("Solo Contador del Despacho o System Manager pueden editar tareas desde este panel.");
+					return;
+				}
 				// Switch to edit mode
 				dialog.$body.html(edit_html);
 				if (this.lastCommsHtml) {
@@ -1282,7 +1292,6 @@ class PanelDeTareas {
 			},
 			secondary_action_label: "Descartar",
 			secondary_action: () => dialog.hide(),
-			secondary_action: () => dialog.hide(),
 		});
 
 		dialog.add_custom_action("Ver Detalle", () => {
@@ -1292,6 +1301,9 @@ class PanelDeTareas {
 
 		dialog.$body.html(readonly_html);
 		dialog.show();
+		if (!isContador && dialog.get_primary_btn) {
+			dialog.get_primary_btn().hide();
+		}
 		this.fetch_communications(task.name, dialog);
 	}
 
@@ -1350,6 +1362,11 @@ class PanelDeTareas {
 	}
 
 	open_new_task_modal() {
+		if (!this.canCreateTasks) {
+			frappe.msgprint("Solo Contador del Despacho o System Manager pueden crear tareas.");
+			return;
+		}
+
 		const me = this;
 		const tipos = [
 			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
@@ -1411,3 +1428,10 @@ class PanelDeTareas {
 		dialog.show();
 	}
 }
+
+
+
+
+
+
+
