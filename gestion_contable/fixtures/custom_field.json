@@ -1,0 +1,57 @@
+[
+    {
+        "doctype": "Custom Field",
+        "dt": "Sales Invoice",
+        "fieldname": "encargo_contable",
+        "fieldtype": "Link",
+        "insert_after": "project",
+        "label": "Encargo Contable",
+        "name": "Sales Invoice-encargo_contable",
+        "options": "Encargo Contable",
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Sales Invoice",
+        "fieldname": "cliente_contable",
+        "fieldtype": "Link",
+        "insert_after": "encargo_contable",
+        "label": "Cliente Contable",
+        "name": "Sales Invoice-cliente_contable",
+        "options": "Cliente Contable",
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Sales Invoice",
+        "fieldname": "servicio_contable",
+        "fieldtype": "Link",
+        "insert_after": "cliente_contable",
+        "label": "Servicio Contable",
+        "name": "Sales Invoice-servicio_contable",
+        "options": "Servicio Contable",
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Sales Invoice",
+        "fieldname": "contrato_comercial",
+        "fieldtype": "Link",
+        "insert_after": "servicio_contable",
+        "label": "Contrato Comercial",
+        "name": "Sales Invoice-contrato_comercial",
+        "options": "Contrato Comercial",
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Sales Invoice",
+        "fieldname": "tipo_de_servicio",
+        "fieldtype": "Select",
+        "insert_after": "contrato_comercial",
+        "label": "Tipo de Servicio",
+        "name": "Sales Invoice-tipo_de_servicio",
+        "options": "Contabilidad\nAuditoria\nTrabajo Especial\nConsultoria",
+        "read_only": 1
+    }
+]

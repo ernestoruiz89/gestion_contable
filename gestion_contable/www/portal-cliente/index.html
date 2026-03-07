@@ -1,0 +1,144 @@
+﻿{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="gc-portal-shell">
+    <section class="gc-portal-hero">
+        <div>
+            <h1>Portal Cliente</h1>
+            <p>{{ cliente.customer }}{% if cliente.company_default %} · {{ cliente.company_default }}{% endif %}</p>
+        </div>
+        <div class="gc-portal-flags">
+            <span>Portal: {{ "Activo" if cliente.portal_habilitado else "Inactivo" }}</span>
+            <span>Carga documental: {{ "Habilitada" if cliente.permite_carga_documentos else "Restringida" }}</span>
+        </div>
+    </section>
+
+    <section class="gc-portal-stats">
+        <article><strong>{{ summary.requerimientos_abiertos }}</strong><span>Requerimientos abiertos</span></article>
+        <article><strong>{{ summary.entregables_pendientes }}</strong><span>Entregables pendientes</span></article>
+        <article><strong>{{ summary.entregables_vencidos }}</strong><span>Entregables vencidos</span></article>
+        <article><strong>{{ summary.documentos_recibidos }}</strong><span>Documentos recibidos</span></article>
+    </section>
+
+    <section class="gc-portal-grid">
+        <article class="gc-card">
+            <h2>Requerimientos</h2>
+            {% if requerimientos %}
+                <ul class="gc-list">
+                    {% for row in requerimientos %}
+                    <li>
+                        <div>
+                            <strong>{{ row.nombre_del_requerimiento or row.name }}</strong>
+                            <div>{{ row.periodo or "Sin periodo" }}{% if row.company %} · {{ row.company }}{% endif %}</div>
+                        </div>
+                        <div class="gc-meta">
+                            <span>{{ row.estado_requerimiento }}</span>
+                            <span>{{ row.porcentaje_cumplimiento or 0 }}%</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="gc-empty">No hay requerimientos visibles.</p>
+            {% endif %}
+        </article>
+
+        <article class="gc-card">
+            <h2>Entregables</h2>
+            {% if entregables %}
+                <ul class="gc-list">
+                    {% for row in entregables %}
+                    <li>
+                        <div>
+                            <strong>{{ row.tipo_entregable or row.name }}</strong>
+                            <div>{{ row.descripcion or row.requerimiento_cliente }}</div>
+                        </div>
+                        <div class="gc-meta">
+                            <span>{{ row.estado_entregable }}</span>
+                            <span>{{ row.fecha_compromiso or "Sin fecha" }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="gc-empty">No hay entregables visibles.</p>
+            {% endif %}
+        </article>
+    </section>
+
+    <section class="gc-portal-grid">
+        <article class="gc-card">
+            <h2>Documentos</h2>
+            {% if documentos %}
+                <ul class="gc-list">
+                    {% for row in documentos %}
+                    <li>
+                        <div>
+                            <strong>{{ row.titulo_del_documento }}</strong>
+                            <div>{{ row.tipo or "Documento" }}{% if row.periodo %} · {{ row.periodo }}{% endif %}</div>
+                        </div>
+                        <div class="gc-meta">
+                            {% if row.archivo_adjunto %}
+                            <a href="{{ row.archivo_adjunto }}" target="_blank" rel="noopener">Descargar</a>
+                            {% else %}
+                            <span>Sin archivo principal</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="gc-empty">No hay documentos visibles.</p>
+            {% endif %}
+        </article>
+
+        <article class="gc-card">
+            <h2>Comunicaciones</h2>
+            {% if comunicaciones %}
+                <ul class="gc-list">
+                    {% for row in comunicaciones %}
+                    <li>
+                        <div>
+                            <strong>{{ row.subject or "Comunicacion" }}</strong>
+                            <div>{{ row.sender_full_name or "Despacho" }} · {{ row.creation }}</div>
+                        </div>
+                        <div class="gc-meta">
+                            <span>{{ row.reference_name }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="gc-empty">No hay comunicaciones registradas.</p>
+            {% endif %}
+        </article>
+    </section>
+</div>
+
+<style>
+.gc-portal-shell { max-width: 1180px; margin: 0 auto; padding: 24px 0 40px; }
+.gc-portal-hero { display: flex; justify-content: space-between; gap: 16px; align-items: start; margin-bottom: 20px; padding: 20px; border: 1px solid #d7e0ea; border-radius: 18px; background: linear-gradient(135deg, #f8fafc, #eef6ff 70%, #f6fffb); }
+.gc-portal-hero h1 { margin: 0 0 6px; font-size: 32px; }
+.gc-portal-hero p { margin: 0; color: #4b5563; }
+.gc-portal-flags { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #334155; }
+.gc-portal-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+.gc-portal-stats article, .gc-card { border: 1px solid #d7e0ea; border-radius: 16px; background: #fff; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06); }
+.gc-portal-stats article { padding: 16px; }
+.gc-portal-stats strong { display: block; font-size: 28px; line-height: 1; }
+.gc-portal-stats span { display: block; margin-top: 6px; color: #64748b; font-size: 13px; }
+.gc-portal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.gc-card { padding: 18px; }
+.gc-card h2 { margin: 0 0 12px; font-size: 20px; }
+.gc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.gc-list li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #eef2f7; }
+.gc-list li:first-child { border-top: 0; padding-top: 0; }
+.gc-list strong { display: block; margin-bottom: 4px; }
+.gc-list div { color: #475569; font-size: 13px; }
+.gc-meta { display: flex; flex-direction: column; align-items: end; gap: 6px; white-space: nowrap; }
+.gc-empty { color: #64748b; margin: 0; }
+@media (max-width: 860px) {
+    .gc-portal-hero { flex-direction: column; }
+    .gc-portal-stats, .gc-portal-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}

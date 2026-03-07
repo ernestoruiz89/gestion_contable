@@ -1,0 +1,769 @@
+{
+    "actions": [],
+    "creation": "2026-03-06 10:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "nombre_del_encargo",
+        "cliente",
+        "contrato_comercial",
+        "plantilla_encargo_contable",
+        "project",
+        "column_break_1",
+        "servicio_contable",
+        "tipo_de_servicio",
+        "estado",
+        "workflow_section",
+        "estado_aprobacion",
+        "fecha_envio_revision",
+        "workflow_column_break",
+        "revisado_por_supervisor",
+        "fecha_revision_supervisor",
+        "workflow_column_break_2",
+        "aprobado_por_socio",
+        "fecha_aprobacion_socio",
+        "workflow_comments_section",
+        "comentarios_supervisor",
+        "comentarios_socio",
+        "section_fechas",
+        "fecha_de_inicio",
+        "fecha_fin_estimada",
+        "column_break_2",
+        "periodo_referencia",
+        "responsable",
+        "section_planeacion",
+        "presupuesto_horas",
+        "presupuesto_monto",
+        "column_break_planeacion",
+        "hitos_totales",
+        "hitos_completados",
+        "hitos_vencidos",
+        "column_break_planeacion_2",
+        "avance_hitos_pct",
+        "consumo_horas_pct",
+        "consumo_monto_pct",
+        "section_desviacion",
+        "desviacion_horas",
+        "desviacion_horas_pct",
+        "column_break_planeacion_3",
+        "monto_real_ejecutado",
+        "desviacion_monto",
+        "desviacion_monto_pct",
+        "section_hitos",
+        "hitos",
+        "section_horas",
+        "company",
+        "moneda",
+        "column_break_3",
+        "modalidad_honorario",
+        "tarifa_hora",
+        "honorario_fijo",
+        "costo_interno_hora",
+        "horas_registradas",
+        "horas_facturables",
+        "monto_horas_pendientes",
+        "monto_total_pendiente",
+        "factura_venta",
+        "section_rentabilidad",
+        "costo_interno_total",
+        "wip_monto",
+        "column_break_rentabilidad",
+        "ingreso_facturado",
+        "cobrado_total",
+        "saldo_por_cobrar",
+        "section_margen",
+        "margen_ejecutado",
+        "margen_ejecutado_pct",
+        "column_break_margen",
+        "margen_facturado",
+        "margen_facturado_pct",
+        "margen_cobrado",
+        "margen_cobrado_pct",
+        "section_cobranza",
+        "facturas_emitidas",
+        "facturas_abiertas",
+        "facturas_vencidas",
+        "cartera_vencida",
+        "ultima_gestion_cobranza",
+        "proxima_gestion_cobranza",
+        "column_break_cobranza",
+        "aging_current",
+        "aging_0_30",
+        "aging_31_60",
+        "aging_61_90",
+        "aging_91_plus",
+        "section_notas",
+        "descripcion"
+    ],
+    "fields": [
+        {
+            "fieldname": "nombre_del_encargo",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Nombre del Encargo",
+            "read_only": 1,
+            "reqd": 1
+        },
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "reqd": 1
+        },
+        {
+            "fieldname": "contrato_comercial",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Contrato Comercial",
+            "options": "Contrato Comercial"
+        },
+        {
+            "fieldname": "plantilla_encargo_contable",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Plantilla de Encargo",
+            "options": "Plantilla Encargo Contable"
+        },
+        {
+            "fieldname": "project",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Proyecto ERPNext",
+            "options": "Project"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "servicio_contable",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Servicio",
+            "options": "Servicio Contable"
+        },
+        {
+            "fieldname": "tipo_de_servicio",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Tipo de Servicio",
+            "options": "Contabilidad\nAuditoria\nTrabajo Especial\nConsultoria",
+            "read_only": 1
+        },
+        {
+            "default": "En Ejecucion",
+            "fieldname": "estado",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Estado",
+            "options": "Planificado\nEn Ejecucion\nEn Revision\nCerrado\nCancelado"
+        },
+        {
+            "fieldname": "workflow_section",
+            "fieldtype": "Section Break",
+            "label": "Gobierno y Aprobacion"
+        },
+        {
+            "fieldname": "estado_aprobacion",
+            "fieldtype": "Select",
+            "label": "Estado de Aprobacion",
+            "options": "Borrador\nRevision Supervisor\nRevision Socio\nAprobado\nDevuelto",
+            "default": "Borrador",
+            "in_list_view": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_envio_revision",
+            "fieldtype": "Datetime",
+            "label": "Fecha Envio Revision",
+            "read_only": 1
+        },
+        {
+            "fieldname": "workflow_column_break",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "revisado_por_supervisor",
+            "fieldtype": "Link",
+            "label": "Revisado por Supervisor",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "fecha_revision_supervisor",
+            "fieldtype": "Datetime",
+            "label": "Fecha Revision Supervisor",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "workflow_column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "aprobado_por_socio",
+            "fieldtype": "Link",
+            "label": "Aprobado por Socio",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "fecha_aprobacion_socio",
+            "fieldtype": "Datetime",
+            "label": "Fecha Aprobacion Socio",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "workflow_comments_section",
+            "fieldtype": "Section Break",
+            "label": "Comentarios de Revision"
+        },
+        {
+            "fieldname": "comentarios_supervisor",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Supervisor",
+            "permlevel": 1
+        },
+        {
+            "fieldname": "comentarios_socio",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Socio",
+            "permlevel": 2
+        },
+        {
+            "fieldname": "section_fechas",
+            "fieldtype": "Section Break",
+            "label": "Fechas y Responsable"
+        },
+        {
+            "fieldname": "fecha_de_inicio",
+            "fieldtype": "Date",
+            "label": "Fecha de Inicio"
+        },
+        {
+            "fieldname": "fecha_fin_estimada",
+            "fieldtype": "Date",
+            "label": "Fecha Fin Estimada"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "periodo_referencia",
+            "fieldtype": "Link",
+            "label": "Periodo Referencia",
+            "options": "Periodo Contable"
+        },
+        {
+            "fieldname": "responsable",
+            "fieldtype": "Link",
+            "label": "Responsable",
+            "options": "User"
+        },
+        {
+            "fieldname": "section_horas",
+            "fieldtype": "Section Break",
+            "label": "Horas, Honorarios y Facturacion"
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company"
+        },
+        {
+            "fieldname": "moneda",
+            "fieldtype": "Link",
+            "label": "Moneda",
+            "options": "Currency"
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "Por Hora",
+            "fieldname": "modalidad_honorario",
+            "fieldtype": "Select",
+            "label": "Modalidad Honorario",
+            "options": "Por Hora\nFijo\nMixto"
+        },
+        {
+            "fieldname": "tarifa_hora",
+            "fieldtype": "Currency",
+            "label": "Tarifa Hora",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "honorario_fijo",
+            "fieldtype": "Currency",
+            "label": "Honorario Fijo",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "costo_interno_hora",
+            "fieldtype": "Currency",
+            "label": "Costo Interno Hora",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "presupuesto_horas",
+            "fieldtype": "Float",
+            "label": "Presupuesto Horas"
+        },
+        {
+            "fieldname": "horas_registradas",
+            "fieldtype": "Float",
+            "label": "Horas Registradas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "horas_facturables",
+            "fieldtype": "Float",
+            "label": "Horas Facturables",
+            "read_only": 1
+        },
+        {
+            "fieldname": "monto_horas_pendientes",
+            "fieldtype": "Currency",
+            "label": "Monto Horas Pendientes",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "monto_total_pendiente",
+            "fieldtype": "Currency",
+            "label": "Monto Total Pendiente",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "factura_venta",
+            "fieldtype": "Link",
+            "label": "Ultima Factura",
+            "options": "Sales Invoice",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_rentabilidad",
+            "fieldtype": "Section Break",
+            "label": "Rentabilidad y WIP"
+        },
+        {
+            "fieldname": "costo_interno_total",
+            "fieldtype": "Currency",
+            "label": "Costo Interno Total",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "wip_monto",
+            "fieldtype": "Currency",
+            "label": "WIP",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_rentabilidad",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "ingreso_facturado",
+            "fieldtype": "Currency",
+            "label": "Ingreso Facturado",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "cobrado_total",
+            "fieldtype": "Currency",
+            "label": "Cobrado Total",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "saldo_por_cobrar",
+            "fieldtype": "Currency",
+            "label": "Saldo por Cobrar",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_margen",
+            "fieldtype": "Section Break",
+            "label": "Margen"
+        },
+        {
+            "fieldname": "margen_ejecutado",
+            "fieldtype": "Currency",
+            "label": "Margen Ejecutado",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "margen_ejecutado_pct",
+            "fieldtype": "Percent",
+            "label": "Margen Ejecutado %",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_margen",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "margen_facturado",
+            "fieldtype": "Currency",
+            "label": "Margen Facturado",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "margen_facturado_pct",
+            "fieldtype": "Percent",
+            "label": "Margen Facturado %",
+            "read_only": 1
+        },
+        {
+            "fieldname": "margen_cobrado",
+            "fieldtype": "Currency",
+            "label": "Margen Cobrado",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "margen_cobrado_pct",
+            "fieldtype": "Percent",
+            "label": "Margen Cobrado %",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_cobranza",
+            "fieldtype": "Section Break",
+            "label": "Cartera y Cobranza"
+        },
+        {
+            "fieldname": "facturas_emitidas",
+            "fieldtype": "Int",
+            "label": "Facturas Emitidas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "facturas_abiertas",
+            "fieldtype": "Int",
+            "label": "Facturas Abiertas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "facturas_vencidas",
+            "fieldtype": "Int",
+            "label": "Facturas Vencidas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "cartera_vencida",
+            "fieldtype": "Currency",
+            "label": "Cartera Vencida",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "ultima_gestion_cobranza",
+            "fieldtype": "Datetime",
+            "label": "Ultima Gestion Cobranza",
+            "read_only": 1
+        },
+        {
+            "fieldname": "proxima_gestion_cobranza",
+            "fieldtype": "Date",
+            "label": "Proxima Gestion Cobranza",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_cobranza",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "aging_current",
+            "fieldtype": "Currency",
+            "label": "Aging Corriente",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "aging_0_30",
+            "fieldtype": "Currency",
+            "label": "Aging 0-30",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "aging_31_60",
+            "fieldtype": "Currency",
+            "label": "Aging 31-60",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "aging_61_90",
+            "fieldtype": "Currency",
+            "label": "Aging 61-90",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "aging_91_plus",
+            "fieldtype": "Currency",
+            "label": "Aging 91+",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_notas",
+            "fieldtype": "Section Break",
+            "label": "Descripcion"
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Small Text",
+            "label": "Descripcion"
+        },
+        {
+            "fieldname": "section_planeacion",
+            "fieldtype": "Section Break",
+            "label": "Planeacion y Presupuesto"
+        },
+        {
+            "fieldname": "presupuesto_monto",
+            "fieldtype": "Currency",
+            "label": "Presupuesto Monto",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "column_break_planeacion",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "hitos_totales",
+            "fieldtype": "Int",
+            "label": "Hitos Totales",
+            "read_only": 1
+        },
+        {
+            "fieldname": "hitos_completados",
+            "fieldtype": "Int",
+            "label": "Hitos Completados",
+            "read_only": 1
+        },
+        {
+            "fieldname": "hitos_vencidos",
+            "fieldtype": "Int",
+            "label": "Hitos Vencidos",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_planeacion_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "avance_hitos_pct",
+            "fieldtype": "Percent",
+            "label": "Avance Hitos %",
+            "read_only": 1
+        },
+        {
+            "fieldname": "consumo_horas_pct",
+            "fieldtype": "Percent",
+            "label": "Consumo Horas %",
+            "read_only": 1
+        },
+        {
+            "fieldname": "consumo_monto_pct",
+            "fieldtype": "Percent",
+            "label": "Consumo Monto %",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_desviacion",
+            "fieldtype": "Section Break",
+            "label": "Desviacion Real vs Plan"
+        },
+        {
+            "fieldname": "desviacion_horas",
+            "fieldtype": "Float",
+            "label": "Desviacion Horas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "desviacion_horas_pct",
+            "fieldtype": "Percent",
+            "label": "Desviacion Horas %",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_planeacion_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "monto_real_ejecutado",
+            "fieldtype": "Currency",
+            "label": "Monto Real Ejecutado",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "desviacion_monto",
+            "fieldtype": "Currency",
+            "label": "Desviacion Monto",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "desviacion_monto_pct",
+            "fieldtype": "Percent",
+            "label": "Desviacion Monto %",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_hitos",
+            "fieldtype": "Section Break",
+            "label": "Hitos del Encargo"
+        },
+        {
+            "fieldname": "hitos",
+            "fieldtype": "Table",
+            "label": "Hitos",
+            "options": "Hito Encargo Contable"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "group": "Operacion",
+            "link_doctype": "Task",
+            "link_fieldname": "encargo_contable"
+        },
+        {
+            "group": "Evidencias",
+            "link_doctype": "Documento Contable",
+            "link_fieldname": "encargo_contable"
+        }
+    ],
+    "modified": "2026-03-06 12:10:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Encargo Contable",
+    "naming_rule": "By fieldname",
+    "autoname": "field:nombre_del_encargo",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Auxiliar Contable del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "System Manager",
+            "permlevel": 1,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "permlevel": 1,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "permlevel": 1,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "permlevel": 1,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "System Manager",
+            "permlevel": 2,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "permlevel": 2,
+            "read": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "permlevel": 2,
+            "read": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "permlevel": 2,
+            "read": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

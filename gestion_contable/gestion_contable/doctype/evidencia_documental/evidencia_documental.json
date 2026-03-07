@@ -1,0 +1,141 @@
+{
+    "actions": [],
+    "creation": "2026-03-07 09:00:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "descripcion_evidencia",
+        "codigo_documental",
+        "tipo_documental",
+        "origen_documental",
+        "column_break_1",
+        "es_principal",
+        "numero_version",
+        "es_version_vigente",
+        "archivo",
+        "section_clasificacion",
+        "confidencialidad",
+        "politica_retencion",
+        "conservar_hasta",
+        "column_break_2",
+        "archivo_file",
+        "hash_sha256",
+        "observaciones"
+    ],
+    "fields": [
+        {
+            "fieldname": "descripcion_evidencia",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Descripcion Evidencia",
+            "reqd": 1
+        },
+        {
+            "fieldname": "codigo_documental",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Codigo Documental"
+        },
+        {
+            "fieldname": "tipo_documental",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Tipo Documental",
+            "options": "Factura\nEstado de Cuenta\nDeclaracion\nRecibo\nContrato\nCedula de Auditoria\nCorrespondencia\nOtro",
+            "default": "Otro"
+        },
+        {
+            "fieldname": "origen_documental",
+            "fieldtype": "Select",
+            "label": "Origen Documental",
+            "options": "Cliente\nInterno\nERPNext\nTercero\nAutoridad\nOtro",
+            "default": "Otro"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "es_principal",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Es Principal",
+            "default": "0"
+        },
+        {
+            "fieldname": "numero_version",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "label": "Numero Version",
+            "default": "1"
+        },
+        {
+            "fieldname": "es_version_vigente",
+            "fieldtype": "Check",
+            "label": "Es Version Vigente",
+            "default": "1"
+        },
+        {
+            "fieldname": "archivo",
+            "fieldtype": "Attach",
+            "label": "Archivo",
+            "reqd": 1
+        },
+        {
+            "fieldname": "section_clasificacion",
+            "fieldtype": "Section Break",
+            "label": "Clasificacion y Retencion"
+        },
+        {
+            "fieldname": "confidencialidad",
+            "fieldtype": "Select",
+            "label": "Confidencialidad",
+            "options": "Publico\nInterno\nConfidencial\nRestringido",
+            "default": "Confidencial"
+        },
+        {
+            "fieldname": "politica_retencion",
+            "fieldtype": "Select",
+            "label": "Politica Retencion",
+            "options": "Sin Definir\nOperacion\nFiscal\nAuditoria\nLegal\nPermanente",
+            "default": "Sin Definir"
+        },
+        {
+            "fieldname": "conservar_hasta",
+            "fieldtype": "Date",
+            "label": "Conservar Hasta"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "archivo_file",
+            "fieldtype": "Link",
+            "label": "Registro File",
+            "options": "File",
+            "read_only": 1
+        },
+        {
+            "fieldname": "hash_sha256",
+            "fieldtype": "Data",
+            "label": "Hash SHA256",
+            "read_only": 1
+        },
+        {
+            "fieldname": "observaciones",
+            "fieldtype": "Small Text",
+            "label": "Observaciones"
+        }
+    ],
+    "istable": 1,
+    "modified": "2026-03-07 09:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Evidencia Documental",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

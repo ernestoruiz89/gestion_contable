@@ -1,0 +1,92 @@
+{
+    "actions": [],
+    "creation": "2026-03-06 16:30:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "orden",
+        "titulo",
+        "obligatorio",
+        "column_break_1",
+        "dias_desde_inicio",
+        "duracion_dias",
+        "peso_porcentaje",
+        "section_detalle",
+        "horas_planificadas",
+        "monto_planificado",
+        "descripcion"
+    ],
+    "fields": [
+        {
+            "fieldname": "orden",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "label": "Orden"
+        },
+        {
+            "fieldname": "titulo",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Titulo",
+            "reqd": 1
+        },
+        {
+            "fieldname": "obligatorio",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Obligatorio",
+            "default": "1"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "dias_desde_inicio",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "label": "Dias desde Inicio"
+        },
+        {
+            "fieldname": "duracion_dias",
+            "fieldtype": "Int",
+            "label": "Duracion Dias",
+            "default": "1"
+        },
+        {
+            "fieldname": "peso_porcentaje",
+            "fieldtype": "Percent",
+            "label": "Peso Porcentaje"
+        },
+        {
+            "fieldname": "section_detalle",
+            "fieldtype": "Section Break",
+            "label": "Detalle"
+        },
+        {
+            "fieldname": "horas_planificadas",
+            "fieldtype": "Float",
+            "label": "Horas Planificadas"
+        },
+        {
+            "fieldname": "monto_planificado",
+            "fieldtype": "Currency",
+            "label": "Monto Planificado"
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Small Text",
+            "label": "Descripcion"
+        }
+    ],
+    "istable": 1,
+    "modified": "2026-03-06 16:30:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Hito Plantilla Encargo",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

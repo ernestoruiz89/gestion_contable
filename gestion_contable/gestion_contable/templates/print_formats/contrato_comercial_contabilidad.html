@@ -1,0 +1,16 @@
+{% set titulo_documento = "Contrato de Servicios de Contabilidad" %}
+{% set subtitulo_documento = "Plantilla para servicios recurrentes de contabilidad, cierre y soporte contable." %}
+{% set objeto_principal = "El Despacho prestara servicios de contabilidad financiera, registro operativo, conciliaciones, cierres mensuales y soporte contable recurrente segun el alcance aprobado para este cliente." %}
+{% set entregables_texto = "Los entregables podran incluir registros contables, conciliaciones, estados de avance, reportes de cierre, papeles de soporte y otros documentos definidos en las lineas de alcance." %}
+{% set clausulas_especificas = [
+    "El servicio se ejecuta con base en la informacion, documentos y comprobantes suministrados por el cliente dentro de los plazos acordados.",
+    "Los ajustes derivados de errores, omisiones o cambios posteriores en la informacion entregada por el cliente podran generar horas adicionales o un cambio de alcance.",
+    "Las declaraciones, libros y cierres se prepararan conforme al alcance contratado y no incluyen servicios no detallados expresamente en este documento."
+] %}
+{% set obligaciones_cliente = [
+    "Entregar oportunamente comprobantes, estados bancarios, auxiliares, planillas y cualquier soporte requerido para el registro contable.",
+    "Designar un responsable para atender requerimientos, validar borradores y aprobar observaciones dentro de los tiempos comprometidos.",
+    "Informar cambios societarios, fiscales, laborales o regulatorios que afecten la contabilidad o los cierres del periodo."
+] %}
+{% set consideraciones_finales = "Si el cliente requiere ampliacion de periodos, reconstruccion contable, implementaciones especiales o soporte fuera de calendario, el despacho debera documentar un cambio de alcance antes de ejecutar el trabajo." %}
+{% include "gestion_contable/templates/print_formats/contrato_comercial_base.html" %}

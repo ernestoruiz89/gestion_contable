@@ -1,0 +1,185 @@
+{
+    "actions": [],
+    "creation": "2026-03-06 12:10:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "cliente",
+        "servicio_contable",
+        "activa",
+        "section_origen",
+        "contrato_comercial",
+        "cambio_alcance_comercial",
+        "section_vigencia",
+        "vigencia_desde",
+        "vigencia_hasta",
+        "column_break_1",
+        "company",
+        "moneda",
+        "tarifa_hora",
+        "honorario_fijo",
+        "section_notas",
+        "descripcion"
+    ],
+    "fields": [
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "reqd": 1
+        },
+        {
+            "fieldname": "servicio_contable",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Servicio",
+            "options": "Servicio Contable",
+            "reqd": 1
+        },
+        {
+            "default": "1",
+            "fieldname": "activa",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Activa"
+        },
+        {
+            "fieldname": "section_origen",
+            "fieldtype": "Section Break",
+            "label": "Origen Contractual"
+        },
+        {
+            "fieldname": "contrato_comercial",
+            "fieldtype": "Link",
+            "label": "Contrato Comercial",
+            "options": "Contrato Comercial",
+            "read_only": 1
+        },
+        {
+            "fieldname": "cambio_alcance_comercial",
+            "fieldtype": "Link",
+            "label": "Cambio de Alcance",
+            "options": "Cambio Alcance Comercial",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_vigencia",
+            "fieldtype": "Section Break",
+            "label": "Vigencia y Moneda"
+        },
+        {
+            "fieldname": "vigencia_desde",
+            "fieldtype": "Date",
+            "label": "Vigencia Desde"
+        },
+        {
+            "fieldname": "vigencia_hasta",
+            "fieldtype": "Date",
+            "label": "Vigencia Hasta"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company"
+        },
+        {
+            "fieldname": "moneda",
+            "fieldtype": "Link",
+            "label": "Moneda",
+            "options": "Currency"
+        },
+        {
+            "fieldname": "tarifa_hora",
+            "fieldtype": "Currency",
+            "label": "Tarifa Hora",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "honorario_fijo",
+            "fieldtype": "Currency",
+            "label": "Honorario Fijo",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "section_notas",
+            "fieldtype": "Section Break",
+            "label": "Notas"
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Small Text",
+            "label": "Descripcion"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-03-06 12:10:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Tarifa Cliente Servicio",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Contador del Despacho",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 0,
+            "delete": 0,
+            "email": 1,
+            "export": 0,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Auxiliar Contable del Despacho",
+            "share": 1,
+            "write": 0
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

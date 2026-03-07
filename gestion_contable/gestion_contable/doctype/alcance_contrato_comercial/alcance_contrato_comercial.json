@@ -1,0 +1,139 @@
+{
+    "actions": [],
+    "creation": "2026-03-06 14:20:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "servicio_contable",
+        "descripcion",
+        "column_break_1",
+        "activa",
+        "tarifa_cliente_servicio",
+        "section_tarifas",
+        "periodicidad",
+        "modalidad_tarifa",
+        "horas_incluidas",
+        "column_break_2",
+        "tarifa_hora",
+        "honorario_fijo",
+        "section_sla",
+        "sla_respuesta_horas",
+        "sla_entrega_dias",
+        "column_break_3",
+        "fecha_inicio",
+        "fecha_fin"
+    ],
+    "fields": [
+        {
+            "fieldname": "servicio_contable",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Servicio",
+            "options": "Servicio Contable",
+            "reqd": 1
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Small Text",
+            "in_list_view": 1,
+            "label": "Descripcion"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "activa",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Activa",
+            "default": "1"
+        },
+        {
+            "fieldname": "tarifa_cliente_servicio",
+            "fieldtype": "Link",
+            "label": "Tarifa Generada",
+            "options": "Tarifa Cliente Servicio",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_tarifas",
+            "fieldtype": "Section Break",
+            "label": "Tarifas y Periodicidad"
+        },
+        {
+            "fieldname": "periodicidad",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Periodicidad",
+            "options": "Mensual\nBimestral\nTrimestral\nSemestral\nAnual\nPor Evento",
+            "default": "Mensual"
+        },
+        {
+            "fieldname": "modalidad_tarifa",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Modalidad Tarifa",
+            "options": "Por Hora\nFijo\nMixto",
+            "default": "Fijo"
+        },
+        {
+            "fieldname": "horas_incluidas",
+            "fieldtype": "Float",
+            "label": "Horas Incluidas"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "tarifa_hora",
+            "fieldtype": "Currency",
+            "label": "Tarifa Hora"
+        },
+        {
+            "fieldname": "honorario_fijo",
+            "fieldtype": "Currency",
+            "label": "Honorario Fijo"
+        },
+        {
+            "fieldname": "section_sla",
+            "fieldtype": "Section Break",
+            "label": "SLA y Vigencia"
+        },
+        {
+            "fieldname": "sla_respuesta_horas",
+            "fieldtype": "Float",
+            "label": "SLA Respuesta Horas"
+        },
+        {
+            "fieldname": "sla_entrega_dias",
+            "fieldtype": "Float",
+            "label": "SLA Entrega Dias"
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "fecha_inicio",
+            "fieldtype": "Date",
+            "label": "Fecha Inicio"
+        },
+        {
+            "fieldname": "fecha_fin",
+            "fieldtype": "Date",
+            "label": "Fecha Fin"
+        }
+    ],
+    "istable": 1,
+    "modified": "2026-03-06 14:20:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Alcance Contrato Comercial",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

@@ -1,148 +1,319 @@
 {
-    "actions":  [
-
-                ],
-    "creation":  "2024-03-04 14:00:00.000000",
-    "doctype":  "DocType",
-    "engine":  "InnoDB",
-    "field_order":  [
-                        "titulo",
-                        "cliente",
-                        "periodo",
-                        "column_break_1",
-                        "tipo_de_tarea",
-                        "estado",
-                        "fecha_de_vencimiento",
-                        "asignacion_section",
-                        "asignado_a",
-                        "observaciones_section",
-                        "notas"
-                    ],
-    "fields":  [
-                   {
-                       "fieldname":  "titulo",
-                       "fieldtype":  "Data",
-                       "in_list_view":  1,
-                       "label":  "TÃ­tulo",
-                       "read_only":  1
-                   },
-                   {
-                       "fieldname":  "cliente",
-                       "fieldtype":  "Link",
-                       "in_list_view":  1,
-                       "label":  "Cliente",
-                       "options":  "Cliente Contable",
-                       "reqd":  1
-                   },
-                   {
-                       "fieldname":  "periodo",
-                       "fieldtype":  "Link",
-                       "in_list_view":  1,
-                       "label":  "Periodo",
-                       "options":  "Periodo Contable",
-                       "reqd":  1
-                   },
-                   {
-                       "fieldname":  "column_break_1",
-                       "fieldtype":  "Column Break"
-                   },
-                   {
-                       "fieldname":  "tipo_de_tarea",
-                       "fieldtype":  "Select",
-                       "label":  "Tipo de Tarea",
-                       "options":  "Impuestos\nNómina\nCierre Contable\nAuditoría\nConciliación Bancaria\nDeclaración Anual\nDictamen Fiscal\nEstados Financieros\nFacturación\nAtención a Requerimiento\nTrámite Fiscal\nConsultoría\nOtro"
-                   },
-                   {
-                       "default":  "Pendiente",
-                       "fieldname":  "estado",
-                       "fieldtype":  "Select",
-                       "in_list_view":  1,
-                       "label":  "Estado",
-                       "options":  "Pendiente\nEn Proceso\nEn Revisión\nCompletada"
-                   },
-                   {
-                       "fieldname":  "fecha_de_vencimiento",
-                       "fieldtype":  "Date",
-                       "in_list_view":  1,
-                       "label":  "Fecha de Vencimiento",
-                       "reqd":  1
-                   },
-                   {
-                       "fieldname":  "asignacion_section",
-                       "fieldtype":  "Section Break",
-                       "label":  "Asignación"
-                   },
-                   {
-                       "fieldname":  "asignado_a",
-                       "fieldtype":  "Link",
-                       "label":  "Asignado a",
-                       "options":  "User"
-                   },
-                   {
-                       "fieldname":  "observaciones_section",
-                       "fieldtype":  "Section Break",
-                       "label":  "Observaciones"
-                   },
-                   {
-                       "fieldname":  "notas",
-                       "fieldtype":  "Small Text",
-                       "label":  "Notas"
-                   }
-               ],
-    "index_web_pages_for_search":  1,
-    "links":  [
-                  {
-                      "group":  "Documentos",
-                      "link_doctype":  "Documento Contable",
-                      "link_fieldname":  "cliente"
-                  }
-              ],
-    "modified":  "2024-03-04 14:00:00.000000",
-    "modified_by":  "Administrator",
-    "module":  "Gestion Contable",
-    "name":  "Tarea Contable",
-    "naming_rule":  "By fieldname",
-    "autoname":  "field:titulo",
-    "owner":  "Administrator",
-    "permissions":  [
-                        {
-                            "create":  1,
-                            "delete":  1,
-                            "email":  1,
-                            "export":  1,
-                            "print":  1,
-                            "read":  1,
-                            "report":  1,
-                            "role":  "System Manager",
-                            "share":  1,
-                            "write":  1
-                        },
-                        {
-                            "create":  1,
-                            "email":  1,
-                            "print":  1,
-                            "read":  1,
-                            "report":  1,
-                            "role":  "Contador del Despacho",
-                            "share":  1,
-                            "write":  1,
-                            "delete":  1,
-                            "export":  1
-                        },
-                        {
-                            "create":  0,
-                            "email":  1,
-                            "print":  1,
-                            "read":  1,
-                            "report":  1,
-                            "role":  "Auxiliar Contable del Despacho",
-                            "share":  1,
-                            "write":  1,
-                            "delete":  0,
-                            "export":  0
-                        }
-                    ],
-    "sort_field":  "modified",
-    "sort_order":  "DESC",
-    "track_changes":  1
+    "actions": [],
+    "creation": "2024-03-04 14:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "titulo",
+        "cliente",
+        "company",
+        "periodo",
+        "encargo_contable",
+        "column_break_1",
+        "tipo_de_tarea",
+        "estado",
+        "fecha_de_vencimiento",
+        "workflow_section",
+        "estado_aprobacion",
+        "fecha_envio_revision",
+        "workflow_column_break",
+        "revisado_por_supervisor",
+        "fecha_revision_supervisor",
+        "workflow_column_break_2",
+        "aprobado_por_socio",
+        "fecha_aprobacion_socio",
+        "workflow_comments_section",
+        "comentarios_supervisor",
+        "comentarios_socio",
+        "asignacion_section",
+        "asignado_a",
+        "observaciones_section",
+        "notas"
+    ],
+    "fields": [
+        {
+            "fieldname": "titulo",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Título",
+            "read_only": 1
+        },
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "reqd": 1
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company",
+            "in_list_view": 0
+        },
+        {
+            "fieldname": "periodo",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Periodo",
+            "options": "Periodo Contable",
+            "reqd": 1
+        },
+        {
+            "fieldname": "encargo_contable",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Encargo",
+            "options": "Encargo Contable"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "tipo_de_tarea",
+            "fieldtype": "Select",
+            "label": "Tipo de Tarea",
+            "options": "Impuestos\nNómina\nCierre Contable\nAuditoría\nConciliación Bancaria\nDeclaración Anual\nDictamen Fiscal\nEstados Financieros\nFacturación\nAtención a Requerimiento\nTrámite Fiscal\nConsultoría\nOtro"
+        },
+        {
+            "default": "Pendiente",
+            "fieldname": "estado",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Estado",
+            "options": "Pendiente\nEn Proceso\nEn Revisión\nCompletada\nDescartada"
+        },
+        {
+            "fieldname": "fecha_de_vencimiento",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "Fecha de Vencimiento",
+            "reqd": 1
+        },
+        {
+            "fieldname": "workflow_section",
+            "fieldtype": "Section Break",
+            "label": "Gobierno y Aprobacion"
+        },
+        {
+            "fieldname": "estado_aprobacion",
+            "fieldtype": "Select",
+            "label": "Estado de Aprobacion",
+            "options": "Borrador\nRevision Supervisor\nRevision Socio\nAprobado\nDevuelto",
+            "default": "Borrador",
+            "in_list_view": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_envio_revision",
+            "fieldtype": "Datetime",
+            "label": "Fecha Envio Revision",
+            "read_only": 1
+        },
+        {
+            "fieldname": "workflow_column_break",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "revisado_por_supervisor",
+            "fieldtype": "Link",
+            "label": "Revisado por Supervisor",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "fecha_revision_supervisor",
+            "fieldtype": "Datetime",
+            "label": "Fecha Revision Supervisor",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "workflow_column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "aprobado_por_socio",
+            "fieldtype": "Link",
+            "label": "Aprobado por Socio",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "fecha_aprobacion_socio",
+            "fieldtype": "Datetime",
+            "label": "Fecha Aprobacion Socio",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "workflow_comments_section",
+            "fieldtype": "Section Break",
+            "label": "Comentarios de Revision"
+        },
+        {
+            "fieldname": "comentarios_supervisor",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Supervisor",
+            "permlevel": 1
+        },
+        {
+            "fieldname": "comentarios_socio",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Socio",
+            "permlevel": 2
+        },
+        {
+            "fieldname": "asignacion_section",
+            "fieldtype": "Section Break",
+            "label": "Asignación"
+        },
+        {
+            "fieldname": "asignado_a",
+            "fieldtype": "Link",
+            "label": "Asignado a",
+            "options": "User"
+        },
+        {
+            "fieldname": "observaciones_section",
+            "fieldtype": "Section Break",
+            "label": "Observaciones"
+        },
+        {
+            "fieldname": "notas",
+            "fieldtype": "Small Text",
+            "label": "Notas"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "group": "Evidencias",
+            "link_doctype": "Documento Contable",
+            "link_fieldname": "tarea_contable"
+        },
+        {
+            "group": "Documentos",
+            "link_doctype": "Documento Contable",
+            "link_fieldname": "cliente"
+        }
+    ],
+    "modified": "2024-03-04 14:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Tarea Contable",
+    "naming_rule": "By fieldname",
+    "autoname": "field:titulo",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Auxiliar Contable del Despacho",
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "System Manager",
+            "permlevel": 1,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "permlevel": 1,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "permlevel": 1,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "permlevel": 1,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "System Manager",
+            "permlevel": 2,
+            "read": 1,
+            "write": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "permlevel": 2,
+            "read": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "permlevel": 2,
+            "read": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "permlevel": 2,
+            "read": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
 }

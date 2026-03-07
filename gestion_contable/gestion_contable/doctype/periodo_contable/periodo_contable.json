@@ -1,140 +1,181 @@
-{
-    "actions":  [
-
-                ],
-    "creation":  "2024-03-04 14:00:00.000000",
-    "doctype":  "DocType",
-    "engine":  "InnoDB",
-    "field_order":  [
-                        "anio",
-                        "mes",
-                        "column_break_1",
-                        "nombre_del_periodo",
-                        "estado",
-                        "section_break_fechas",
-                        "fecha_de_inicio",
-                        "column_break_2",
-                        "fecha_de_fin"
-                    ],
-    "fields":  [
-                   {
-                       "fieldname":  "anio",
-                       "fieldtype":  "Int",
-                       "in_list_view":  1,
-                       "label":  "Año",
-                       "reqd":  1
-                   },
-                   {
-                       "fieldname":  "mes",
-                       "fieldtype":  "Select",
-                       "in_list_view":  1,
-                       "label":  "Mes",
-                       "options":  "\nEnero\nFebrero\nMarzo\nAbril\nMayo\nJunio\nJulio\nAgosto\nSeptiembre\nOctubre\nNoviembre\nDiciembre",
-                       "reqd":  1
-                   },
-                   {
-                       "fieldname":  "column_break_1",
-                       "fieldtype":  "Column Break"
-                   },
-                   {
-                       "fieldname":  "nombre_del_periodo",
-                       "fieldtype":  "Data",
-                       "in_list_view":  1,
-                       "label":  "Nombre del Periodo",
-                       "read_only":  1,
-                       "unique":  1
-                   },
-                   {
-                       "default":  "Abierto",
-                       "fieldname":  "estado",
-                       "fieldtype":  "Select",
-                       "in_list_view":  1,
-                       "label":  "Estado",
-                       "options":  "Abierto\nCerrado"
-                   },
-                   {
-                       "fieldname":  "section_break_fechas",
-                       "fieldtype":  "Section Break",
-                       "label":  "Fechas del Periodo"
-                   },
-                   {
-                       "fieldname":  "fecha_de_inicio",
-                       "fieldtype":  "Date",
-                       "in_list_view":  1,
-                       "label":  "Fecha de Inicio",
-                       "read_only":  1
-                   },
-                   {
-                       "fieldname":  "column_break_2",
-                       "fieldtype":  "Column Break"
-                   },
-                   {
-                       "fieldname":  "fecha_de_fin",
-                       "fieldtype":  "Date",
-                       "in_list_view":  1,
-                       "label":  "Fecha de Fin",
-                       "read_only":  1
-                   }
-               ],
-    "index_web_pages_for_search":  1,
-    "links":  [
-                  {
-                      "group":  "Tareas",
-                      "link_doctype":  "Tarea Contable",
-                      "link_fieldname":  "periodo"
-                  },
-                  {
-                      "group":  "Documentos",
-                      "link_doctype":  "Documento Contable",
-                      "link_fieldname":  "periodo"
-                  }
-              ],
-    "modified":  "2024-03-05 10:42:00.000000",
-    "modified_by":  "Administrator",
-    "module":  "Gestion Contable",
-    "name":  "Periodo Contable",
-    "naming_rule":  "By fieldname",
-    "autoname":  "field:nombre_del_periodo",
-    "owner":  "Administrator",
-    "permissions":  [
-                        {
-                            "create":  1,
-                            "delete":  1,
-                            "email":  1,
-                            "export":  1,
-                            "print":  1,
-                            "read":  1,
-                            "report":  1,
-                            "role":  "System Manager",
-                            "share":  1,
-                            "write":  1
-                        },
-                        {
-                            "create":  1,
-                            "email":  1,
-                            "print":  1,
-                            "read":  1,
-                            "report":  1,
-                            "role":  "Contador del Despacho",
-                            "share":  1,
-                            "write":  1,
-                            "delete":  1,
-                            "export":  1
-                        },
-                        {
-                            "create":  0,
-                            "email":  1,
-                            "print":  1,
-                            "read":  1,
-                            "report":  1,
-                            "role":  "Auxiliar Contable del Despacho",
-                            "share":  1,
-                            "write":  0,
-                            "delete":  0,
-                            "export":  0
-                        }
-                    ],
-    "sort_field":  "modified",
-    "sort_order":  "DESC",
-    "track_changes":  1
+﻿{
+    "actions": [],
+    "creation": "2024-03-04 14:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "cliente",
+        "company",
+        "column_break_1",
+        "anio",
+        "mes",
+        "nombre_del_periodo",
+        "estado",
+        "section_break_fechas",
+        "fecha_de_inicio",
+        "column_break_2",
+        "fecha_de_fin"
+    ],
+    "fields": [
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "reqd": 1
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Compania",
+            "options": "Company"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "anio",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "label": "Anio",
+            "reqd": 1
+        },
+        {
+            "fieldname": "mes",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Mes",
+            "options": "\nEnero\nFebrero\nMarzo\nAbril\nMayo\nJunio\nJulio\nAgosto\nSeptiembre\nOctubre\nNoviembre\nDiciembre",
+            "reqd": 1
+        },
+        {
+            "fieldname": "nombre_del_periodo",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Nombre del Periodo",
+            "read_only": 1,
+            "unique": 1
+        },
+        {
+            "default": "Abierto",
+            "fieldname": "estado",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Estado",
+            "options": "Abierto\nCerrado"
+        },
+        {
+            "fieldname": "section_break_fechas",
+            "fieldtype": "Section Break",
+            "label": "Fechas del Periodo"
+        },
+        {
+            "fieldname": "fecha_de_inicio",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "Fecha de Inicio",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "fecha_de_fin",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "Fecha de Fin",
+            "read_only": 1
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "group": "Operacion",
+            "link_doctype": "Encargo Contable",
+            "link_fieldname": "periodo_referencia"
+        },
+        {
+            "group": "Operacion",
+            "link_doctype": "Task",
+            "link_fieldname": "periodo"
+        },
+        {
+            "group": "Operacion",
+            "link_doctype": "Documento Contable",
+            "link_fieldname": "periodo"
+        },
+        {
+            "group": "Operacion",
+            "link_doctype": "Requerimiento Cliente",
+            "link_fieldname": "periodo"
+        }
+    ],
+    "modified": "2026-03-07 10:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Periodo Contable",
+    "naming_rule": "By fieldname",
+    "autoname": "field:nombre_del_periodo",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Contador del Despacho",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 0,
+            "delete": 0,
+            "email": 1,
+            "export": 0,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Auxiliar Contable del Despacho",
+            "share": 1,
+            "write": 0
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
 }

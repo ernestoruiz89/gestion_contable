@@ -17,21 +17,23 @@ frappe.pages["panel-de-tareas"].on_page_show = function (wrapper) {
 	}
 };
 
+const TAREA_ESTADO_REVISION = "Pending Review";
+
 class PanelDeTareas {
 	constructor(page) {
 		this.page = page;
 		this.wrapper = page.main;
-		this.statuses = ["Pendiente", "En Proceso", "En Revisión", "Completada"];
-				this.canMoveCards = this.has_any_role(["Contador del Despacho", "System Manager"]);
-		this.canCreateTasks = this.has_any_role(["Contador del Despacho", "System Manager"]);
-		this.canEditTasks = this.has_any_role(["Contador del Despacho", "System Manager"]);
+		this.statuses = ["Open", "Working", TAREA_ESTADO_REVISION, "Completed"];
+		this.canMoveCards = this.has_any_role(["Contador del Despacho", "Supervisor del Despacho", "Socio del Despacho", "System Manager"]);
+		this.canCreateTasks = this.has_any_role(["Contador del Despacho", "Supervisor del Despacho", "Socio del Despacho", "System Manager"]);
+		this.canEditTasks = this.has_any_role(["Contador del Despacho", "Supervisor del Despacho", "Socio del Despacho", "System Manager"]);
 		this.draggedTask = null;
 		this.blockCardClickUntil = 0;
 		this.statusMeta = {
-			Pendiente: { border: "#f59e0b", chip: "#fef3c7", text: "#92400e" },
-			"En Proceso": { border: "#3b82f6", chip: "#dbeafe", text: "#1e3a8a" },
-			"En Revisión": { border: "#a855f7", chip: "#f3e8ff", text: "#6b21a8" },
-			Completada: { border: "#10b981", chip: "#d1fae5", text: "#065f46" },
+			"Open": { border: "#f59e0b", chip: "#fef3c7", text: "#92400e" },
+			"Working": { border: "#3b82f6", chip: "#dbeafe", text: "#1e3a8a" },
+			[TAREA_ESTADO_REVISION]: { border: "#a855f7", chip: "#f3e8ff", text: "#6b21a8" },
+			"Completed": { border: "#10b981", chip: "#d1fae5", text: "#065f46" },
 		};
 	}
 
@@ -603,7 +605,7 @@ class PanelDeTareas {
 
 		const createTaskButton = this.canCreateTasks
 			? '<button class="pt-btn-nueva-tarea" type="button">+ Nueva Tarea</button>'
-			: '<span class="pt-move-note" style="color:#64748b;">Solo Contador/System Manager pueden crear tareas.</span>';
+			: '<span class="pt-move-note" style="color:#64748b;">Solo Supervisor, Socio, Contador o System Manager pueden crear tareas.</span>';
 
 		this.wrapper.html(`
 			<div class="panel-tareas-shell">
@@ -649,11 +651,11 @@ class PanelDeTareas {
 				<label>Estado</label>
 				<select class="filter-estado">
 					<option value="">Todos</option>
-					<option value="!Completada">Todos (Excepto Completadas)</option>
-					<option value="Pendiente">Pendiente</option>
-					<option value="En Proceso">En Proceso</option>
-					<option value="En Revisión">En Revisión</option>
-					<option value="Completada">Completada</option>
+					<option value="!Completed">Todos (Excepto Completadas)</option>
+					<option value="Open">Open</option>
+					<option value="Working">Working</option>
+					<option value="${TAREA_ESTADO_REVISION}">${TAREA_ESTADO_REVISION}</option>
+					<option value="Completed">Completed</option>
 				</select>
 			</div>
 			<div class="pt-field">
@@ -693,7 +695,7 @@ class PanelDeTareas {
 			this.load_data();
 		});
 
-		// KPI click → set vencimiento filter
+		// KPI click -> set vencimiento filter
 		this.wrapper.find(".pt-kpi[data-filter]").on("click", (e) => {
 			const filterVal = $(e.currentTarget).data("filter");
 			const sel = this.wrapper.find(".filter-vencimiento");
@@ -776,8 +778,8 @@ class PanelDeTareas {
 		if (periodo) filters.periodo = periodo;
 		if (tipo) filters.tipo_de_tarea = tipo;
 		if (estado) {
-			if (estado === "!Completada") {
-				filters.estado = ["!=", "Completada"];
+			if (estado === "!Completed") {
+				filters.status = ["!=", "Completed"];
 			} else {
 				filters.estado = estado;
 			}
@@ -796,14 +798,14 @@ class PanelDeTareas {
 	fetch_tasks(filters, search) {
 		const args = {
 			doctype: "Tarea Contable",
-			fields: ["name", "titulo", "cliente", "periodo", "tipo_de_tarea", "estado", "fecha_de_vencimiento", "asignado_a"],
+			fields: ["name", "subject", "cliente", "periodo", "tipo_de_tarea", "status", "exp_end_date", "_assign", "description"],
 			filters,
 			limit_page_length: 0,
 			order_by: "fecha_de_vencimiento asc",
 		};
 
 		if (search) {
-			args.or_filters = [["Tarea Contable", "titulo", "like", `%${search}%`]];
+			args.or_filters = [["Task", "subject", "like", `%${search}%`]];
 		}
 
 		frappe.call({
@@ -811,6 +813,7 @@ class PanelDeTareas {
 			args,
 			callback: (r) => {
 				let tasks = r.message || [];
+				tasks = tasks.filter((task) => task.status !== "Cancelled");
 				if (this.currentVencimiento) {
 					tasks = this.apply_due_filter(tasks, this.currentVencimiento);
 				}
@@ -822,8 +825,8 @@ class PanelDeTareas {
 	apply_due_filter(tasks, vencimiento) {
 		const today = frappe.datetime.get_today();
 		return tasks.filter((task) => {
-			if (task.estado === "Completada" || !task.fecha_de_vencimiento) return false;
-			const diff = frappe.datetime.get_diff(task.fecha_de_vencimiento, today);
+			if (task.status === "Completed" || !task.exp_end_date) return false;
+			const diff = frappe.datetime.get_diff(task.exp_end_date, today);
 			if (vencimiento === "vencidas") return diff < 0;
 			if (vencimiento === "hoy") return diff === 0;
 			if (vencimiento === "semana") return diff >= 0 && diff <= 7;
@@ -844,8 +847,8 @@ class PanelDeTareas {
 		let semana = 0;
 
 		tasks.forEach((task) => {
-			if (!task.fecha_de_vencimiento || task.estado === "Completada") return;
-			const diff = frappe.datetime.get_diff(task.fecha_de_vencimiento, today);
+			if (!task.exp_end_date || task.status === "Completed") return;
+			const diff = frappe.datetime.get_diff(task.exp_end_date, today);
 			if (diff < 0) vencidas += 1;
 			if (diff === 0) hoy += 1;
 			if (diff >= 0 && diff <= 7) semana += 1;
@@ -863,7 +866,7 @@ class PanelDeTareas {
 		this.statuses.forEach((s) => { count[s] = 0; });
 
 		tasks.forEach((task) => {
-			if (count[task.estado] !== undefined) count[task.estado] += 1;
+			if (count[task.status] !== undefined) count[task.status] += 1;
 		});
 
 		let html = "";
@@ -886,7 +889,7 @@ class PanelDeTareas {
 		this.statuses.forEach((s) => { grouped[s] = []; });
 
 		tasks.forEach((task) => {
-			if (grouped[task.estado]) grouped[task.estado].push(task);
+			if (grouped[task.status]) grouped[task.status].push(task);
 		});
 
 		let html = "";
@@ -998,9 +1001,9 @@ class PanelDeTareas {
 		frappe.call({
 			method: "frappe.client.set_value",
 			args: {
-				doctype: "Tarea Contable",
+				doctype: "Task",
 				name: taskName,
-				fieldname: "estado",
+				fieldname: "status",
 				value: targetStatus,
 			},
 			freeze: true,
@@ -1022,22 +1025,54 @@ class PanelDeTareas {
 		});
 	}
 
+	discard_task(taskName, dialog) {
+		frappe.confirm(
+			"\u00bfDeseas descartar esta tarea? Se ocultar\u00e1 del panel Kanban.",
+			() => {
+				frappe.call({
+					method: "frappe.client.set_value",
+					args: {
+						doctype: "Task",
+						name: taskName,
+						fieldname: "status",
+						value: "Cancelled",
+					},
+					freeze: true,
+					freeze_message: "Descartando tarea...",
+					callback: (r) => {
+						if (r.exc) {
+							frappe.msgprint("No se pudo descartar la tarea.");
+							return;
+						}
+
+						frappe.show_alert({ message: "Tarea descartada", indicator: "orange" });
+						dialog.hide();
+						this.load_data();
+					},
+					error: () => {
+						frappe.msgprint("Ocurrio un error al descartar la tarea.");
+					},
+				});
+			}
+		);
+	}
 	render_task_card(task) {
 		const today = frappe.datetime.get_today();
 		let dueClass = "";
 
-		if (task.estado !== "Completada" && task.fecha_de_vencimiento) {
-			const diff = frappe.datetime.get_diff(task.fecha_de_vencimiento, today);
+		if (task.status !== "Completed" && task.exp_end_date) {
+			const diff = frappe.datetime.get_diff(task.exp_end_date, today);
 			if (diff < 0) dueClass = "pt-due-danger";
 			else if (diff <= 3) dueClass = "pt-due-warn";
 		}
 
-		const fecha = task.fecha_de_vencimiento
-			? frappe.datetime.str_to_user(task.fecha_de_vencimiento)
+		const fecha = task.exp_end_date
+			? frappe.datetime.str_to_user(task.exp_end_date)
 			: "-";
 
-		const asignado = task.asignado_a || "Sin asignar";
-		const titulo = frappe.utils.escape_html(task.titulo || "Sin titulo");
+		const asignadoArray = task._assign ? JSON.parse(task._assign) : [];
+		const asignado = asignadoArray.length > 0 ? asignadoArray[0] : "Sin asignar";
+		const titulo = frappe.utils.escape_html(task.subject || "Sin titulo");
 		const cliente = frappe.utils.escape_html(task.cliente || "-");
 		const periodo = frappe.utils.escape_html(task.periodo || "-");
 		const tipo = task.tipo_de_tarea ? `<span class="pt-task-kind">${frappe.utils.escape_html(task.tipo_de_tarea)}</span>` : "";
@@ -1053,7 +1088,7 @@ class PanelDeTareas {
 			: "";
 
 		return `
-			<div class="pt-task" data-name="${task.name}" data-status="${task.estado || ""}">
+			<div class="pt-task" data-name="${task.name}" data-status="${task.status || ""}">
 				<div class="pt-task-content">
 					<div class="pt-task-head">
 						${tipo}
@@ -1074,7 +1109,7 @@ class PanelDeTareas {
 	open_task_modal(taskName) {
 		frappe.call({
 			method: "frappe.client.get",
-			args: { doctype: "Tarea Contable", name: taskName },
+			args: { doctype: "Task", name: taskName },
 			freeze: true,
 			callback: (r) => {
 				if (!r.message) return;
@@ -1089,17 +1124,17 @@ class PanelDeTareas {
 		const today = frappe.datetime.get_today();
 		let dueClass = "";
 
-		if (task.estado !== "Completada" && task.fecha_de_vencimiento) {
-			const diff = frappe.datetime.get_diff(task.fecha_de_vencimiento, today);
+		if (task.status !== "Completed" && task.exp_end_date) {
+			const diff = frappe.datetime.get_diff(task.exp_end_date, today);
 			if (diff < 0) dueClass = "pt-due-danger";
 			else if (diff <= 3) dueClass = "pt-due-warn";
 		}
 
-		const fecha_display = task.fecha_de_vencimiento
-			? frappe.datetime.str_to_user(task.fecha_de_vencimiento)
+		const fecha_display = task.exp_end_date
+			? frappe.datetime.str_to_user(task.exp_end_date)
 			: "-";
 
-		const statusMeta = this.statusMeta[task.estado] || { chip: "#f1f5f9", text: "#475569" };
+		const statusMeta = this.statusMeta[task.status] || { chip: "#f1f5f9", text: "#475569" };
 
 		const readonly_html = `
 			<div class="pt-modal-split">
@@ -1122,7 +1157,7 @@ class PanelDeTareas {
 					<div class="pt-modal-value">
 						<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;
 							background:${statusMeta.chip};color:${statusMeta.text};">
-							${frappe.utils.escape_html(task.estado || "-")}
+							${frappe.utils.escape_html(task.status || "-")}
 						</span>
 					</div>
 				</div>
@@ -1132,11 +1167,11 @@ class PanelDeTareas {
 				</div>
 				<div class="pt-modal-field">
 					<div class="pt-modal-label">Asignado a</div>
-					<div class="pt-modal-value">${frappe.utils.escape_html(task.asignado_a || "Sin asignar")}</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task._assign ? JSON.parse(task._assign)[0] : "Sin asignar")}</div>
 				</div>
 				<div class="pt-modal-field">
 						<div class="pt-modal-label">Notas</div>
-						<div class="pt-modal-notas">${frappe.utils.escape_html(task.notas || "Sin notas")}</div>
+						<div class="pt-modal-notas">${frappe.utils.escape_html(task.description || "Sin notas")}</div>
 					</div>
 				</div>
 			</div>
@@ -1154,14 +1189,14 @@ class PanelDeTareas {
 			"Declaraci\u00f3n DGI", "Estados Financieros", "Facturaci\u00f3n",
 			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite DGI", "Consultor\u00eda", "Otro",
 		];
-		const estados = ["Pendiente", "En Proceso", "En Revisi\u00f3n", "Completada"];
+		const estados = ["Open", "Working", TAREA_ESTADO_REVISION, "Completed"];
 
 		const tipo_options = tipos.map(t =>
 			`<option value="${t}" ${t === task.tipo_de_tarea ? "selected" : ""}>${t}</option>`
 		).join("");
 
 		const estado_options = estados.map(e =>
-			`<option value="${e}" ${e === task.estado ? "selected" : ""}>${e}</option>`
+			`<option value="${e}" ${e === task.status ? "selected" : ""}>${e}</option>`
 		).join("");
 
 		const edit_html = `
@@ -1169,8 +1204,8 @@ class PanelDeTareas {
 				<div class="pt-modal-left">
 					<div class="pt-modal-body">
 						<div class="pt-modal-field pt-modal-edit-field">
-							<div class="pt-modal-label">Título</div>
-							<input type="text" class="pt-edit-titulo" value="${frappe.utils.escape_html(task.titulo || '')}" />
+							<div class="pt-modal-label">T\u00edtulo</div>
+							<input type="text" class="pt-edit-titulo" value="${frappe.utils.escape_html(task.subject || '')}" />
 						</div>
 				<div class="pt-modal-field">
 					<div class="pt-modal-label">Cliente</div>
@@ -1190,11 +1225,11 @@ class PanelDeTareas {
 				</div>
 				<div class="pt-modal-field pt-modal-edit-field">
 					<div class="pt-modal-label">Fecha de Vencimiento</div>
-					<input type="date" class="pt-edit-fecha" value="${task.fecha_de_vencimiento || ''}" />
+					<input type="date" class="pt-edit-fecha" value="${task.exp_end_date || ''}" />
 				</div>
 				<div class="pt-modal-field pt-modal-edit-field">
 					<div class="pt-modal-label">Notas</div>
-					<textarea class="pt-edit-notas">${frappe.utils.escape_html(task.notas || '')}</textarea>
+					<textarea class="pt-edit-notas">${frappe.utils.escape_html(task.description || '')}</textarea>
 				</div>
 					</div>
 				</div>
@@ -1205,12 +1240,12 @@ class PanelDeTareas {
 		`;
 
 		const dialog = new frappe.ui.Dialog({
-			title: task.titulo || "Detalle de Tarea",
+			title: task.subject || "Detalle de Tarea",
 			size: "large",
 			primary_action_label: "Editar",
 			primary_action: () => {
 				if (!isContador) {
-					frappe.msgprint("Solo Contador del Despacho o System Manager pueden editar tareas desde este panel.");
+					frappe.msgprint("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden editar tareas desde este panel.");
 					return;
 				}
 				// Switch to edit mode
@@ -1225,16 +1260,16 @@ class PanelDeTareas {
 					const newTitulo = body.find(".pt-edit-titulo").val();
 					const otherValues = {
 						tipo_de_tarea: body.find(".pt-edit-tipo").val(),
-						estado: body.find(".pt-edit-estado").val(),
-						fecha_de_vencimiento: body.find(".pt-edit-fecha").val(),
-						notas: body.find(".pt-edit-notas").val(),
+						status: body.find(".pt-edit-estado").val(),
+						exp_end_date: body.find(".pt-edit-fecha").val(),
+						description: body.find(".pt-edit-notas").val(),
 					};
 
 					const save_fields = (docName) => {
 						frappe.call({
 							method: "frappe.client.set_value",
 							args: {
-								doctype: "Tarea Contable",
+								doctype: "Task",
 								name: docName,
 								fieldname: otherValues,
 							},
@@ -1253,12 +1288,12 @@ class PanelDeTareas {
 						});
 					};
 
-					// Si cambió el titulo (que es el name), renombrar primero
+					// Si cambio el titulo (que es el name), renombrar primero
 					if (newTitulo && newTitulo !== task.name) {
 						frappe.call({
 							method: "frappe.client.rename_doc",
 							args: {
-								doctype: "Tarea Contable",
+								doctype: "Task",
 								old: task.name,
 								new: newTitulo,
 							},
@@ -1287,16 +1322,16 @@ class PanelDeTareas {
 					}
 					dialog.set_primary_action("Editar", dialog.primary_action);
 					dialog.set_secondary_action_label("Descartar");
-					dialog.set_secondary_action(() => dialog.hide());
+					dialog.set_secondary_action(() => this.discard_task(task.name, dialog));
 				});
 			},
 			secondary_action_label: "Descartar",
-			secondary_action: () => dialog.hide(),
+			secondary_action: () => this.discard_task(task.name, dialog),
 		});
 
 		dialog.add_custom_action("Ver Detalle", () => {
 			dialog.hide();
-			frappe.set_route("Form", "Tarea Contable", task.name);
+			frappe.set_route("Form", "Task", task.name);
 		});
 
 		dialog.$body.html(readonly_html);
@@ -1312,7 +1347,7 @@ class PanelDeTareas {
 			method: "frappe.client.get_list",
 			args: {
 				doctype: "Communication",
-				filters: { reference_doctype: "Tarea Contable", reference_name: taskName },
+				filters: { reference_doctype: "Task", reference_name: taskName },
 				fields: ["name", "subject", "sender_full_name", "content", "creation"],
 				order_by: "creation desc",
 				limit_page_length: 50
@@ -1363,7 +1398,7 @@ class PanelDeTareas {
 
 	open_new_task_modal() {
 		if (!this.canCreateTasks) {
-			frappe.msgprint("Solo Contador del Despacho o System Manager pueden crear tareas.");
+			frappe.msgprint("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden crear tareas.");
 			return;
 		}
 
@@ -1382,14 +1417,16 @@ class PanelDeTareas {
 				{ fieldtype: "Column Break" },
 				{ fieldtype: "Section Break" },
 				{ fieldtype: "Link", fieldname: "cliente", label: "Cliente", options: "Cliente Contable", reqd: 1 },
+				{ fieldtype: "Link", fieldname: "company", label: "Compania", options: "Company", reqd: 1 },
 				{ fieldtype: "Column Break" },
 				{ fieldtype: "Link", fieldname: "periodo", label: "Periodo", options: "Periodo Contable", reqd: 1 },
 				{ fieldtype: "Section Break" },
-				{ fieldtype: "Date", fieldname: "fecha_de_vencimiento", label: "Fecha de Vencimiento", reqd: 1 },
+				{ fieldtype: "Date", fieldname: "exp_end_date", label: "Fecha de Vencimiento", reqd: 1 },
 				{ fieldtype: "Column Break" },
-				{ fieldtype: "Link", fieldname: "asignado_a", label: "Asignado a", options: "User" },
+				{ fieldtype: "Link", fieldname: "_assign", label: "Asignado a", options: "User" },
 				{ fieldtype: "Section Break" },
-				{ fieldtype: "Small Text", fieldname: "notas", label: "Notas" },
+				{ fieldtype: "Data", fieldname: "subject", label: "T\u00edtulo de Tarea", reqd: 1 },
+				{ fieldtype: "Small Text", fieldname: "description", label: "Notas" },
 			],
 			primary_action_label: "Crear Tarea",
 			primary_action: (values) => {
@@ -1397,14 +1434,16 @@ class PanelDeTareas {
 					method: "frappe.client.insert",
 					args: {
 						doc: {
-							doctype: "Tarea Contable",
+							doctype: "Task",
+							subject: values.subject,
 							cliente: values.cliente,
+							company: values.company,
 							periodo: values.periodo,
 							tipo_de_tarea: values.tipo_de_tarea,
-							estado: "Pendiente",
-							fecha_de_vencimiento: values.fecha_de_vencimiento,
-							asignado_a: values.asignado_a || null,
-							notas: values.notas || "",
+							status: "Open",
+							exp_end_date: values.exp_end_date,
+							_assign: values._assign ? JSON.stringify([values._assign]) : null,
+							description: values.description || "",
 						}
 					},
 					freeze: true,
@@ -1426,12 +1465,51 @@ class PanelDeTareas {
 		});
 
 		dialog.show();
+
+		const clienteField = dialog.get_field("cliente");
+		const companyField = dialog.get_field("company");
+		const periodoField = dialog.get_field("periodo");
+
+		periodoField.get_query = () => {
+			const cliente = dialog.get_value("cliente");
+			const company = dialog.get_value("company");
+			if (!cliente || !company) {
+				return { filters: { name: ["in", []] } };
+			}
+			return {
+				filters: {
+					cliente,
+					company,
+				},
+			};
+		};
+
+		const syncCompanyFromCliente = () => {
+			const cliente = dialog.get_value("cliente");
+			if (!cliente) {
+				dialog.set_value("company", "");
+				dialog.set_value("periodo", "");
+				return;
+			}
+			frappe.db.get_value("Cliente Contable", cliente, "company_default").then((r) => {
+				const company = r.message && r.message.company_default;
+				if (company) {
+					dialog.set_value("company", company);
+				}
+				dialog.set_value("periodo", "");
+			});
+		};
+
+		clienteField.df.onchange = syncCompanyFromCliente;
+		if (clienteField.$input) {
+			clienteField.$input.on("change", syncCompanyFromCliente);
+		}
+
+		companyField.df.onchange = () => dialog.set_value("periodo", "");
+		if (companyField.$input) {
+			companyField.$input.on("change", () => dialog.set_value("periodo", ""));
+		}
 	}
 }
-
-
-
-
-
 
 

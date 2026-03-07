@@ -1,0 +1,198 @@
+{
+    "actions": [],
+    "creation": "2026-03-06 12:10:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "nombre_del_servicio",
+        "tipo_de_servicio",
+        "activo",
+        "plantilla_encargo_contable",
+        "section_facturacion",
+        "item_horas",
+        "item_honorario_fijo",
+        "column_break_1",
+        "company",
+        "moneda",
+        "tarifa_hora",
+        "honorario_fijo",
+        "costo_interno_hora",
+        "section_descripcion",
+        "descripcion"
+    ],
+    "fields": [
+        {
+            "fieldname": "nombre_del_servicio",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Nombre del Servicio",
+            "reqd": 1
+        },
+        {
+            "fieldname": "tipo_de_servicio",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Tipo de Servicio",
+            "options": "Contabilidad\nAuditoria\nTrabajo Especial\nConsultoria",
+            "reqd": 1
+        },
+        {
+            "default": "1",
+            "fieldname": "activo",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Activo"
+        },
+        {
+            "fieldname": "plantilla_encargo_contable",
+            "fieldtype": "Link",
+            "label": "Plantilla de Encargo",
+            "options": "Plantilla Encargo Contable"
+        },
+        {
+            "fieldname": "section_facturacion",
+            "fieldtype": "Section Break",
+            "label": "Facturacion"
+        },
+        {
+            "fieldname": "item_horas",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Item Horas",
+            "options": "Item",
+            "reqd": 1
+        },
+        {
+            "fieldname": "item_honorario_fijo",
+            "fieldtype": "Link",
+            "label": "Item Honorario Fijo",
+            "options": "Item"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company"
+        },
+        {
+            "fieldname": "moneda",
+            "fieldtype": "Link",
+            "label": "Moneda",
+            "options": "Currency"
+        },
+        {
+            "fieldname": "tarifa_hora",
+            "fieldtype": "Currency",
+            "label": "Tarifa Hora",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "honorario_fijo",
+            "fieldtype": "Currency",
+            "label": "Honorario Fijo",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "costo_interno_hora",
+            "fieldtype": "Currency",
+            "label": "Costo Interno Hora",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "section_descripcion",
+            "fieldtype": "Section Break",
+            "label": "Descripcion"
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Small Text",
+            "label": "Descripcion"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "group": "Operacion",
+            "link_doctype": "Encargo Contable",
+            "link_fieldname": "servicio_contable"
+        },
+        {
+            "group": "Tarifas",
+            "link_doctype": "Tarifa Cliente Servicio",
+            "link_fieldname": "servicio_contable"
+        },
+        {
+            "group": "Planeacion",
+            "link_doctype": "Plantilla Encargo Contable",
+            "link_fieldname": "servicio_contable"
+        }
+    ],
+    "modified": "2026-03-06 12:10:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Servicio Contable",
+    "naming_rule": "By fieldname",
+    "autoname": "field:nombre_del_servicio",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Contador del Despacho",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 0,
+            "delete": 0,
+            "email": 1,
+            "export": 0,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Auxiliar Contable del Despacho",
+            "share": 1,
+            "write": 0
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

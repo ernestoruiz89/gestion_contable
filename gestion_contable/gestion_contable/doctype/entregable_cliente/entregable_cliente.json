@@ -1,0 +1,344 @@
+{
+    "actions": [],
+    "allow_guest_to_view": 0,
+    "has_web_view": 1,
+    "is_published_field": "",
+    "creation": "2026-03-06 20:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "codigo",
+        "requerimiento_cliente",
+        "cliente",
+        "company",
+        "encargo_contable",
+        "periodo",
+        "column_break_1",
+        "responsable_interno",
+        "responsable_cliente",
+        "estado_entregable",
+        "obligatorio",
+        "section_detalle",
+        "tipo_entregable",
+        "descripcion",
+        "documento_contable",
+        "fecha_solicitud",
+        "fecha_compromiso",
+        "fecha_recepcion",
+        "column_break_2",
+        "validado_por",
+        "fecha_validacion",
+        "observaciones",
+        "notas_revision",
+        "workflow_section",
+        "estado_aprobacion",
+        "fecha_envio_revision",
+        "workflow_column_break",
+        "revisado_por_supervisor",
+        "fecha_revision_supervisor",
+        "workflow_column_break_2",
+        "aprobado_por_socio",
+        "fecha_aprobacion_socio",
+        "workflow_comments_section",
+        "comentarios_supervisor",
+        "comentarios_socio"
+    ],
+    "fields": [
+        {
+            "fieldname": "codigo",
+            "fieldtype": "Data",
+            "label": "Codigo",
+            "reqd": 1,
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "requerimiento_cliente",
+            "fieldtype": "Link",
+            "label": "Requerimiento Cliente",
+            "options": "Requerimiento Cliente",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "read_only": 1
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company",
+            "in_list_view": 0
+        },
+        {
+            "fieldname": "encargo_contable",
+            "fieldtype": "Link",
+            "label": "Encargo Contable",
+            "options": "Encargo Contable",
+            "read_only": 1
+        },
+        {
+            "fieldname": "periodo",
+            "fieldtype": "Link",
+            "label": "Periodo",
+            "options": "Periodo Contable",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "responsable_interno",
+            "fieldtype": "Link",
+            "label": "Responsable Interno",
+            "options": "User",
+            "read_only": 1
+        },
+        {
+            "fieldname": "responsable_cliente",
+            "fieldtype": "Data",
+            "label": "Responsable Cliente"
+        },
+        {
+            "fieldname": "estado_entregable",
+            "fieldtype": "Select",
+            "label": "Estado Entregable",
+            "options": "Pendiente\nSolicitado\nRecibido\nValidado\nRechazado\nVencido\nNo Aplica",
+            "default": "Pendiente",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "obligatorio",
+            "fieldtype": "Check",
+            "label": "Obligatorio",
+            "default": "1",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "section_detalle",
+            "fieldtype": "Section Break",
+            "label": "Detalle del Entregable"
+        },
+        {
+            "fieldname": "tipo_entregable",
+            "fieldtype": "Data",
+            "label": "Tipo Entregable",
+            "reqd": 1
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Small Text",
+            "label": "Descripcion"
+        },
+        {
+            "fieldname": "documento_contable",
+            "fieldtype": "Link",
+            "label": "Documento Contable",
+            "options": "Documento Contable"
+        },
+        {
+            "fieldname": "fecha_solicitud",
+            "fieldtype": "Date",
+            "label": "Fecha Solicitud"
+        },
+        {
+            "fieldname": "fecha_compromiso",
+            "fieldtype": "Date",
+            "label": "Fecha Compromiso"
+        },
+        {
+            "fieldname": "fecha_recepcion",
+            "fieldtype": "Date",
+            "label": "Fecha Recepcion",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "validado_por",
+            "fieldtype": "Link",
+            "label": "Validado por",
+            "options": "User",
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_validacion",
+            "fieldtype": "Date",
+            "label": "Fecha Validacion",
+            "read_only": 1
+        },
+        {
+            "fieldname": "observaciones",
+            "fieldtype": "Small Text",
+            "label": "Observaciones"
+        },
+        {
+            "fieldname": "notas_revision",
+            "fieldtype": "Small Text",
+            "label": "Notas Revision"
+        },
+        {
+            "fieldname": "workflow_section",
+            "fieldtype": "Section Break",
+            "label": "Gobierno y Aprobacion"
+        },
+        {
+            "fieldname": "estado_aprobacion",
+            "fieldtype": "Select",
+            "label": "Estado de Aprobacion",
+            "options": "Borrador\nRevision Supervisor\nRevision Socio\nAprobado\nDevuelto",
+            "default": "Borrador",
+            "in_list_view": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_envio_revision",
+            "fieldtype": "Datetime",
+            "label": "Fecha Envio Revision",
+            "read_only": 1
+        },
+        {
+            "fieldname": "workflow_column_break",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "revisado_por_supervisor",
+            "fieldtype": "Link",
+            "label": "Revisado por Supervisor",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "fecha_revision_supervisor",
+            "fieldtype": "Datetime",
+            "label": "Fecha Revision Supervisor",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "workflow_column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "aprobado_por_socio",
+            "fieldtype": "Link",
+            "label": "Aprobado por Socio",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "fecha_aprobacion_socio",
+            "fieldtype": "Datetime",
+            "label": "Fecha Aprobacion Socio",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "workflow_comments_section",
+            "fieldtype": "Section Break",
+            "label": "Comentarios de Revision"
+        },
+        {
+            "fieldname": "comentarios_supervisor",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Supervisor",
+            "permlevel": 1
+        },
+        {
+            "fieldname": "comentarios_socio",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Socio",
+            "permlevel": 2
+        }
+    ],
+    "links": [
+        {
+            "group": "Operacion",
+            "link_doctype": "Requerimiento Cliente",
+            "link_fieldname": "requerimiento_cliente"
+        },
+        {
+            "group": "Operacion",
+            "link_doctype": "Documento Contable",
+            "link_fieldname": "entregable_cliente"
+        }
+    ],
+    "modified": "2026-03-06 20:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Entregable Cliente",
+    "naming_rule": "By fieldname",
+    "autoname": "field:codigo",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Auxiliar Contable del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

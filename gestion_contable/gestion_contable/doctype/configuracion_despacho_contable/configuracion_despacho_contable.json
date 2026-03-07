@@ -1,43 +1,156 @@
 {
-    "actions": [],
-    "creation": "2024-03-05 09:00:00.000000",
-    "doctype": "DocType",
-    "engine": "InnoDB",
-    "field_order": [
-        "generar_datos_dummy",
-        "limpiar_datos_dummy"
-    ],
-    "fields": [
-        {
-            "fieldname": "generar_datos_dummy",
-            "fieldtype": "Button",
-            "label": "Generar Datos Dummy"
-        },
-        {
-            "fieldname": "limpiar_datos_dummy",
-            "fieldtype": "Button",
-            "label": "Limpiar Datos Dummy"
-        }
-    ],
-    "issingle": 1,
-    "modified": "2024-03-05 09:30:00.000000",
-    "modified_by": "Administrator",
-    "module": "Gestion Contable",
-    "name": "Configuracion Despacho Contable",
-    "owner": "Administrator",
-    "permissions": [
-        {
-            "create": 1,
-            "delete": 1,
-            "email": 1,
-            "print": 1,
-            "read": 1,
-            "role": "System Manager",
-            "share": 1,
-            "write": 1
-        }
-    ],
-    "sort_field": "modified",
-    "sort_order": "DESC",
-    "track_changes": 1
+  "actions": [],
+  "creation": "2024-03-05 09:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "plantillas_correo_section",
+    "plantillas_correo_estado",
+    "template_email_requerimiento_envio",
+    "template_email_requerimiento_recordatorio",
+    "column_break_plantillas_1",
+    "template_email_requerimiento_vencido",
+    "template_email_cobranza_recordatorio",
+    "column_break_plantillas_2",
+    "template_email_cobranza_compromiso",
+    "automatizacion_correo_section",
+    "auto_enviar_correo_requerimiento_envio",
+    "auto_enviar_recordatorio_requerimiento",
+    "column_break_automatizacion_1",
+    "auto_enviar_aviso_vencido_requerimiento",
+    "auto_enviar_correo_cobranza",
+    "herramientas_desarrollo_section",
+    "herramientas_desarrollo_estado",
+    "generar_datos_dummy",
+    "limpiar_datos_dummy"
+  ],
+  "fields": [
+    {
+      "fieldname": "plantillas_correo_section",
+      "fieldtype": "Section Break",
+      "label": "Plantillas de Correo"
+    },
+    {
+      "fieldname": "plantillas_correo_estado",
+      "fieldtype": "HTML"
+    },
+    {
+      "fieldname": "template_email_requerimiento_envio",
+      "fieldtype": "Link",
+      "label": "Template Requerimiento Envio",
+      "options": "Email Template",
+      "description": "Sugerido: GC - Requerimiento Envio"
+    },
+    {
+      "fieldname": "template_email_requerimiento_recordatorio",
+      "fieldtype": "Link",
+      "label": "Template Requerimiento Recordatorio",
+      "options": "Email Template",
+      "description": "Sugerido: GC - Requerimiento Recordatorio"
+    },
+    {
+      "fieldname": "column_break_plantillas_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "template_email_requerimiento_vencido",
+      "fieldtype": "Link",
+      "label": "Template Requerimiento Vencido",
+      "options": "Email Template",
+      "description": "Sugerido: GC - Requerimiento Vencido"
+    },
+    {
+      "fieldname": "template_email_cobranza_recordatorio",
+      "fieldtype": "Link",
+      "label": "Template Cobranza Recordatorio",
+      "options": "Email Template",
+      "description": "Sugerido: GC - Cobranza Recordatorio"
+    },
+    {
+      "fieldname": "column_break_plantillas_2",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "template_email_cobranza_compromiso",
+      "fieldtype": "Link",
+      "label": "Template Cobranza Compromiso",
+      "options": "Email Template",
+      "description": "Sugerido: GC - Cobranza Compromiso Pago"
+    },
+    {
+      "fieldname": "automatizacion_correo_section",
+      "fieldtype": "Section Break",
+      "label": "Automatizacion de Correo"
+    },
+    {
+      "fieldname": "auto_enviar_correo_requerimiento_envio",
+      "fieldtype": "Check",
+      "label": "Auto Enviar Requerimiento al Marcar Enviado",
+      "default": "1"
+    },
+    {
+      "fieldname": "auto_enviar_recordatorio_requerimiento",
+      "fieldtype": "Check",
+      "label": "Auto Enviar Recordatorio de Requerimiento",
+      "default": "1"
+    },
+    {
+      "fieldname": "column_break_automatizacion_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "auto_enviar_aviso_vencido_requerimiento",
+      "fieldtype": "Check",
+      "label": "Auto Enviar Aviso de Requerimiento Vencido",
+      "default": "1"
+    },
+    {
+      "fieldname": "auto_enviar_correo_cobranza",
+      "fieldtype": "Check",
+      "label": "Auto Enviar Correo de Cobranza",
+      "default": "1"
+    },
+    {
+      "fieldname": "herramientas_desarrollo_section",
+      "fieldtype": "Section Break",
+      "label": "Herramientas de Desarrollo"
+    },
+    {
+      "fieldname": "herramientas_desarrollo_estado",
+      "fieldtype": "HTML"
+    },
+    {
+      "fieldname": "generar_datos_dummy",
+      "fieldtype": "Button",
+      "label": "Generar Datos Dummy",
+      "hidden": 1
+    },
+    {
+      "fieldname": "limpiar_datos_dummy",
+      "fieldtype": "Button",
+      "label": "Limpiar Datos Dummy",
+      "hidden": 1
+    }
+  ],
+  "issingle": 1,
+  "modified": "2026-03-07 16:05:00.000000",
+  "modified_by": "Administrator",
+  "module": "Gestion Contable",
+  "name": "Configuracion Despacho Contable",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "track_changes": 1
 }

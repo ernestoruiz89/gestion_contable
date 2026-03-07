@@ -1,0 +1,16 @@
+{% set titulo_documento = "Contrato de Servicios de Auditoria" %}
+{% set subtitulo_documento = "Plantilla para auditoria financiera, revision formal y emision de entregables tecnicos." %}
+{% set objeto_principal = "El Despacho ejecutara un encargo de auditoria con planeacion, evaluacion de riesgos, pruebas, documentacion de evidencia, revision tecnica y emision de entregables conforme al alcance aprobado." %}
+{% set entregables_texto = "Los entregables podran incluir plan de auditoria, matriz de riesgos y controles, papeles de trabajo, hallazgos, carta de observaciones, informe y memorando de cierre, segun el alcance aplicable." %}
+{% set clausulas_especificas = [
+    "La auditoria se desarrollara sobre la informacion y documentacion que el cliente ponga a disposicion del despacho, sin asumir la responsabilidad de su preparacion original salvo que se contrate expresamente.",
+    "El despacho podra ampliar pruebas o requerir documentacion adicional cuando la evidencia disponible no sea suficiente para sustentar sus conclusiones.",
+    "La independencia profesional, la revision tecnica y el cierre del expediente de auditoria forman parte obligatoria del servicio cuando correspondan por metodologia del despacho."
+] %}
+{% set obligaciones_cliente = [
+    "Facilitar acceso a libros, auxiliares, contratos, politicas, soportes, personal clave y cualquier otra informacion necesaria para la auditoria.",
+    "Responder de forma oportuna a requerimientos, aclaraciones y observaciones levantadas durante la planeacion y el trabajo de campo.",
+    "Revisar y pronunciarse sobre hallazgos y cartas de comentarios dentro de los plazos definidos por el cronograma del encargo."
+] %}
+{% set consideraciones_finales = "Cualquier limitacion al alcance, restriccion de acceso, retraso material en la entrega de informacion o condicion que afecte la evidencia disponible podra modificar cronograma, costo o conclusion del encargo, previo registro formal en la app." %}
+{% include "gestion_contable/templates/print_formats/contrato_comercial_base.html" %}

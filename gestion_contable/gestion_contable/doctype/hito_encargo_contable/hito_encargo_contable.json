@@ -1,0 +1,116 @@
+{
+    "actions": [],
+    "creation": "2026-03-06 16:30:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "orden",
+        "titulo",
+        "estado",
+        "column_break_1",
+        "fecha_planificada",
+        "fecha_limite",
+        "fecha_cumplimiento",
+        "section_avance",
+        "porcentaje_avance",
+        "peso_porcentaje",
+        "obligatorio",
+        "column_break_2",
+        "horas_planificadas",
+        "monto_planificado",
+        "descripcion"
+    ],
+    "fields": [
+        {
+            "fieldname": "orden",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "label": "Orden"
+        },
+        {
+            "fieldname": "titulo",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Titulo",
+            "reqd": 1
+        },
+        {
+            "fieldname": "estado",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Estado",
+            "options": "Pendiente\nEn Proceso\nCompletado\nBloqueado\nCancelado",
+            "default": "Pendiente"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "fecha_planificada",
+            "fieldtype": "Date",
+            "label": "Fecha Planificada"
+        },
+        {
+            "fieldname": "fecha_limite",
+            "fieldtype": "Date",
+            "label": "Fecha Limite"
+        },
+        {
+            "fieldname": "fecha_cumplimiento",
+            "fieldtype": "Date",
+            "label": "Fecha Cumplimiento"
+        },
+        {
+            "fieldname": "section_avance",
+            "fieldtype": "Section Break",
+            "label": "Avance"
+        },
+        {
+            "fieldname": "porcentaje_avance",
+            "fieldtype": "Percent",
+            "label": "Porcentaje Avance",
+            "default": "0"
+        },
+        {
+            "fieldname": "peso_porcentaje",
+            "fieldtype": "Percent",
+            "label": "Peso Porcentaje"
+        },
+        {
+            "fieldname": "obligatorio",
+            "fieldtype": "Check",
+            "label": "Obligatorio",
+            "default": "1"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "horas_planificadas",
+            "fieldtype": "Float",
+            "label": "Horas Planificadas"
+        },
+        {
+            "fieldname": "monto_planificado",
+            "fieldtype": "Currency",
+            "label": "Monto Planificado"
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Small Text",
+            "label": "Descripcion"
+        }
+    ],
+    "istable": 1,
+    "modified": "2026-03-06 16:30:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Hito Encargo Contable",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

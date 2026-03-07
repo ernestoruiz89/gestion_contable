@@ -1,0 +1,305 @@
+{% macro money(value) -%}
+{{ "{:,.2f}".format(value or 0) }}
+{%- endmacro %}
+
+<style>
+    .gc-contract {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        color: #1f2933;
+        font-size: 12px;
+        line-height: 1.55;
+    }
+    .gc-header {
+        border-bottom: 3px solid #133c55;
+        padding-bottom: 12px;
+        margin-bottom: 18px;
+    }
+    .gc-kicker {
+        color: #627d98;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .gc-header h1 {
+        margin: 6px 0 8px;
+        font-size: 26px;
+        line-height: 1.15;
+        color: #102a43;
+    }
+    .gc-subtitle {
+        margin: 0;
+        color: #486581;
+    }
+    .gc-chip-grid {
+        width: 100%;
+        margin: 18px 0 20px;
+        border-collapse: separate;
+        border-spacing: 8px;
+    }
+    .gc-chip {
+        width: 50%;
+        vertical-align: top;
+        background: #f0f4f8;
+        border: 1px solid #d9e2ec;
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+    .gc-chip-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #627d98;
+        margin-bottom: 4px;
+    }
+    .gc-chip-value {
+        color: #102a43;
+        font-size: 13px;
+    }
+    .gc-notice {
+        background: #fffbea;
+        border: 1px solid #f0b429;
+        padding: 10px 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        color: #8d2b0b;
+        font-size: 11px;
+    }
+    .gc-section {
+        margin-bottom: 18px;
+    }
+    .gc-section h2 {
+        font-size: 14px;
+        color: #102a43;
+        margin: 0 0 8px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #d9e2ec;
+    }
+    .gc-section p {
+        margin: 0 0 8px;
+        text-align: justify;
+    }
+    .gc-list {
+        margin: 8px 0 0 18px;
+        padding: 0;
+    }
+    .gc-list li {
+        margin-bottom: 6px;
+    }
+    .gc-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    .gc-table th,
+    .gc-table td {
+        border: 1px solid #bcccdc;
+        padding: 7px 8px;
+        vertical-align: top;
+    }
+    .gc-table th {
+        background: #d9e2ec;
+        text-align: left;
+        color: #102a43;
+    }
+    .gc-muted {
+        color: #627d98;
+    }
+    .gc-right {
+        text-align: right;
+    }
+    .gc-signatures {
+        width: 100%;
+        margin-top: 34px;
+        border-collapse: separate;
+        border-spacing: 16px;
+    }
+    .gc-signature-box {
+        width: 50%;
+        vertical-align: top;
+        padding-top: 40px;
+    }
+    .gc-signature-line {
+        border-top: 1px solid #486581;
+        padding-top: 8px;
+        font-weight: 700;
+        color: #102a43;
+    }
+    .gc-footer {
+        margin-top: 18px;
+        font-size: 10px;
+        color: #627d98;
+        text-align: center;
+    }
+</style>
+
+{% set company_name = doc.company or "EL DESPACHO" %}
+{% set client_name = doc.customer or doc.cliente or "EL CLIENTE" %}
+{% set titulo_documento = titulo_documento or "Contrato Comercial" %}
+{% set subtitulo_documento = subtitulo_documento or "Plantilla contractual para servicios profesionales del despacho." %}
+{% set objeto_principal = objeto_principal or "El Despacho prestara los servicios profesionales descritos en este contrato para el cliente indicado, bajo los niveles de servicio, plazos y condiciones economicas aqui establecidos." %}
+{% set clausulas_especificas = clausulas_especificas or [] %}
+{% set obligaciones_cliente = obligaciones_cliente or [] %}
+{% set entregables_texto = entregables_texto or "Los entregables y actividades comprometidas se determinan por cada linea de alcance y por la documentacion de soporte generada durante la ejecucion." %}
+{% set consideraciones_finales = consideraciones_finales or "Cualquier ajuste de alcance, tarifa, tiempo o entregables debe formalizarse mediante un cambio de alcance y su aprobacion correspondiente." %}
+
+<div class="gc-contract">
+    <div class="gc-header">
+        <div class="gc-kicker">{{ titulo_documento }}</div>
+        <h1>{{ doc.nombre_del_contrato or doc.name }}</h1>
+        <p class="gc-subtitle">{{ subtitulo_documento }}</p>
+    </div>
+
+    <table class="gc-chip-grid">
+        <tr>
+            <td class="gc-chip">
+                <span class="gc-chip-label">Cliente Contable</span>
+                <div class="gc-chip-value">{{ doc.cliente }}</div>
+            </td>
+            <td class="gc-chip">
+                <span class="gc-chip-label">Customer ERPNext</span>
+                <div class="gc-chip-value">{{ client_name }}</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="gc-chip">
+                <span class="gc-chip-label">Vigencia</span>
+                <div class="gc-chip-value">{{ doc.fecha_inicio or "-" }}{% if doc.fecha_fin %} al {{ doc.fecha_fin }}{% else %} | Indefinida{% endif %}</div>
+            </td>
+            <td class="gc-chip">
+                <span class="gc-chip-label">Estado Comercial</span>
+                <div class="gc-chip-value">{{ doc.estado_comercial or "Borrador" }}</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="gc-chip">
+                <span class="gc-chip-label">Responsable Operativo</span>
+                <div class="gc-chip-value">{{ doc.responsable_operativo or "-" }}</div>
+            </td>
+            <td class="gc-chip">
+                <span class="gc-chip-label">Ejecutivo Comercial</span>
+                <div class="gc-chip-value">{{ doc.ejecutivo_comercial or "-" }}</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="gc-chip">
+                <span class="gc-chip-label">Valor Mensual Estimado</span>
+                <div class="gc-chip-value">{{ money(doc.valor_mensual_estimado) }} {{ doc.moneda or "" }}</div>
+            </td>
+            <td class="gc-chip">
+                <span class="gc-chip-label">Valor Anual Estimado</span>
+                <div class="gc-chip-value">{{ money(doc.valor_anual_estimado) }} {{ doc.moneda or "" }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="gc-notice">
+        Plantilla de ejemplo. Antes de uso legal definitivo, revisar clausulas, jurisdiccion, impuestos, firma y anexos con asesoria legal del despacho.
+    </div>
+
+    <div class="gc-section">
+        <h2>1. Partes</h2>
+        <p><strong>Prestador:</strong> {{ company_name }} o la razon social definida por el despacho para la ejecucion del servicio.</p>
+        <p><strong>Cliente:</strong> {{ client_name }}, registrado en la app como {{ doc.cliente }}.</p>
+    </div>
+
+    <div class="gc-section">
+        <h2>2. Objeto</h2>
+        <p>{{ objeto_principal }}</p>
+    </div>
+
+    <div class="gc-section">
+        <h2>3. Alcance, honorarios y condiciones economicas</h2>
+        <p>{{ entregables_texto }}</p>
+        <table class="gc-table">
+            <thead>
+                <tr>
+                    <th>Servicio</th>
+                    <th>Descripcion</th>
+                    <th>Modalidad</th>
+                    <th>Periodicidad</th>
+                    <th class="gc-right">Horas</th>
+                    <th class="gc-right">Tarifa Hora</th>
+                    <th class="gc-right">Honorario Fijo</th>
+                    <th>Vigencia</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in doc.alcances %}
+                <tr>
+                    <td>{{ row.servicio_contable or "-" }}</td>
+                    <td>{{ row.descripcion or "-" }}</td>
+                    <td>{{ row.modalidad_tarifa or "-" }}</td>
+                    <td>{{ row.periodicidad or "-" }}</td>
+                    <td class="gc-right">{{ row.horas_incluidas or 0 }}</td>
+                    <td class="gc-right">{{ money(row.tarifa_hora) }}</td>
+                    <td class="gc-right">{{ money(row.honorario_fijo) }}</td>
+                    <td>{{ row.fecha_inicio or doc.fecha_inicio or "-" }}{% if row.fecha_fin or doc.fecha_fin %} al {{ row.fecha_fin or doc.fecha_fin }}{% endif %}</td>
+                    <td>{{ "Activa" if row.activa else "Inactiva" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="gc-section">
+        <h2>4. Niveles de servicio y coordinacion</h2>
+        <p>El plazo objetivo de respuesta del despacho sera de {{ doc.sla_respuesta_horas or "-" }} horas y el plazo objetivo de entrega sera de {{ doc.sla_entrega_dias or "-" }} dias, salvo que una linea de alcance o un cambio de alcance establezca condiciones distintas.</p>
+        {% if clausulas_especificas %}
+        <ol class="gc-list">
+            {% for item in clausulas_especificas %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ol>
+        {% endif %}
+    </div>
+
+    <div class="gc-section">
+        <h2>5. Obligaciones del cliente</h2>
+        {% if obligaciones_cliente %}
+        <ul class="gc-list">
+            {% for item in obligaciones_cliente %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>El cliente debe entregar informacion veraz, suficiente y oportuna, designar un punto de contacto y aprobar oportunamente las solicitudes, entregables y observaciones del despacho.</p>
+        {% endif %}
+    </div>
+
+    <div class="gc-section">
+        <h2>6. Confidencialidad, cambios y gobierno</h2>
+        <p>Toda informacion recibida o generada durante la ejecucion tendra tratamiento confidencial y se administrara segun las politicas documentales y de aprobacion del despacho.</p>
+        <p>{{ consideraciones_finales }}</p>
+        <p>El presente contrato se soporta operativamente en la app mediante workflow de aprobacion, control de encargos, documentos, requerimientos y facturacion vinculada.</p>
+    </div>
+
+    <div class="gc-section">
+        <h2>7. Renovacion y observaciones</h2>
+        <p><strong>Renovacion automatica:</strong> {{ "Si" if doc.renovacion_automatica else "No" }}</p>
+        {% if doc.notas %}
+        <p><strong>Notas del contrato:</strong> {{ doc.notas }}</p>
+        {% else %}
+        <p class="gc-muted">Sin observaciones adicionales registradas en el contrato.</p>
+        {% endif %}
+    </div>
+
+    <table class="gc-signatures">
+        <tr>
+            <td class="gc-signature-box">
+                <div class="gc-signature-line">Por {{ company_name }}</div>
+                <div class="gc-muted">Representante autorizado del despacho</div>
+            </td>
+            <td class="gc-signature-box">
+                <div class="gc-signature-line">Por {{ client_name }}</div>
+                <div class="gc-muted">Representante autorizado del cliente</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="gc-footer">
+        Formato generado desde Contrato Comercial {{ doc.name }}.
+    </div>
+</div>

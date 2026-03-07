@@ -1,150 +1,395 @@
 {
-    "actions":  [
-
-                ],
-    "creation":  "2024-03-04 14:00:00.000000",
-    "doctype":  "DocType",
-    "engine":  "InnoDB",
-    "field_order":  [
-                        "datos_generales_section",
-                        "customer",
-                        "identificacion_fiscal",
-                        "column_break_1",
-                        "estado",
-                        "frecuencia_de_cierre",
-                        "contacto_section",
-                        "telefono",
-                        "correo_electronico",
-                        "column_break_2",
-                        "cuenta_de_correo_vinculada"
-                    ],
-    "fields":  [
-                   {
-                       "fieldname":  "datos_generales_section",
-                       "fieldtype":  "Section Break",
-                       "label":  "Datos Generales"
-                   },
-                   {
-                       "fieldname":  "customer",
-                       "fieldtype":  "Link",
-                       "in_list_view":  1,
-                       "label":  "Cliente (Customer)",
-                       "options":  "Customer",
-                       "reqd":  1
-                   },
-                   {
-                       "fetch_from":  "customer.tax_id",
-                       "fieldname":  "identificacion_fiscal",
-                       "fieldtype":  "Data",
-                       "label":  "Identificación Fiscal (RFC/NIT)",
-                       "read_only":  1
-                   },
-                   {
-                       "fieldname":  "column_break_1",
-                       "fieldtype":  "Column Break"
-                   },
-                   {
-                       "default":  "Activo",
-                       "fieldname":  "estado",
-                       "fieldtype":  "Select",
-                       "in_list_view":  1,
-                       "label":  "Estado",
-                       "options":  "Activo\nInactivo"
-                   },
-                   {
-                       "default":  "Mensual",
-                       "fieldname":  "frecuencia_de_cierre",
-                       "fieldtype":  "Select",
-                       "label":  "Frecuencia de Cierre",
-                       "options":  "Mensual\nBimestral\nAnual"
-                   },
-                   {
-                       "fieldname":  "contacto_section",
-                       "fieldtype":  "Section Break",
-                       "label":  "Contacto y Comunicación"
-                   },
-                   {
-                       "fieldname":  "telefono",
-                       "fieldtype":  "Data",
-                       "label":  "Teléfono",
-                       "options":  "Phone"
-                   },
-                   {
-                       "fieldname":  "correo_electronico",
-                       "fieldtype":  "Data",
-                       "label":  "Correo Electrónico",
-                       "options":  "Email"
-                   },
-                   {
-                       "fieldname":  "column_break_2",
-                       "fieldtype":  "Column Break"
-                   },
-                   {
-                       "fieldname":  "cuenta_de_correo_vinculada",
-                       "fieldtype":  "Link",
-                       "label":  "Cuenta de Correo Vinculada",
-                       "options":  "Email Account"
-                   }
-               ],
-    "index_web_pages_for_search":  1,
-    "links":  [
-                  {
-                      "group":  "Tareas",
-                      "link_doctype":  "Tarea Contable",
-                      "link_fieldname":  "cliente"
-                  },
-                  {
-                      "group":  "Documentos",
-                      "link_doctype":  "Documento Contable",
-                      "link_fieldname":  "cliente"
-                  }
-              ],
-    "modified":  "2024-03-04 14:00:00.000000",
-    "modified_by":  "Administrator",
-    "module":  "Gestion Contable",
-    "name":  "Cliente Contable",
-    "naming_rule":  "By fieldname",
-    "autoname":  "field:customer",
-    "owner":  "Administrator",
-    "permissions":  [
-                        {
-                            "create":  1,
-                            "delete":  1,
-                            "email":  1,
-                            "export":  1,
-                            "print":  1,
-                            "read":  1,
-                            "report":  1,
-                            "role":  "System Manager",
-                            "share":  1,
-                            "write":  1
-                        },
-                        {
-                            "create":  1,
-                            "email":  1,
-                            "print":  1,
-                            "read":  1,
-                            "report":  1,
-                            "role":  "Contador del Despacho",
-                            "share":  1,
-                            "write":  1,
-                            "delete":  1,
-                            "export":  1
-                        },
-                        {
-                            "create":  0,
-                            "email":  1,
-                            "print":  1,
-                            "read":  1,
-                            "report":  1,
-                            "role":  "Auxiliar Contable del Despacho",
-                            "share":  1,
-                            "write":  0,
-                            "delete":  0,
-                            "export":  0
-                        }
-                    ],
-    "sort_field":  "modified",
-    "sort_order":  "DESC",
-    "track_changes":  1
+    "actions": [],
+    "creation": "2024-03-04 14:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "datos_generales_section",
+        "customer",
+        "identificacion_fiscal",
+        "column_break_1",
+        "estado",
+        "frecuencia_de_cierre",
+        "company_default",
+        "column_break_1b",
+        "regimen_fiscal",
+        "clasificacion_riesgo",
+        "moneda_preferida",
+        "responsables_section",
+        "ejecutivo_comercial_default",
+        "responsable_operativo_default",
+        "responsable_cobranza_interno",
+        "column_break_3",
+        "sla_respuesta_horas_default",
+        "sla_entrega_dias_default",
+        "canal_envio_preferido",
+        "contacto_section",
+        "telefono",
+        "correo_electronico",
+        "cuenta_de_correo_vinculada",
+        "column_break_2",
+        "contacto_facturacion",
+        "email_facturacion",
+        "contacto_cobranza",
+        "email_cobranza",
+        "contactos_funcionales_section",
+        "contactos_funcionales",
+        "cobranza_section",
+        "termino_pago_dias",
+        "dias_gracia_cobranza",
+        "column_break_4",
+        "politica_retencion_documental",
+        "clasificacion_confidencialidad_default",
+        "portal_section",
+        "portal_habilitado",
+        "permite_carga_documentos",
+        "recordatorios_automaticos_portal",
+        "column_break_5",
+        "usuario_portal_principal"
+    ],
+    "fields": [
+        {
+            "fieldname": "datos_generales_section",
+            "fieldtype": "Section Break",
+            "label": "Datos Generales"
+        },
+        {
+            "fieldname": "customer",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Cliente ERPNext",
+            "options": "Customer",
+            "reqd": 1
+        },
+        {
+            "fetch_from": "customer.tax_id",
+            "fieldname": "identificacion_fiscal",
+            "fieldtype": "Data",
+            "label": "Identificacion Fiscal",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "Activo",
+            "fieldname": "estado",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Estado",
+            "options": "Activo\nInactivo"
+        },
+        {
+            "default": "Mensual",
+            "fieldname": "frecuencia_de_cierre",
+            "fieldtype": "Select",
+            "label": "Frecuencia de Cierre",
+            "options": "Mensual\nBimestral\nTrimestral\nSemestral\nAnual"
+        },
+        {
+            "fieldname": "company_default",
+            "fieldtype": "Link",
+            "label": "Compania Default",
+            "options": "Company"
+        },
+        {
+            "fieldname": "column_break_1b",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "regimen_fiscal",
+            "fieldtype": "Select",
+            "label": "Regimen Fiscal",
+            "options": "General\nServicios Profesionales\nPyme\nGran Contribuyente\nExento\nOtro",
+            "default": "General"
+        },
+        {
+            "fieldname": "clasificacion_riesgo",
+            "fieldtype": "Select",
+            "label": "Clasificacion Riesgo",
+            "options": "Bajo\nMedio\nAlto\nCritico",
+            "default": "Medio"
+        },
+        {
+            "fieldname": "moneda_preferida",
+            "fieldtype": "Link",
+            "label": "Moneda Preferida",
+            "options": "Currency"
+        },
+        {
+            "fieldname": "responsables_section",
+            "fieldtype": "Section Break",
+            "label": "Responsables y SLA"
+        },
+        {
+            "fieldname": "ejecutivo_comercial_default",
+            "fieldtype": "Link",
+            "label": "Ejecutivo Comercial Default",
+            "options": "User"
+        },
+        {
+            "fieldname": "responsable_operativo_default",
+            "fieldtype": "Link",
+            "label": "Responsable Operativo Default",
+            "options": "User"
+        },
+        {
+            "fieldname": "responsable_cobranza_interno",
+            "fieldtype": "Link",
+            "label": "Responsable Cobranza Interno",
+            "options": "User"
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "sla_respuesta_horas_default",
+            "fieldtype": "Float",
+            "label": "SLA Respuesta Horas Default"
+        },
+        {
+            "fieldname": "sla_entrega_dias_default",
+            "fieldtype": "Float",
+            "label": "SLA Entrega Dias Default"
+        },
+        {
+            "fieldname": "canal_envio_preferido",
+            "fieldtype": "Select",
+            "label": "Canal Envio Preferido",
+            "options": "Correo\nPortal\nWhatsApp\nTelefono\nReunion\nOtro",
+            "default": "Correo"
+        },
+        {
+            "fieldname": "contacto_section",
+            "fieldtype": "Section Break",
+            "label": "Contacto General y Cobranza"
+        },
+        {
+            "fieldname": "telefono",
+            "fieldtype": "Data",
+            "label": "Telefono",
+            "options": "Phone"
+        },
+        {
+            "fieldname": "correo_electronico",
+            "fieldtype": "Data",
+            "label": "Correo Electronico",
+            "options": "Email"
+        },
+        {
+            "fieldname": "cuenta_de_correo_vinculada",
+            "fieldtype": "Link",
+            "label": "Cuenta de Correo Vinculada",
+            "options": "Email Account"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "contacto_facturacion",
+            "fieldtype": "Data",
+            "label": "Contacto Facturacion"
+        },
+        {
+            "fieldname": "email_facturacion",
+            "fieldtype": "Data",
+            "label": "Email Facturacion",
+            "options": "Email"
+        },
+        {
+            "fieldname": "contacto_cobranza",
+            "fieldtype": "Data",
+            "label": "Contacto Cobranza"
+        },
+        {
+            "fieldname": "email_cobranza",
+            "fieldtype": "Data",
+            "label": "Email Cobranza",
+            "options": "Email"
+        },
+        {
+            "fieldname": "contactos_funcionales_section",
+            "fieldtype": "Section Break",
+            "label": "Contactos Funcionales"
+        },
+        {
+            "fieldname": "contactos_funcionales",
+            "fieldtype": "Table",
+            "label": "Contactos Funcionales",
+            "options": "Contacto Funcional Cliente"
+        },
+        {
+            "fieldname": "cobranza_section",
+            "fieldtype": "Section Break",
+            "label": "Cobranza y Cumplimiento"
+        },
+        {
+            "fieldname": "termino_pago_dias",
+            "fieldtype": "Int",
+            "label": "Termino Pago Dias",
+            "default": "0"
+        },
+        {
+            "fieldname": "dias_gracia_cobranza",
+            "fieldtype": "Int",
+            "label": "Dias Gracia Cobranza",
+            "default": "0"
+        },
+        {
+            "fieldname": "column_break_4",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "politica_retencion_documental",
+            "fieldtype": "Select",
+            "label": "Politica Retencion Documental",
+            "options": "Sin Definir\nOperacion\nFiscal\nAuditoria\nLegal\nPermanente",
+            "default": "Sin Definir"
+        },
+        {
+            "fieldname": "clasificacion_confidencialidad_default",
+            "fieldtype": "Select",
+            "label": "Confidencialidad Default",
+            "options": "Publico\nInterno\nConfidencial\nRestringido",
+            "default": "Confidencial"
+        },
+        {
+            "fieldname": "portal_section",
+            "fieldtype": "Section Break",
+            "label": "Portal Cliente"
+        },
+        {
+            "fieldname": "portal_habilitado",
+            "fieldtype": "Check",
+            "label": "Portal Habilitado",
+            "default": "0"
+        },
+        {
+            "fieldname": "permite_carga_documentos",
+            "fieldtype": "Check",
+            "label": "Permite Carga Documentos",
+            "default": "1"
+        },
+        {
+            "fieldname": "recordatorios_automaticos_portal",
+            "fieldtype": "Check",
+            "label": "Recordatorios Automaticos Portal",
+            "default": "1"
+        },
+        {
+            "fieldname": "column_break_5",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "usuario_portal_principal",
+            "fieldtype": "Link",
+            "label": "Usuario Portal Principal",
+            "options": "User"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "group": "Operacion",
+            "link_doctype": "Encargo Contable",
+            "link_fieldname": "cliente"
+        },
+        {
+            "group": "Operacion",
+            "link_doctype": "Task",
+            "link_fieldname": "cliente"
+        },
+        {
+            "group": "Operacion",
+            "link_doctype": "Requerimiento Cliente",
+            "link_fieldname": "cliente"
+        },
+        {
+            "group": "Documentos",
+            "link_doctype": "Documento Contable",
+            "link_fieldname": "cliente"
+        },
+        {
+            "group": "Comercial",
+            "link_doctype": "Contrato Comercial",
+            "link_fieldname": "cliente"
+        },
+        {
+            "group": "Comercial",
+            "link_doctype": "Cambio Alcance Comercial",
+            "link_fieldname": "cliente"
+        },
+        {
+            "group": "Cobranza",
+            "link_doctype": "Seguimiento Cobranza",
+            "link_fieldname": "cliente_contable"
+        }
+    ],
+    "modified": "2024-03-04 14:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Cliente Contable",
+    "naming_rule": "By fieldname",
+    "autoname": "field:customer",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Contador del Despacho",
+            "share": 1,
+            "write": 1,
+            "delete": 1,
+            "export": 1
+        },
+        {
+            "create": 0,
+            "email": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Auxiliar Contable del Despacho",
+            "share": 1,
+            "write": 0,
+            "delete": 0,
+            "export": 0
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
 }

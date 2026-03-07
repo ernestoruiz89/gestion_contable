@@ -31,30 +31,39 @@ def get_user_stats():
     }
     
     # Obtener todas las tareas contables para procesarlas
-    tasks = frappe.get_all("Tarea Contable", 
-                           fields=["name", "asignado_a", "estado", "fecha_de_vencimiento"])
+    tasks = frappe.get_all("Task", 
+                           fields=["name", "_assign", "status", "exp_end_date"])
     
     today = getdate(nowdate())
     
     for task in tasks:
-        # Solo procesamos si el usuario está en nuestro map (tiene rol del despacho y está activo)
-        if task.asignado_a in user_map:
-            u = user_map[task.asignado_a]
-            u["totales"] += 1
-            
-            # Contar por estado
-            if task.estado == "Pendiente":
-                u["pendientes"] += 1
-            elif task.estado == "En Proceso":
-                u["en_proceso"] += 1
-            elif task.estado == "En Revisión":
-                u["en_revision"] += 1
-            elif task.estado == "Completada":
-                u["completadas"] += 1
+        # Check if the task has an assignee and parse the JSON string
+        assignees = []
+        if task._assign:
+            import json
+            try:
+                assignees = json.loads(task._assign)
+            except Exception:
+                pass
+
+        for assigned_user in assignees:
+            if assigned_user in user_map:
+                u = user_map[assigned_user]
+                u["totales"] += 1
                 
-            # Calcular atrasadas (que NO están completadas y la fecha ya pasó)
-            if task.estado != "Completada" and task.fecha_de_vencimiento and getdate(task.fecha_de_vencimiento) < today:
-                u["atrasadas"] += 1
+                # Contar por estado
+                if task.status == "Open":
+                    u["pendientes"] += 1
+                elif task.status == "Working":
+                    u["en_proceso"] += 1
+                elif task.status == "Pending Review":
+                    u["en_revision"] += 1
+                elif task.status == "Completed":
+                    u["completadas"] += 1
+                    
+                # Calcular atrasadas (que NO están completadas y la fecha ya pasó)
+                if task.status != "Completed" and task.exp_end_date and getdate(task.exp_end_date) < today:
+                    u["atrasadas"] += 1
                 
     # Retornar como array ordenado por el nombre completo
     return sorted(user_map.values(), key=lambda x: x["full_name"])

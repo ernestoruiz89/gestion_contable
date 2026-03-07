@@ -1,118 +1,352 @@
 {
-  "charts": [],
-  "content": "[{\"id\":\"hdr_gc\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Panel de Gestion Contable</span>\",\"col\":12}},{\"id\":\"card_ops\",\"type\":\"card\",\"data\":{\"card_name\":\"Operaciones\",\"col\":6}},{\"id\":\"card_panel\",\"type\":\"card\",\"data\":{\"card_name\":\"Panel\",\"col\":6}}]",
-  "creation": "2024-03-04 14:00:00.000000",
-  "custom_blocks": [],
-  "docstatus": 0,
-  "doctype": "Workspace",
-  "for_user": "",
-  "hide_custom": 0,
-  "icon": "pie-chart",
-  "idx": 0,
-  "indicator_color": "blue",
-  "is_hidden": 0,
-  "label": "Panel de Gestion",
-  "links": [
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Operaciones",
-      "link_count": 4,
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Card Break"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Clientes",
-      "link_count": 0,
-      "link_to": "Cliente Contable",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Periodos",
-      "link_count": 0,
-      "link_to": "Periodo Contable",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Tareas",
-      "link_count": 0,
-      "link_to": "Tarea Contable",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Documentos",
-      "link_count": 0,
-      "link_to": "Documento Contable",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Panel",
-      "link_count": 2,
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Card Break"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Panel de Tareas",
-      "link_count": 0,
-      "link_to": "panel-de-tareas",
-      "link_type": "Page",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Resumen de Asignados",
-      "link_count": 0,
-      "link_to": "resumen-de-asignados",
-      "link_type": "Page",
-      "onboard": 0,
-      "type": "Link"
-    }
-  ],
-  "modified": "2024-03-04 14:00:00.000000",
-  "modified_by": "Administrator",
-  "module": "Gestion Contable",
-  "name": "Panel de Gestion",
-  "number_cards": [],
-  "owner": "Administrator",
-  "parent_page": "",
-  "public": 1,
-  "quick_lists": [],
-  "roles": [
-    {
-      "role": "System Manager"
-    },
-    {
-      "role": "Contador del Despacho"
-    },
-    {
-      "role": "Auxiliar Contable del Despacho"
-    }
-  ],
-  "sequence_id": 1.0,
-  "shortcuts": [],
-  "title": "Panel de Gestion"
+    "charts": [],
+    "content": "[{\"id\":\"hdr_gc\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Panel de Gestion Contable</span>\",\"col\":12}},{\"id\":\"card_ops\",\"type\":\"card\",\"data\":{\"card_name\":\"Operaciones\",\"col\":4}},{\"id\":\"card_com\",\"type\":\"card\",\"data\":{\"card_name\":\"Comercial\",\"col\":4}},{\"id\":\"card_panel\",\"type\":\"card\",\"data\":{\"card_name\":\"Panel\",\"col\":4}}]",
+    "creation": "2024-03-04 14:00:00.000000",
+    "custom_blocks": [],
+    "docstatus": 0,
+    "doctype": "Workspace",
+    "for_user": "",
+    "hide_custom": 0,
+    "icon": "pie-chart",
+    "idx": 0,
+    "indicator_color": "blue",
+    "is_hidden": 0,
+    "label": "Panel de Gestion",
+    "links": [
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Operaciones",
+            "link_count": 11,
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Clientes",
+            "link_count": 0,
+            "link_to": "Cliente Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Periodos",
+            "link_count": 0,
+            "link_to": "Periodo Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Tareas",
+            "link_count": 0,
+            "link_to": "Task",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Documentos",
+            "link_count": 0,
+            "link_to": "Documento Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Encargos",
+            "link_count": 0,
+            "link_to": "Encargo Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Servicios",
+            "link_count": 0,
+            "link_to": "Servicio Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Tarifas Cliente",
+            "link_count": 0,
+            "link_to": "Tarifa Cliente Servicio",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Plantillas Encargo",
+            "link_count": 0,
+            "link_to": "Plantilla Encargo Contable",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Requerimientos Cliente",
+            "link_count": 0,
+            "link_to": "Requerimiento Cliente",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Entregables Cliente",
+            "link_count": 0,
+            "link_to": "Entregable Cliente",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Seguimientos Cobranza",
+            "link_count": 0,
+            "link_to": "Seguimiento Cobranza",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Comercial",
+            "link_count": 6,
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Leads",
+            "link_count": 0,
+            "link_to": "Lead",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Opportunities",
+            "link_count": 0,
+            "link_to": "Opportunity",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Quotations",
+            "link_count": 0,
+            "link_to": "Quotation",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Contracts ERPNext",
+            "link_count": 0,
+            "link_to": "Contract",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Contratos Comerciales",
+            "link_count": 0,
+            "link_to": "Contrato Comercial",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Cambios de Alcance",
+            "link_count": 0,
+            "link_to": "Cambio Alcance Comercial",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Panel",
+            "link_count": 6,
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Panel de Tareas",
+            "link_count": 0,
+            "link_to": "panel-de-tareas",
+            "link_type": "Page",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Resumen de Asignados",
+            "link_count": 0,
+            "link_to": "resumen-de-asignados",
+            "link_type": "Page",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Seguimiento Auditoria",
+            "link_count": 0,
+            "link_to": "seguimiento-de-auditoria",
+            "link_type": "Page",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Rentabilidad y Cobranza",
+            "link_count": 0,
+            "link_to": "rentabilidad-y-cobranza",
+            "link_type": "Page",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 1,
+            "label": "Reporte de Rentabilidad",
+            "link_count": 0,
+            "link_to": "Resumen Rentabilidad y Cobranza",
+            "link_type": "Report",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 1,
+            "label": "Reporte Tareas por Encargo",
+            "link_count": 0,
+            "link_to": "Resumen de Tareas por Encargo",
+            "link_type": "Report",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Auditoria",
+            "link_count": 4,
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Expedientes Auditoria",
+            "link_count": 0,
+            "link_to": "Expediente Auditoria",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Matriz Riesgo-Control",
+            "link_count": 0,
+            "link_to": "Riesgo Control Auditoria",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Papeles de Trabajo",
+            "link_count": 0,
+            "link_to": "Papel Trabajo Auditoria",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Hallazgos Auditoria",
+            "link_count": 0,
+            "link_to": "Hallazgo Auditoria",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        }
+    ],
+    "modified": "2024-03-04 14:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Panel de Gestion",
+    "number_cards": [],
+    "owner": "Administrator",
+    "parent_page": "",
+    "public": 1,
+    "quick_lists": [],
+    "roles": [
+        {
+            "role": "System Manager"
+        },
+        {
+            "role": "Contador del Despacho"
+        },
+        {
+            "role": "Auxiliar Contable del Despacho"
+        },
+        {
+            "role": "Supervisor del Despacho"
+        },
+        {
+            "role": "Socio del Despacho"
+        }
+    ],
+    "sequence_id": 1.0,
+    "shortcuts": [],
+    "title": "Panel de Gestion"
 }

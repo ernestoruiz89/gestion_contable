@@ -1,0 +1,85 @@
+{
+    "actions": [],
+    "creation": "2026-03-07 10:30:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "nombre_contacto",
+        "contacto_rol",
+        "email_contacto",
+        "telefono_contacto",
+        "column_break_1",
+        "es_principal",
+        "recibe_requerimientos",
+        "recibe_cobranza",
+        "activo"
+    ],
+    "fields": [
+        {
+            "fieldname": "nombre_contacto",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Nombre Contacto",
+            "reqd": 1
+        },
+        {
+            "fieldname": "contacto_rol",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Rol Contacto",
+            "options": "Administrativo\nContabilidad\nFiscal\nAuditoria\nCobranza\nLegal\nDireccion\nPortal\nOtro",
+            "default": "Otro"
+        },
+        {
+            "fieldname": "email_contacto",
+            "fieldtype": "Data",
+            "label": "Email Contacto",
+            "options": "Email"
+        },
+        {
+            "fieldname": "telefono_contacto",
+            "fieldtype": "Data",
+            "label": "Telefono Contacto",
+            "options": "Phone"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "es_principal",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Es Principal",
+            "default": "0"
+        },
+        {
+            "fieldname": "recibe_requerimientos",
+            "fieldtype": "Check",
+            "label": "Recibe Requerimientos",
+            "default": "0"
+        },
+        {
+            "fieldname": "recibe_cobranza",
+            "fieldtype": "Check",
+            "label": "Recibe Cobranza",
+            "default": "0"
+        },
+        {
+            "fieldname": "activo",
+            "fieldtype": "Check",
+            "label": "Activo",
+            "default": "1"
+        }
+    ],
+    "istable": 1,
+    "modified": "2026-03-07 10:30:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Contacto Funcional Cliente",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}
