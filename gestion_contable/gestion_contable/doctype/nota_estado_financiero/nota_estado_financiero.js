@@ -1,5 +1,7 @@
 frappe.ui.form.on("Nota Estado Financiero", {
     refresh(frm) {
+        refresh_workflow_comment_fields(frm);
+
         if (frm.is_new()) {
             return;
         }
@@ -54,6 +56,19 @@ function getReturnCommentConfig(frm) {
     }
 
     return null;
+}
+
+function refresh_workflow_comment_fields(frm) {
+    const state = frm.doc.estado_aprobacion || "Borrador";
+    const supervisorEditable = state === "Revision Supervisor";
+    const socioEditable = state === "Revision Socio";
+    const showSupervisor = supervisorEditable || Boolean((frm.doc.comentarios_supervisor || "").trim());
+    const showSocio = socioEditable || Boolean((frm.doc.comentarios_socio || "").trim());
+
+    frm.set_df_property("comentarios_supervisor", "hidden", !showSupervisor);
+    frm.set_df_property("comentarios_supervisor", "read_only", !supervisorEditable);
+    frm.set_df_property("comentarios_socio", "hidden", !showSocio);
+    frm.set_df_property("comentarios_socio", "read_only", !socioEditable);
 }
 
 function prompt_return_comment_if_needed(frm) {

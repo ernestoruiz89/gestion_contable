@@ -205,14 +205,12 @@
         {
             "fieldname": "comentarios_supervisor",
             "fieldtype": "Small Text",
-            "label": "Comentarios Supervisor",
-            "permlevel": 1
+            "label": "Comentarios Supervisor"
         },
         {
             "fieldname": "comentarios_socio",
             "fieldtype": "Small Text",
-            "label": "Comentarios Socio",
-            "permlevel": 2
+            "label": "Comentarios Socio"
         },
         {
             "fieldname": "section_contenido",
