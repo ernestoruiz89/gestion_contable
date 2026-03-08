@@ -412,16 +412,17 @@ class CreadorNotasEEFF {
         const rows = this.get_columns(sectionId);
         return `
             <div class="cne-card">
-                <div class="cne-card-head"><h3>Columnas</h3><p>Codigo, etiqueta, tipo y formula por columna.</p></div>
+                <div class="cne-card-head"><h3>Columnas</h3><p>Codigo, etiqueta, grupo, tipo y formula por columna.</p></div>
                 <div class="cne-toolbar"><button class="cne-btn cne-add-column">Nueva Columna</button></div>
                 <div class="cne-structure-wrap">
                     <table class="cne-structure-table">
-                        <thead><tr><th>Codigo</th><th>Etiqueta</th><th>Tipo</th><th>Alineacion</th><th>Auto</th><th>Formula</th><th>Orden</th><th>Total</th><th></th></tr></thead>
+                        <thead><tr><th>Codigo</th><th>Etiqueta</th><th>Grupo</th><th>Tipo</th><th>Alineacion</th><th>Auto</th><th>Formula</th><th>Orden</th><th>Total</th><th></th></tr></thead>
                         <tbody>
                             ${rows.length ? rows.map((row, index) => `
                                 <tr>
                                     <td><input class="cne-column-field" data-index="${index}" data-fieldname="codigo_columna" data-original-code="${this.escape(row.codigo_columna || "")}" value="${this.escape(row.codigo_columna || "")}"></td>
                                     <td><input class="cne-column-field" data-index="${index}" data-fieldname="etiqueta" value="${this.escape(row.etiqueta || "")}"></td>
+                                    <td><input class="cne-column-field" data-index="${index}" data-fieldname="grupo_columna" value="${this.escape(row.grupo_columna || "")}"></td>
                                     <td>${this.inlineSelect("cne-column-field", index, "tipo_dato", row.tipo_dato || "Moneda", ["Texto", "Numero", "Moneda", "Porcentaje"])}</td>
                                     <td>${this.inlineSelect("cne-column-field", index, "alineacion", row.alineacion || "Right", ["Left", "Center", "Right"])}</td>
                                     <td><input type="checkbox" class="cne-column-field" data-index="${index}" data-fieldname="calculo_automatico" ${this.checked(row.calculo_automatico)}></td>
@@ -430,7 +431,7 @@ class CreadorNotasEEFF {
                                     <td><input type="checkbox" class="cne-column-field" data-index="${index}" data-fieldname="es_total" ${this.checked(row.es_total)}></td>
                                     <td><span class="cne-delete-link cne-delete-column" data-index="${index}">Eliminar</span></td>
                                 </tr>
-                            `).join("") : '<tr><td colspan="9">Sin columnas.</td></tr>'}
+                            `).join("") : '<tr><td colspan="10">Sin columnas.</td></tr>'}
                         </tbody>
                     </table>
                 </div>
@@ -472,6 +473,8 @@ class CreadorNotasEEFF {
     render_matrix(sectionId) {
         const rows = this.get_rows(sectionId);
         const columns = this.get_columns(sectionId);
+        const columnGroups = this.build_column_groups(columns);
+        const hasColumnGroups = columnGroups.length > 0;
         const matrix = this.compute_matrix(sectionId);
         return `
             <div class="cne-card">
@@ -480,16 +483,47 @@ class CreadorNotasEEFF {
                     ${rows.length && columns.length ? `
                         <table class="cne-matrix-table">
                             <thead>
-                                <tr>
-                                    <th class="cne-rowhead">Fila / Columna</th>
-                                    ${columns.map((column) => `
-                                        <th>
-                                            <div>${this.escape(column.etiqueta || column.codigo_columna)}</div>
-                                            <span class="cne-code">${this.escape(column.codigo_columna)}</span>
-                                            ${this.truthy(column.calculo_automatico) ? '<span class="cne-pill">fx columna</span>' : ''}
-                                        </th>
-                                    `).join("")}
-                                </tr>
+                                ${hasColumnGroups ? `
+                                    <tr>
+                                        <th class="cne-rowhead" rowspan="2">Fila / Columna</th>
+                                        ${columnGroups.map((group) => {
+                                            if (group.standalone) {
+                                                const column = group.columns[0];
+                                                return `
+                                                    <th rowspan="2">
+                                                        <div>${this.escape(column.etiqueta || column.codigo_columna)}</div>
+                                                        <span class="cne-code">${this.escape(column.codigo_columna)}</span>
+                                                        ${this.truthy(column.calculo_automatico) ? '<span class="cne-pill">fx columna</span>' : ''}
+                                                    </th>
+                                                `;
+                                            }
+                                            return `<th colspan="${group.span}">${this.escape(group.label)}</th>`;
+                                        }).join("")}
+                                    </tr>
+                                    <tr>
+                                        ${columnGroups.map((group) => {
+                                            if (group.standalone) return "";
+                                            return group.columns.map((column) => `
+                                                <th>
+                                                    <div>${this.escape(column.etiqueta || column.codigo_columna)}</div>
+                                                    <span class="cne-code">${this.escape(column.codigo_columna)}</span>
+                                                    ${this.truthy(column.calculo_automatico) ? '<span class="cne-pill">fx columna</span>' : ''}
+                                                </th>
+                                            `).join("");
+                                        }).join("")}
+                                    </tr>
+                                ` : `
+                                    <tr>
+                                        <th class="cne-rowhead">Fila / Columna</th>
+                                        ${columns.map((column) => `
+                                            <th>
+                                                <div>${this.escape(column.etiqueta || column.codigo_columna)}</div>
+                                                <span class="cne-code">${this.escape(column.codigo_columna)}</span>
+                                                ${this.truthy(column.calculo_automatico) ? '<span class="cne-pill">fx columna</span>' : ''}
+                                            </th>
+                                        `).join("")}
+                                    </tr>
+                                `}
                             </thead>
                             <tbody>
                                 ${rows.map((row) => `
@@ -616,7 +650,7 @@ class CreadorNotasEEFF {
         if (!doc || !section) return;
         const next = this.get_columns(section.seccion_id).length + 1;
         doc.columnas_tabulares = doc.columnas_tabulares || [];
-        doc.columnas_tabulares.push({ seccion_id: section.seccion_id, codigo_columna: `COL${next}`, etiqueta: `Columna ${next}`, tipo_dato: "Moneda", alineacion: "Right", calculo_automatico: 0, formula_columnas: "", orden: next, es_total: 0 });
+        doc.columnas_tabulares.push({ seccion_id: section.seccion_id, codigo_columna: `COL${next}`, etiqueta: `Columna ${next}`, grupo_columna: "", tipo_dato: "Moneda", alineacion: "Right", calculo_automatico: 0, formula_columnas: "", orden: next, es_total: 0 });
         this.render_editor();
     }
 
@@ -777,6 +811,30 @@ class CreadorNotasEEFF {
                 if (!code) return sum;
                 return sum + resolver(code, sign);
             }, 0);
+    }
+
+    build_column_groups(columns) {
+        if (!columns.some((column) => (column.grupo_columna || "").trim())) {
+            return [];
+        }
+        const groups = [];
+        let currentGroup = null;
+        columns.forEach((column) => {
+            const groupLabel = (column.grupo_columna || "").trim();
+            if (!groupLabel) {
+                groups.push({ label: "", span: 1, standalone: true, columns: [column] });
+                currentGroup = null;
+                return;
+            }
+            if (currentGroup && !currentGroup.standalone && currentGroup.label === groupLabel) {
+                currentGroup.columns.push(column);
+                currentGroup.span += 1;
+                return;
+            }
+            currentGroup = { label: groupLabel, span: 1, standalone: false, columns: [column] };
+            groups.push(currentGroup);
+        });
+        return groups;
     }
 
     render_matrix_only() {

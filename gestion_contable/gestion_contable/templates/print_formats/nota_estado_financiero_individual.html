@@ -1,19 +1,21 @@
 <style>
-  .nefi-wrap { font-family: "Helvetica Neue", Arial, sans-serif; color: #0f172a; font-size: 11px; }
+  .nefi-wrap { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #0f172a; font-size: 12pt; line-height: 1.25; }
   .nefi-head { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 18px; }
-  .nefi-head h1 { margin: 0; font-size: 22px; }
-  .nefi-head p { margin: 4px 0 0; color: #475569; }
+  .nefi-head h1 { margin: 0; font-size: 18pt; }
+  .nefi-head p { margin: 4px 0 0; color: #475569; font-size: 11pt; }
   .nefi-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
-  .nefi-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; }
+  .nefi-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; font-size: 11pt; }
   .nefi-section { margin: 0 0 18px; }
-  .nefi-section h2 { margin: 0 0 8px; font-size: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+  .nefi-section h2 { margin: 0 0 8px; font-size: 14pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
   .nefi-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .nefi-table th, .nefi-table td { border: 1px solid #dbe3ef; padding: 6px 8px; }
-  .nefi-table th { background: #f8fafc; text-align: left; }
+  .nefi-table th, .nefi-table td { border: none; padding: 4px 8px; vertical-align: middle; }
+  .nefi-table th { background: transparent; text-align: left; font-weight: 700; }
   .nefi-table td.num { text-align: right; white-space: nowrap; }
   .nefi-ref-list { margin: 6px 0 0 16px; padding: 0; }
   .nefi-ref-list li { margin-bottom: 4px; }
   .nefi-row-subtotal td, .nefi-row-total td { font-weight: 700; }
+  .nefi-row-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
+  .nefi-row-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
   .nefi-row-comment td { font-style: italic; color: #334155; }
 </style>
 {% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
@@ -113,12 +115,35 @@
           {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
             <table class="nefi-table">
               <thead>
-                <tr>
-                  <th>Concepto</th>
-                  {% for columna in section.columnas %}
-                    <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                  {% endfor %}
-                </tr>
+                {% if section.tiene_grupos_columnas %}
+                  <tr>
+                    <th rowspan="2">Concepto</th>
+                    {% for grupo in section.grupos_columnas %}
+                      {% if grupo.standalone %}
+                        {% set columna = grupo.columns[0] %}
+                        <th rowspan="2" style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
+                      {% else %}
+                        <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
+                      {% endif %}
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    {% for grupo in section.grupos_columnas %}
+                      {% if not grupo.standalone %}
+                        {% for columna in grupo.columns %}
+                          <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                  </tr>
+                {% else %}
+                  <tr>
+                    <th>Concepto</th>
+                    {% for columna in section.columnas %}
+                      <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
+                    {% endfor %}
+                  </tr>
+                {% endif %}
               </thead>
               <tbody>
                 {% for fila in section.filas %}

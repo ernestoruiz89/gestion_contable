@@ -1,19 +1,26 @@
 <style>
-  .efc-wrap { font-family: "Helvetica Neue", Arial, sans-serif; color: #0f172a; font-size: 11px; }
+  .efc-wrap { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #0f172a; font-size: 12pt; line-height: 1.25; }
   .efc-head { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 18px; }
-  .efc-head h1 { margin: 0; font-size: 22px; }
-  .efc-head p { margin: 4px 0 0; color: #475569; }
+  .efc-head h1 { margin: 0; font-size: 18pt; }
+  .efc-head p { margin: 4px 0 0; color: #475569; font-size: 11pt; }
   .efc-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
-  .efc-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; }
+  .efc-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; font-size: 11pt; }
   .efc-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .efc-table th, .efc-table td { border: 1px solid #dbe3ef; padding: 6px 8px; }
-  .efc-table th { background: #f8fafc; text-align: left; }
+  .efc-table th, .efc-table td { border: none; padding: 4px 8px; vertical-align: middle; }
+  .efc-table th { background: transparent; text-align: left; font-weight: 700; }
   .efc-table td.num { text-align: right; white-space: nowrap; }
-  .efc-line-total { font-weight: 700; background: #f8fafc; }
-  .efc-line-subtotal { font-weight: 600; background: #fdfefe; }
+  .efc-line-total td, .efc-line-subtotal td { font-weight: 700; }
+  .efc-line-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
+  .efc-line-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
   .efc-note { margin-top: 18px; page-break-inside: avoid; }
-  .efc-note h3 { margin: 0 0 6px; font-size: 13px; }
-  .efc-note-meta { color: #475569; margin-bottom: 6px; }
+  .efc-note h3 { margin: 0 0 6px; font-size: 13pt; }
+  .efc-note-meta { color: #475569; margin-bottom: 6px; font-size: 11pt; }
+  .efc-ref-list { margin: 6px 0 0 16px; padding: 0; }
+  .efc-ref-list li { margin-bottom: 4px; }
+  .efc-row-subtotal td, .efc-row-total td { font-weight: 700; }
+  .efc-row-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
+  .efc-row-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
+  .efc-row-comment td { font-style: italic; color: #334155; }
 </style>
 {% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
 {% set referenced_numbers = [] %}
@@ -91,16 +98,24 @@
       {% for nota in notas %}
         {% if nota.numero_nota in referenced_numbers %}
           {% set nota_doc = frappe.get_doc("Nota Estado Financiero", nota.name) %}
+          {% set structured_sections = nota_doc.get_structured_sections() %}
           <div class="efc-note" style="margin-top: 12px;">
             <h3>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h3>
             <div class="efc-note-meta">Categoria: {{ nota_doc.categoria_nota or "-" }} | Estado: {{ nota_doc.estado_aprobacion or "-" }}</div>
+            {% if nota_doc.referencias_cruzadas %}
+              <ul class="efc-ref-list">
+                {% for ref in nota_doc.referencias_cruzadas %}
+                  <li>{{ ref.tipo_estado or "Estado" }}{% if ref.codigo_rubro %} | {{ ref.codigo_rubro }}{% endif %}{% if ref.descripcion_linea_estado %} | {{ ref.descripcion_linea_estado }}{% endif %}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
             {% if nota_doc.politica_contable %}
               <div><strong>Politica contable</strong></div>
-              <div>{{ nota_doc.politica_contable }}</div>
+              <div>{{ nota_doc.politica_contable | safe }}</div>
             {% endif %}
             {% if nota_doc.contenido_narrativo %}
               <div style="margin-top: 8px;"><strong>Contenido narrativo</strong></div>
-              <div>{{ nota_doc.contenido_narrativo }}</div>
+              <div>{{ nota_doc.contenido_narrativo | safe }}</div>
             {% endif %}
             {% if nota_doc.cifras_nota %}
               <table class="efc-table" style="margin-top: 8px;">
@@ -123,6 +138,73 @@
                   {% endfor %}
                 </tbody>
               </table>
+            {% endif %}
+            {% if structured_sections %}
+              {% for section in structured_sections %}
+                <div style="margin-top: 10px;">
+                  <div style="font-weight: 700; margin-bottom: 6px;">{{ section.titulo_seccion }}</div>
+                  {% if section.contenido_narrativo %}
+                    <div style="margin-bottom: 8px;">{{ section.contenido_narrativo | safe }}</div>
+                  {% endif %}
+                  {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
+                    <table class="efc-table">
+                      <thead>
+                        {% if section.tiene_grupos_columnas %}
+                          <tr>
+                            <th rowspan="2">Concepto</th>
+                            {% for grupo in section.grupos_columnas %}
+                              {% if grupo.standalone %}
+                                {% set columna = grupo.columns[0] %}
+                                <th rowspan="2" style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
+                              {% else %}
+                                <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
+                              {% endif %}
+                            {% endfor %}
+                          </tr>
+                          <tr>
+                            {% for grupo in section.grupos_columnas %}
+                              {% if not grupo.standalone %}
+                                {% for columna in grupo.columns %}
+                                  <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
+                                {% endfor %}
+                              {% endif %}
+                            {% endfor %}
+                          </tr>
+                        {% else %}
+                          <tr>
+                            <th>Concepto</th>
+                            {% for columna in section.columnas %}
+                              <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
+                            {% endfor %}
+                          </tr>
+                        {% endif %}
+                      </thead>
+                      <tbody>
+                        {% for fila in section.filas %}
+                          <tr class="efc-row-{{ (fila.tipo_fila or "Detalle").lower().replace(" ", "-") }}">
+                            <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
+                            {% for celda in fila.celdas %}
+                              <td style="text-align: {{ (section.columnas[loop.index0].alineacion or "Left").lower() }};">
+                                {% if celda.valor_texto %}
+                                  {{ celda.valor_texto }}
+                                {% elif celda.valor_numero is not none %}
+                                  {% if celda.formato_numero == "Porcentaje" %}
+                                    {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Percent"}) }}
+                                  {% else %}
+                                    {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Currency"}) }}
+                                  {% endif %}
+                                {% else %}
+                                  -
+                                {% endif %}
+                              </td>
+                            {% endfor %}
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  {% endif %}
+                </div>
+              {% endfor %}
             {% endif %}
           </div>
         {% endif %}

@@ -424,6 +424,7 @@ class NotaEstadoFinanciero(Document):
         output = []
         for section in sections:
             section_columns = [col for col in columns if col.seccion_id == section.seccion_id]
+            column_groups, has_column_groups = self._build_column_groups(section_columns)
             section_rows = []
             for row in rows:
                 if row.seccion_id != section.seccion_id:
@@ -454,6 +455,46 @@ class NotaEstadoFinanciero(Document):
                 "tipo_seccion": section.tipo_seccion,
                 "contenido_narrativo": section.contenido_narrativo,
                 "columnas": section_columns,
+                "grupos_columnas": column_groups,
+                "tiene_grupos_columnas": has_column_groups,
                 "filas": section_rows,
             })
         return output
+
+    def _build_column_groups(self, columns):
+        has_groups = any(cstr(col.grupo_columna or "").strip() for col in columns)
+        if not columns:
+            return [], False
+        if not has_groups:
+            return [], False
+
+        groups = []
+        current_group = None
+        for column in columns:
+            group_label = cstr(column.grupo_columna or "").strip()
+            if not group_label:
+                groups.append(
+                    {
+                        "label": "",
+                        "span": 1,
+                        "standalone": True,
+                        "columns": [column],
+                    }
+                )
+                current_group = None
+                continue
+
+            if current_group and not current_group["standalone"] and current_group["label"] == group_label:
+                current_group["columns"].append(column)
+                current_group["span"] += 1
+                continue
+
+            current_group = {
+                "label": group_label,
+                "span": 1,
+                "standalone": False,
+                "columns": [column],
+            }
+            groups.append(current_group)
+
+        return groups, True

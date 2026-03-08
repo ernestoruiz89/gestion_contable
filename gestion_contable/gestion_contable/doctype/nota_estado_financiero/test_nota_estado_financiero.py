@@ -215,3 +215,46 @@ class TestNotaEstadoFinanciero(GestionContableIntegrationTestCase):
         self.assertEqual(value("SUB", "VIG"), 145)
         self.assertEqual(value("SUB", "VENC"), 28)
         self.assertEqual(value("SUB", "TOT"), 173)
+
+
+    def test_nota_agrupa_columnas_por_grupo_columna(self):
+        nota = self._crear_nota(
+            "10",
+            contenido_narrativo="Resumen comparativo por anio.",
+            secciones_estructuradas=[
+                {
+                    "seccion_id": "SEC-01",
+                    "titulo_seccion": "Cartera de creditos",
+                    "tipo_seccion": "Tabla",
+                    "orden": 1,
+                }
+            ],
+            columnas_tabulares=[
+                {"seccion_id": "SEC-01", "codigo_columna": "VIG_2023", "etiqueta": "Vigentes", "grupo_columna": "31 diciembre 2023", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 1},
+                {"seccion_id": "SEC-01", "codigo_columna": "VENC_2023", "etiqueta": "Vencidos", "grupo_columna": "31 diciembre 2023", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 2},
+                {"seccion_id": "SEC-01", "codigo_columna": "TOT_2023", "etiqueta": "Total", "grupo_columna": "31 diciembre 2023", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 3},
+                {"seccion_id": "SEC-01", "codigo_columna": "VIG_2022", "etiqueta": "Vigentes", "grupo_columna": "31 diciembre 2022", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 4},
+                {"seccion_id": "SEC-01", "codigo_columna": "VENC_2022", "etiqueta": "Vencidos", "grupo_columna": "31 diciembre 2022", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 5},
+                {"seccion_id": "SEC-01", "codigo_columna": "TOT_2022", "etiqueta": "Total", "grupo_columna": "31 diciembre 2022", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 6},
+            ],
+            filas_tabulares=[
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "descripcion": "Creditos comerciales", "nivel": 1, "tipo_fila": "Detalle", "orden": 1},
+            ],
+            celdas_tabulares=[
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "VIG_2023", "valor_numero": 100, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "VENC_2023", "valor_numero": 20, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "TOT_2023", "valor_numero": 120, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "VIG_2022", "valor_numero": 80, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "VENC_2022", "valor_numero": 15, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "TOT_2022", "valor_numero": 95, "formato_numero": "Moneda"},
+            ],
+        )
+
+        sections = nota.get_structured_sections()
+        self.assertEqual(len(sections), 1)
+        self.assertEqual(sections[0]["tiene_grupos_columnas"], 1)
+        self.assertEqual(len(sections[0]["grupos_columnas"]), 2)
+        self.assertEqual(sections[0]["grupos_columnas"][0]["label"], "31 diciembre 2023")
+        self.assertEqual(sections[0]["grupos_columnas"][0]["span"], 3)
+        self.assertEqual(sections[0]["grupos_columnas"][1]["label"], "31 diciembre 2022")
+        self.assertEqual(sections[0]["grupos_columnas"][1]["span"], 3)
