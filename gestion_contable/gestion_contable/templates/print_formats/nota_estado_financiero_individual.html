@@ -13,8 +13,11 @@
   .nefi-table td.num { text-align: right; white-space: nowrap; }
   .nefi-ref-list { margin: 6px 0 0 16px; padding: 0; }
   .nefi-ref-list li { margin-bottom: 4px; }
+  .nefi-row-subtotal td, .nefi-row-total td { font-weight: 700; }
+  .nefi-row-comment td { font-style: italic; color: #334155; }
 </style>
 {% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
+{% set structured_sections = doc.get_structured_sections() %}
 <div class="nefi-wrap">
   <div class="nefi-head">
     <h1>Nota {{ doc.numero_nota }}. {{ doc.titulo or "Sin titulo" }}</h1>
@@ -97,6 +100,54 @@
       <p>No hay cifras tabulares registradas para esta nota.</p>
     {% endif %}
   </div>
+
+  {% if structured_sections %}
+    <div class="nefi-section">
+      <h2>Secciones Estructuradas</h2>
+      {% for section in structured_sections %}
+        <div style="margin-bottom: 16px;">
+          <h3 style="margin: 0 0 6px; font-size: 14px;">{{ section.titulo_seccion }}</h3>
+          {% if section.contenido_narrativo %}
+            <div style="margin-bottom: 8px;">{{ section.contenido_narrativo | safe }}</div>
+          {% endif %}
+          {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
+            <table class="nefi-table">
+              <thead>
+                <tr>
+                  <th>Concepto</th>
+                  {% for columna in section.columnas %}
+                    <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for fila in section.filas %}
+                  <tr class="nefi-row-{{ (fila.tipo_fila or "Detalle").lower().replace(" ", "-") }}">
+                    <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
+                    {% for celda in fila.celdas %}
+                      <td style="text-align: {{ (section.columnas[loop.index0].alineacion or "Left").lower() }};">
+                        {% if celda.valor_texto %}
+                          {{ celda.valor_texto }}
+                        {% elif celda.valor_numero is not none %}
+                          {% if celda.formato_numero == "Porcentaje" %}
+                            {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Percent"}) }}
+                          {% else %}
+                            {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Currency"}) }}
+                          {% endif %}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
   {% if doc.observaciones_preparacion %}
     <div class="nefi-section">

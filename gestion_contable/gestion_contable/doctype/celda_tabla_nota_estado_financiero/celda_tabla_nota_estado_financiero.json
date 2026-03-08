@@ -1,0 +1,67 @@
+{
+    "actions": [],
+    "creation": "2026-03-08 23:33:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "seccion_id",
+        "codigo_fila",
+        "codigo_columna",
+        "valor_texto",
+        "valor_numero",
+        "formato_numero",
+        "comentario"
+    ],
+    "fields": [
+        {
+            "fieldname": "seccion_id",
+            "fieldtype": "Data",
+            "label": "Seccion ID",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "codigo_fila",
+            "fieldtype": "Data",
+            "label": "Codigo Fila",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "codigo_columna",
+            "fieldtype": "Data",
+            "label": "Codigo Columna",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "valor_texto",
+            "fieldtype": "Small Text",
+            "label": "Valor Texto"
+        },
+        {
+            "fieldname": "valor_numero",
+            "fieldtype": "Float",
+            "label": "Valor Numero"
+        },
+        {
+            "fieldname": "formato_numero",
+            "fieldtype": "Select",
+            "label": "Formato Numero",
+            "options": "Numero\nMoneda\nPorcentaje",
+            "default": "Numero"
+        },
+        {
+            "fieldname": "comentario",
+            "fieldtype": "Small Text",
+            "label": "Comentario"
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Celda Tabla Nota Estado Financiero",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

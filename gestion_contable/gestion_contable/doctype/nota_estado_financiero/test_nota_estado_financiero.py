@@ -23,20 +23,36 @@ class TestNotaEstadoFinanciero(GestionContableIntegrationTestCase):
         self.track_doc("Paquete Estados Financieros Cliente", self.paquete.name)
 
     def _crear_estado(self, tipo_estado, requiere_nota=False, numero_nota=None):
-        line = {
-            "descripcion": f"Linea {tipo_estado}",
-            "monto_actual": 100,
-            "monto_comparativo": 90,
-        }
-        if requiere_nota:
-            line["requiere_nota"] = 1
-            line["numero_nota_referencial"] = numero_nota
+        common_ref = {"requiere_nota": 1, "numero_nota_referencial": numero_nota} if requiere_nota else {}
+        if tipo_estado == "Estado de Situacion Financiera":
+            lineas = [
+                {"descripcion": "Total Activo", "naturaleza": "Activo", "es_total": 1, "monto_actual": 100, "monto_comparativo": 90, **common_ref},
+                {"descripcion": "Total Pasivo", "naturaleza": "Pasivo", "es_total": 1, "monto_actual": 60, "monto_comparativo": 50},
+                {"descripcion": "Total Patrimonio", "naturaleza": "Patrimonio", "es_total": 1, "monto_actual": 40, "monto_comparativo": 40},
+            ]
+        elif tipo_estado == "Estado de Resultados":
+            lineas = [
+                {"descripcion": "Total Ingresos", "naturaleza": "Ingreso", "es_total": 1, "monto_actual": 500, "monto_comparativo": 450, **common_ref},
+                {"descripcion": "Total Gastos", "naturaleza": "Gasto", "es_total": 1, "monto_actual": 300, "monto_comparativo": 280},
+                {"descripcion": "Resultado Final", "naturaleza": "Otro", "es_resultado_final": 1, "monto_actual": 200, "monto_comparativo": 170},
+            ]
+        elif tipo_estado == "Estado de Flujos de Efectivo":
+            lineas = [
+                {"descripcion": "Efectivo Inicial", "naturaleza": "Activo", "es_efectivo_inicial": 1, "monto_actual": 100, "monto_comparativo": 80, **common_ref},
+                {"descripcion": "Variacion Neta", "naturaleza": "Otro", "es_variacion_neta_efectivo": 1, "monto_actual": 50, "monto_comparativo": 20},
+                {"descripcion": "Efectivo Final", "naturaleza": "Activo", "es_efectivo_final": 1, "monto_actual": 150, "monto_comparativo": 100},
+            ]
+        else:
+            lineas = [
+                {"descripcion": "Capital Aportado", "naturaleza": "Patrimonio", "monto_actual": 250, "monto_comparativo": 230, **common_ref},
+                {"descripcion": "Resultado Acumulado", "naturaleza": "Patrimonio", "monto_actual": 120, "monto_comparativo": 100},
+            ]
 
         payload = {
             "doctype": "Estado Financiero Cliente",
             "paquete_estados_financieros_cliente": self.paquete.name,
             "tipo_estado": tipo_estado,
-            "lineas": [line],
+            "lineas": lineas,
         }
         if tipo_estado == "Estado de Flujos de Efectivo":
             payload["metodo_flujo_efectivo"] = "Indirecto"
@@ -99,7 +115,6 @@ class TestNotaEstadoFinanciero(GestionContableIntegrationTestCase):
         )
         self.assertRaises(frappe.ValidationError, duplicate.insert, ignore_permissions=True)
 
-
     def test_nota_sincroniza_referencias_cruzadas(self):
         estado = self._crear_estado("Estado de Situacion Financiera", requiere_nota=True, numero_nota="3")
         nota = self._crear_nota("3")
@@ -107,7 +122,7 @@ class TestNotaEstadoFinanciero(GestionContableIntegrationTestCase):
         self.assertEqual(int(nota.total_referencias), 1)
         referencia = nota.referencias_cruzadas[0]
         self.assertEqual(referencia.estado_financiero_cliente, estado.name)
-        self.assertEqual(referencia.descripcion_linea_estado, "Linea Estado de Situacion Financiera")
+        self.assertEqual(referencia.descripcion_linea_estado, "Total Activo")
 
         estado.lineas[0].descripcion = "Caja y Bancos"
         estado.save(ignore_permissions=True)
@@ -115,3 +130,40 @@ class TestNotaEstadoFinanciero(GestionContableIntegrationTestCase):
 
         self.assertEqual(int(nota.total_referencias), 1)
         self.assertEqual(nota.referencias_cruzadas[0].descripcion_linea_estado, "Caja y Bancos")
+
+    def test_nota_permite_tabla_estructurada_compleja(self):
+        nota = self._crear_nota(
+            "8",
+            contenido_narrativo="Resumen de cartera.",
+            secciones_estructuradas=[
+                {
+                    "seccion_id": "SEC-01",
+                    "titulo_seccion": "Cartera de creditos, neto",
+                    "tipo_seccion": "Tabla",
+                    "orden": 1,
+                }
+            ],
+            columnas_tabulares=[
+                {"seccion_id": "SEC-01", "codigo_columna": "VIG", "etiqueta": "Vigentes", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 1},
+                {"seccion_id": "SEC-01", "codigo_columna": "VENC", "etiqueta": "Vencidos", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 2},
+                {"seccion_id": "SEC-01", "codigo_columna": "TOT", "etiqueta": "Total", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 3},
+            ],
+            filas_tabulares=[
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "descripcion": "Creditos comerciales", "nivel": 1, "tipo_fila": "Detalle", "orden": 1},
+                {"seccion_id": "SEC-01", "codigo_fila": "SUB", "descripcion": "Subtotal", "nivel": 1, "tipo_fila": "Subtotal", "orden": 2, "negrita": 1},
+            ],
+            celdas_tabulares=[
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "VIG", "valor_numero": 72755643, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "VENC", "valor_numero": 241688, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "TOT", "valor_numero": 73621817, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "SUB", "codigo_columna": "VIG", "valor_numero": 1953933684, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "SUB", "codigo_columna": "VENC", "valor_numero": 29549491, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "SUB", "codigo_columna": "TOT", "valor_numero": 2008803061, "formato_numero": "Moneda"},
+            ],
+        )
+
+        sections = nota.get_structured_sections()
+        self.assertEqual(len(sections), 1)
+        self.assertEqual(sections[0]["titulo_seccion"], "Cartera de creditos, neto")
+        self.assertEqual(len(sections[0]["columnas"]), 3)
+        self.assertEqual(len(sections[0]["filas"]), 2)

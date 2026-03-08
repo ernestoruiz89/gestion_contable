@@ -36,6 +36,11 @@
         "contenido_narrativo",
         "section_cifras",
         "cifras_nota",
+        "section_tablas_complejas",
+        "secciones_estructuradas",
+        "columnas_tabulares",
+        "filas_tabulares",
+        "celdas_tabulares",
         "section_control",
         "total_cifras",
         "observaciones_preparacion"
@@ -236,6 +241,35 @@
             "options": "Cifra Nota Estado Financiero"
         },
         {
+            "fieldname": "section_tablas_complejas",
+            "fieldtype": "Section Break",
+            "label": "Tablas Complejas de la Nota"
+        },
+        {
+            "fieldname": "secciones_estructuradas",
+            "fieldtype": "Table",
+            "label": "Secciones Estructuradas",
+            "options": "Seccion Nota Estado Financiero"
+        },
+        {
+            "fieldname": "columnas_tabulares",
+            "fieldtype": "Table",
+            "label": "Columnas Tabulares",
+            "options": "Columna Tabla Nota Estado Financiero"
+        },
+        {
+            "fieldname": "filas_tabulares",
+            "fieldtype": "Table",
+            "label": "Filas Tabulares",
+            "options": "Fila Tabla Nota Estado Financiero"
+        },
+        {
+            "fieldname": "celdas_tabulares",
+            "fieldtype": "Table",
+            "label": "Celdas Tabulares",
+            "options": "Celda Tabla Nota Estado Financiero"
+        },
+        {
             "fieldname": "section_control",
             "fieldtype": "Section Break",
             "label": "Control"
@@ -257,11 +291,6 @@
             "group": "Estados Financieros",
             "link_doctype": "Paquete Estados Financieros Cliente",
             "link_fieldname": "paquete_estados_financieros_cliente"
-        },
-        {
-            "group": "Cliente",
-            "link_doctype": "Cliente Contable",
-            "link_fieldname": "cliente"
         }
     ],
     "module": "Gestion Contable",

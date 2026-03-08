@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, cstr
+from frappe.utils import cint, cstr, flt
 
 from gestion_contable.gestion_contable.utils.estados_financieros import (
     get_note_line_references,
@@ -29,6 +29,10 @@ CONTENT_FIELDS = (
     "politica_contable",
     "contenido_narrativo",
     "cifras_nota",
+    "secciones_estructuradas",
+    "columnas_tabulares",
+    "filas_tabulares",
+    "celdas_tabulares",
     "observaciones_preparacion",
 )
 CATEGORIAS_NOTA = (
@@ -48,6 +52,11 @@ CATEGORIAS_NOTA = (
     "Hechos Posteriores",
     "Otra",
 )
+TIPOS_SECCION = ("Narrativa", "Tabla", "Texto y Tabla")
+TIPOS_FILA = ("Detalle", "Subtotal", "Total", "Comentario")
+TIPOS_DATO_COLUMNA = ("Texto", "Numero", "Moneda", "Porcentaje")
+ALINEACIONES_COLUMNA = ("Left", "Center", "Right")
+FORMATOS_NUMERO = ("Numero", "Moneda", "Porcentaje")
 
 
 class NotaEstadoFinanciero(Document):
@@ -65,6 +74,10 @@ class NotaEstadoFinanciero(Document):
         self.sincronizar_desde_paquete()
         self.validar_categoria()
         self.normalizar_cifras()
+        self.normalizar_secciones_estructuradas()
+        self.normalizar_columnas_tabulares()
+        self.normalizar_filas_tabulares()
+        self.normalizar_celdas_tabulares()
         self.validar_contenido()
         self.validar_unicidad_numero()
         self.sincronizar_referencias_cruzadas()
@@ -151,13 +164,103 @@ class NotaEstadoFinanciero(Document):
                 frappe.throw(_("Cada cifra de nota debe indicar el concepto."), title=_("Concepto Requerido"))
         self.total_cifras = len(self.cifras_nota or [])
 
+    def normalizar_secciones_estructuradas(self):
+        seen = set()
+        for idx, row in enumerate(self.secciones_estructuradas or [], start=1):
+            row.orden = cint(row.orden or idx)
+            row.tipo_seccion = row.tipo_seccion or "Narrativa"
+            if row.tipo_seccion not in TIPOS_SECCION:
+                frappe.throw(_("El tipo de seccion <b>{0}</b> no es valido.").format(row.tipo_seccion), title=_("Seccion Invalida"))
+            if not cstr(row.titulo_seccion or "").strip():
+                frappe.throw(_("Cada seccion estructurada debe indicar un titulo."), title=_("Titulo Requerido"))
+            row.seccion_id = cstr(row.seccion_id or f"SEC-{idx:02d}").strip().upper()
+            if row.seccion_id in seen:
+                frappe.throw(_("La seccion <b>{0}</b> esta duplicada dentro de la nota.").format(row.seccion_id), title=_("Seccion Duplicada"))
+            seen.add(row.seccion_id)
+
+    def normalizar_columnas_tabulares(self):
+        section_ids = {row.seccion_id for row in self.secciones_estructuradas or []}
+        seen = set()
+        for idx, row in enumerate(self.columnas_tabulares or [], start=1):
+            row.orden = cint(row.orden or idx)
+            row.seccion_id = cstr(row.seccion_id or "").strip().upper()
+            row.codigo_columna = cstr(row.codigo_columna or "").strip().upper()
+            row.tipo_dato = row.tipo_dato or "Texto"
+            row.alineacion = row.alineacion or "Left"
+            if row.seccion_id not in section_ids:
+                frappe.throw(_("La columna <b>{0}</b> referencia una seccion inexistente.").format(row.codigo_columna or idx), title=_("Seccion Invalida"))
+            if not row.codigo_columna or not cstr(row.etiqueta or "").strip():
+                frappe.throw(_("Cada columna tabular debe indicar codigo y etiqueta."), title=_("Columna Invalida"))
+            if row.tipo_dato not in TIPOS_DATO_COLUMNA:
+                frappe.throw(_("El tipo de dato de la columna <b>{0}</b> no es valido.").format(row.codigo_columna), title=_("Columna Invalida"))
+            if row.alineacion not in ALINEACIONES_COLUMNA:
+                frappe.throw(_("La alineacion de la columna <b>{0}</b> no es valida.").format(row.codigo_columna), title=_("Columna Invalida"))
+            key = (row.seccion_id, row.codigo_columna)
+            if key in seen:
+                frappe.throw(_("La columna <b>{0}</b> esta duplicada en la seccion <b>{1}</b>.").format(row.codigo_columna, row.seccion_id), title=_("Columna Duplicada"))
+            seen.add(key)
+
+    def normalizar_filas_tabulares(self):
+        section_ids = {row.seccion_id for row in self.secciones_estructuradas or []}
+        seen = set()
+        for idx, row in enumerate(self.filas_tabulares or [], start=1):
+            row.orden = cint(row.orden or idx)
+            row.nivel = cint(row.nivel or 1)
+            row.seccion_id = cstr(row.seccion_id or "").strip().upper()
+            row.codigo_fila = cstr(row.codigo_fila or "").strip().upper()
+            row.tipo_fila = row.tipo_fila or "Detalle"
+            if row.seccion_id not in section_ids:
+                frappe.throw(_("La fila <b>{0}</b> referencia una seccion inexistente.").format(row.codigo_fila or idx), title=_("Seccion Invalida"))
+            if not row.codigo_fila or not cstr(row.descripcion or "").strip():
+                frappe.throw(_("Cada fila tabular debe indicar codigo y descripcion."), title=_("Fila Invalida"))
+            if row.tipo_fila not in TIPOS_FILA:
+                frappe.throw(_("El tipo de fila <b>{0}</b> no es valido.").format(row.codigo_fila), title=_("Fila Invalida"))
+            key = (row.seccion_id, row.codigo_fila)
+            if key in seen:
+                frappe.throw(_("La fila <b>{0}</b> esta duplicada en la seccion <b>{1}</b>.").format(row.codigo_fila, row.seccion_id), title=_("Fila Duplicada"))
+            seen.add(key)
+
+    def normalizar_celdas_tabulares(self):
+        section_ids = {row.seccion_id for row in self.secciones_estructuradas or []}
+        row_keys = {(row.seccion_id, row.codigo_fila) for row in self.filas_tabulares or []}
+        col_keys = {(row.seccion_id, row.codigo_columna) for row in self.columnas_tabulares or []}
+        seen = set()
+        for row in self.celdas_tabulares or []:
+            row.seccion_id = cstr(row.seccion_id or "").strip().upper()
+            row.codigo_fila = cstr(row.codigo_fila or "").strip().upper()
+            row.codigo_columna = cstr(row.codigo_columna or "").strip().upper()
+            row.formato_numero = row.formato_numero or "Numero"
+            if row.seccion_id not in section_ids:
+                frappe.throw(_("Una celda tabular referencia una seccion inexistente."), title=_("Seccion Invalida"))
+            if (row.seccion_id, row.codigo_fila) not in row_keys:
+                frappe.throw(_("La celda de la fila <b>{0}</b> referencia una fila inexistente.").format(row.codigo_fila), title=_("Fila Invalida"))
+            if (row.seccion_id, row.codigo_columna) not in col_keys:
+                frappe.throw(_("La celda de la columna <b>{0}</b> referencia una columna inexistente.").format(row.codigo_columna), title=_("Columna Invalida"))
+            if row.formato_numero not in FORMATOS_NUMERO:
+                frappe.throw(_("El formato numerico de una celda no es valido."), title=_("Celda Invalida"))
+            key = (row.seccion_id, row.codigo_fila, row.codigo_columna)
+            if key in seen:
+                frappe.throw(_("La celda para fila <b>{0}</b> y columna <b>{1}</b> esta duplicada.").format(row.codigo_fila, row.codigo_columna), title=_("Celda Duplicada"))
+            seen.add(key)
+            if row.valor_texto in (None, "") and row.valor_numero in (None, ""):
+                frappe.throw(_("Cada celda tabular debe tener valor texto o valor numero."), title=_("Celda Vacia"))
+
+        for section in self.secciones_estructuradas or []:
+            if section.tipo_seccion in ("Tabla", "Texto y Tabla"):
+                has_columns = any(col.seccion_id == section.seccion_id for col in self.columnas_tabulares or [])
+                has_rows = any(fila.seccion_id == section.seccion_id for fila in self.filas_tabulares or [])
+                has_cells = any(celda.seccion_id == section.seccion_id for celda in self.celdas_tabulares or [])
+                if not (has_columns and has_rows and has_cells):
+                    frappe.throw(_("La seccion <b>{0}</b> requiere columnas, filas y celdas para su tabla estructurada.").format(section.titulo_seccion), title=_("Tabla Incompleta"))
+
     def validar_contenido(self):
         has_narrative = bool(cstr(self.contenido_narrativo or "").strip())
         has_policy = bool(cstr(self.politica_contable or "").strip())
         has_figures = bool(self.cifras_nota)
-        if not any((has_narrative, has_policy, has_figures)):
+        has_structured = bool(self.secciones_estructuradas)
+        if not any((has_narrative, has_policy, has_figures, has_structured)):
             frappe.throw(
-                _("La nota debe incluir contenido narrativo, politica contable o al menos una cifra tabular."),
+                _("La nota debe incluir contenido narrativo, politica contable, cifras simples o al menos una seccion estructurada."),
                 title=_("Contenido Requerido"),
             )
 
@@ -177,3 +280,51 @@ class NotaEstadoFinanciero(Document):
                 _("Ya existe una nota numero <b>{0}</b> dentro de este paquete.").format(self.numero_nota),
                 title=_("Nota Duplicada"),
             )
+
+    def get_structured_sections(self):
+        sections = sorted(self.secciones_estructuradas or [], key=lambda row: (cint(row.orden or 0), row.idx or 0))
+        columns = sorted(self.columnas_tabulares or [], key=lambda row: (row.seccion_id, cint(row.orden or 0), row.idx or 0))
+        rows = sorted(self.filas_tabulares or [], key=lambda row: (row.seccion_id, cint(row.orden or 0), row.idx or 0))
+        cells = list(self.celdas_tabulares or [])
+        cell_map = {
+            (cell.seccion_id, cell.codigo_fila, cell.codigo_columna): {
+                "valor_texto": cstr(cell.valor_texto or "").strip(),
+                "valor_numero": None if cell.valor_numero in (None, "") else flt(cell.valor_numero),
+                "formato_numero": cell.formato_numero or "Numero",
+                "comentario": cell.comentario,
+            }
+            for cell in cells
+        }
+        output = []
+        for section in sections:
+            section_columns = [col for col in columns if col.seccion_id == section.seccion_id]
+            section_rows = []
+            for row in rows:
+                if row.seccion_id != section.seccion_id:
+                    continue
+                rendered_cells = []
+                for col in section_columns:
+                    rendered_cells.append(cell_map.get((section.seccion_id, row.codigo_fila, col.codigo_columna), {
+                        "valor_texto": "",
+                        "valor_numero": None,
+                        "formato_numero": col.tipo_dato if col.tipo_dato in FORMATOS_NUMERO else "Numero",
+                        "comentario": None,
+                    }))
+                section_rows.append({
+                    "codigo_fila": row.codigo_fila,
+                    "descripcion": row.descripcion,
+                    "nivel": cint(row.nivel or 1),
+                    "tipo_fila": row.tipo_fila,
+                    "negrita": cint(row.negrita or 0),
+                    "subrayado": cint(row.subrayado or 0),
+                    "celdas": rendered_cells,
+                })
+            output.append({
+                "seccion_id": section.seccion_id,
+                "titulo_seccion": section.titulo_seccion,
+                "tipo_seccion": section.tipo_seccion,
+                "contenido_narrativo": section.contenido_narrativo,
+                "columnas": section_columns,
+                "filas": section_rows,
+            })
+        return output

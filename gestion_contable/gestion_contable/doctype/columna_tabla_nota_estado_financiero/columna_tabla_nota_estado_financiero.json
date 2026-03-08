@@ -1,0 +1,77 @@
+{
+    "actions": [],
+    "creation": "2026-03-08 23:31:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "seccion_id",
+        "codigo_columna",
+        "etiqueta",
+        "tipo_dato",
+        "alineacion",
+        "grupo_columna",
+        "orden",
+        "es_total"
+    ],
+    "fields": [
+        {
+            "fieldname": "seccion_id",
+            "fieldtype": "Data",
+            "label": "Seccion ID",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "codigo_columna",
+            "fieldtype": "Data",
+            "label": "Codigo Columna",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "etiqueta",
+            "fieldtype": "Data",
+            "label": "Etiqueta",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "tipo_dato",
+            "fieldtype": "Select",
+            "label": "Tipo Dato",
+            "options": "Texto\nNumero\nMoneda\nPorcentaje",
+            "default": "Texto"
+        },
+        {
+            "fieldname": "alineacion",
+            "fieldtype": "Select",
+            "label": "Alineacion",
+            "options": "Left\nCenter\nRight",
+            "default": "Left"
+        },
+        {
+            "fieldname": "grupo_columna",
+            "fieldtype": "Data",
+            "label": "Grupo Columna"
+        },
+        {
+            "fieldname": "orden",
+            "fieldtype": "Int",
+            "label": "Orden",
+            "default": 0
+        },
+        {
+            "fieldname": "es_total",
+            "fieldtype": "Check",
+            "label": "Es Total",
+            "default": 0
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Columna Tabla Nota Estado Financiero",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}
