@@ -167,3 +167,51 @@ class TestNotaEstadoFinanciero(GestionContableIntegrationTestCase):
         self.assertEqual(sections[0]["titulo_seccion"], "Cartera de creditos, neto")
         self.assertEqual(len(sections[0]["columnas"]), 3)
         self.assertEqual(len(sections[0]["filas"]), 2)
+
+    def test_nota_calcula_subtotales_y_totales_por_formula(self):
+        nota = self._crear_nota(
+            "9",
+            contenido_narrativo="Resumen de cartera con formulas.",
+            secciones_estructuradas=[
+                {
+                    "seccion_id": "SEC-01",
+                    "titulo_seccion": "Cartera por categoria",
+                    "tipo_seccion": "Tabla",
+                    "orden": 1,
+                }
+            ],
+            columnas_tabulares=[
+                {"seccion_id": "SEC-01", "codigo_columna": "VIG", "etiqueta": "Vigentes", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 1},
+                {"seccion_id": "SEC-01", "codigo_columna": "VENC", "etiqueta": "Vencidos", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 2},
+                {"seccion_id": "SEC-01", "codigo_columna": "TOT", "etiqueta": "Total", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 3, "calculo_automatico": 1, "formula_columnas": "+VIG,+VENC"},
+            ],
+            filas_tabulares=[
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "descripcion": "Creditos comerciales", "nivel": 1, "tipo_fila": "Detalle", "orden": 1},
+                {"seccion_id": "SEC-01", "codigo_fila": "CONS", "descripcion": "Creditos de consumo", "nivel": 1, "tipo_fila": "Detalle", "orden": 2},
+                {"seccion_id": "SEC-01", "codigo_fila": "PROV", "descripcion": "Provision", "nivel": 1, "tipo_fila": "Detalle", "orden": 3},
+                {"seccion_id": "SEC-01", "codigo_fila": "SUB", "descripcion": "Subtotal", "nivel": 1, "tipo_fila": "Subtotal", "orden": 4, "negrita": 1, "calculo_automatico": 1, "formula_filas": "+COM,+CONS,-PROV"},
+            ],
+            celdas_tabulares=[
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "VIG", "valor_numero": 100, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "COM", "codigo_columna": "VENC", "valor_numero": 20, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "CONS", "codigo_columna": "VIG", "valor_numero": 50, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "CONS", "codigo_columna": "VENC", "valor_numero": 10, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "PROV", "codigo_columna": "VIG", "valor_numero": 5, "formato_numero": "Moneda"},
+                {"seccion_id": "SEC-01", "codigo_fila": "PROV", "codigo_columna": "VENC", "valor_numero": 2, "formato_numero": "Moneda"},
+            ],
+        )
+
+        sections = nota.get_structured_sections()
+        rows = {row["codigo_fila"]: row for row in sections[0]["filas"]}
+        columns = [column.codigo_columna for column in sections[0]["columnas"]]
+
+        def value(row_code, column_code):
+            idx = columns.index(column_code)
+            return rows[row_code]["celdas"][idx]["valor_numero"]
+
+        self.assertEqual(value("COM", "TOT"), 120)
+        self.assertEqual(value("CONS", "TOT"), 60)
+        self.assertEqual(value("PROV", "TOT"), 7)
+        self.assertEqual(value("SUB", "VIG"), 145)
+        self.assertEqual(value("SUB", "VENC"), 28)
+        self.assertEqual(value("SUB", "TOT"), 173)

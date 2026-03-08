@@ -11,6 +11,8 @@
         "tipo_dato",
         "alineacion",
         "grupo_columna",
+        "calculo_automatico",
+        "formula_columnas",
         "orden",
         "es_total"
     ],
@@ -54,6 +56,17 @@
             "fieldname": "grupo_columna",
             "fieldtype": "Data",
             "label": "Grupo Columna"
+        },
+        {
+            "fieldname": "calculo_automatico",
+            "fieldtype": "Check",
+            "label": "Calculo Automatico",
+            "default": 0
+        },
+        {
+            "fieldname": "formula_columnas",
+            "fieldtype": "Small Text",
+            "label": "Formula Columnas"
         },
         {
             "fieldname": "orden",

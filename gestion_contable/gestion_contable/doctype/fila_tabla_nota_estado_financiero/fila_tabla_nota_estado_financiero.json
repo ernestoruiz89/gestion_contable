@@ -10,6 +10,8 @@
         "descripcion",
         "nivel",
         "tipo_fila",
+        "calculo_automatico",
+        "formula_filas",
         "orden",
         "negrita",
         "subrayado"
@@ -48,6 +50,17 @@
             "label": "Tipo Fila",
             "options": "Detalle\nSubtotal\nTotal\nComentario",
             "default": "Detalle"
+        },
+        {
+            "fieldname": "calculo_automatico",
+            "fieldtype": "Check",
+            "label": "Calculo Automatico",
+            "default": 0
+        },
+        {
+            "fieldname": "formula_filas",
+            "fieldtype": "Small Text",
+            "label": "Formula Filas"
         },
         {
             "fieldname": "orden",

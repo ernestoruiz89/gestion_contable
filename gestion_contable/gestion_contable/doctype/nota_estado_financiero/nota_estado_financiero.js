@@ -6,6 +6,16 @@ frappe.ui.form.on("Nota Estado Financiero", {
             return;
         }
 
+        if (frm.doc.paquete_estados_financieros_cliente) {
+            frm.add_custom_button(__("Abrir Creador EEFF"), () => {
+                frappe.route_options = {
+                    note_name: frm.doc.name,
+                    package_name: frm.doc.paquete_estados_financieros_cliente,
+                };
+                frappe.set_route("creador-de-notas-eeff");
+            }, __("Tabla Compleja"));
+        }
+
         frm.add_custom_button(__("Imprimir Nota"), () => {
             window.open(
                 `/printview?doctype=${encodeURIComponent(frm.doctype)}&name=${encodeURIComponent(frm.doc.name)}&format=${encodeURIComponent("Nota Estado Financiero - Individual")}&trigger_print=1`
@@ -101,14 +111,14 @@ function parseDefinitionLines(raw, minParts) {
 function formatColumnDefinitions(frm, sectionId) {
     return get_columns_for_section(frm, sectionId)
         .sort((a, b) => parseIntSafe(a.orden) - parseIntSafe(b.orden))
-        .map((row) => [row.codigo_columna, row.etiqueta, row.tipo_dato || "Moneda", row.alineacion || "Right"].join("|"))
+        .map((row) => [row.codigo_columna, row.etiqueta, row.tipo_dato || "Moneda", row.alineacion || "Right", row.formula_columnas || ""].join("|"))
         .join("\n");
 }
 
 function formatRowDefinitions(frm, sectionId) {
     return get_rows_for_section(frm, sectionId)
         .sort((a, b) => parseIntSafe(a.orden) - parseIntSafe(b.orden))
-        .map((row) => [row.codigo_fila, row.descripcion, parseIntSafe(row.nivel, 1), row.tipo_fila || "Detalle"].join("|"))
+        .map((row) => [row.codigo_fila, row.descripcion, parseIntSafe(row.nivel, 1), row.tipo_fila || "Detalle", row.formula_filas || ""].join("|"))
         .join("\n");
 }
 
@@ -131,6 +141,8 @@ function parseColumnDefinitions(raw) {
         etiqueta: parts[1],
         tipo_dato: parts[2] || "Moneda",
         alineacion: parts[3] || "Right",
+        calculo_automatico: parts[4] ? 1 : 0,
+        formula_columnas: (parts[4] || "").toUpperCase(),
         orden: index + 1,
     }));
 }
@@ -141,6 +153,8 @@ function parseRowDefinitions(raw) {
         descripcion: parts[1],
         nivel: parseIntSafe(parts[2], 1),
         tipo_fila: parts[3] || "Detalle",
+        calculo_automatico: parts[4] ? 1 : 0,
+        formula_filas: (parts[4] || "").toUpperCase(),
         orden: index + 1,
         negrita: ["Subtotal", "Total"].includes(parts[3]) ? 1 : 0,
     }));
@@ -222,11 +236,15 @@ function openColumnDialog(frm) {
             { fieldname: "tipo_dato", fieldtype: "Select", label: __("Tipo Dato"), options: ["Texto", "Numero", "Moneda", "Porcentaje"], default: "Moneda", reqd: 1 },
             { fieldname: "alineacion", fieldtype: "Select", label: __("Alineacion"), options: ["Left", "Center", "Right"], default: "Right", reqd: 1 },
             { fieldname: "grupo_columna", fieldtype: "Data", label: __("Grupo Columna") },
+            { fieldname: "calculo_automatico", fieldtype: "Check", label: __("Calculo Automatico") },
+            { fieldname: "formula_columnas", fieldtype: "Data", label: __("Formula Columnas"), description: __("Usa codigos con + y -, por ejemplo: +VIG,+VENC,-AJU") },
             { fieldname: "orden", fieldtype: "Int", label: __("Orden") },
             { fieldname: "es_total", fieldtype: "Check", label: __("Es Total") },
         ],
         primary_action_label: __("Agregar"),
         primary_action(values) {
+            values.formula_columnas = (values.formula_columnas || "").trim().toUpperCase();
+            values.calculo_automatico = values.calculo_automatico || (values.formula_columnas ? 1 : 0);
             values.orden = values.orden || nextOrder(get_columns_for_section(frm, values.seccion_id));
             frm.add_child("columnas_tabulares", values);
             refreshTableFields(frm);
@@ -251,12 +269,16 @@ function openRowDialog(frm) {
             { fieldname: "descripcion", fieldtype: "Data", label: __("Descripcion"), reqd: 1 },
             { fieldname: "nivel", fieldtype: "Int", label: __("Nivel"), default: 1 },
             { fieldname: "tipo_fila", fieldtype: "Select", label: __("Tipo Fila"), options: ["Detalle", "Subtotal", "Total", "Comentario"], default: "Detalle", reqd: 1 },
+            { fieldname: "calculo_automatico", fieldtype: "Check", label: __("Calculo Automatico") },
+            { fieldname: "formula_filas", fieldtype: "Data", label: __("Formula Filas"), description: __("Usa codigos con + y -, por ejemplo: +COM,+CONS,-PROV") },
             { fieldname: "orden", fieldtype: "Int", label: __("Orden") },
             { fieldname: "negrita", fieldtype: "Check", label: __("Negrita") },
             { fieldname: "subrayado", fieldtype: "Check", label: __("Subrayado") },
         ],
         primary_action_label: __("Agregar"),
         primary_action(values) {
+            values.formula_filas = (values.formula_filas || "").trim().toUpperCase();
+            values.calculo_automatico = values.calculo_automatico || (values.formula_filas ? 1 : 0);
             values.orden = values.orden || nextOrder(get_rows_for_section(frm, values.seccion_id));
             frm.add_child("filas_tabulares", values);
             refreshTableFields(frm);
@@ -315,16 +337,16 @@ function openTableWizard(frm) {
         title: __("Asistente de Tabla Compleja"),
         size: "extra-large",
         fields: [
-            { fieldname: "help_html", fieldtype: "HTML", options: `<div style="padding-bottom:8px;color:#475569;">${__("Usa una linea por columna y fila. Formato columnas: CODIGO|Etiqueta|TipoDato|Alineacion. Formato filas: CODIGO|Descripcion|Nivel|TipoFila.")}</div>` },
+            { fieldname: "help_html", fieldtype: "HTML", options: `<div style="padding-bottom:8px;color:#475569;">${__("Usa una linea por columna y fila. Formato columnas: CODIGO|Etiqueta|TipoDato|Alineacion|FormulaOpcional. Formato filas: CODIGO|Descripcion|Nivel|TipoFila|FormulaOpcional. En las formulas usa codigos con + y -, por ejemplo: +VIG,+VENC,-AJU.")}</div>` },
             { fieldname: "seccion_id", fieldtype: "Data", label: __("ID Seccion"), default: nextSectionId(frm), reqd: 1 },
             { fieldname: "titulo_seccion", fieldtype: "Data", label: __("Titulo Seccion"), reqd: 1 },
             { fieldname: "tipo_seccion", fieldtype: "Select", label: __("Tipo Seccion"), options: ["Tabla", "Texto y Tabla"], default: "Tabla", reqd: 1 },
             { fieldname: "orden", fieldtype: "Int", label: __("Orden"), default: nextOrder(frm.doc.secciones_estructuradas) },
             { fieldname: "contenido_narrativo", fieldtype: "Small Text", label: __("Introduccion / Narrativa") },
             { fieldname: "section_cols", fieldtype: "Section Break", label: __("Columnas") },
-            { fieldname: "columnas_def", fieldtype: "Long Text", label: __("Definicion de Columnas"), reqd: 1, default: "VIG|Vigentes|Moneda|Right\nTOT|Total|Moneda|Right" },
+            { fieldname: "columnas_def", fieldtype: "Long Text", label: __("Definicion de Columnas"), reqd: 1, default: "VIG|Vigentes|Moneda|Right|\nTOT|Total|Moneda|Right|+VIG" },
             { fieldname: "section_rows", fieldtype: "Section Break", label: __("Filas") },
-            { fieldname: "filas_def", fieldtype: "Long Text", label: __("Definicion de Filas"), reqd: 1, default: "DET|Detalle principal|1|Detalle\nSUB|Subtotal|1|Subtotal" },
+            { fieldname: "filas_def", fieldtype: "Long Text", label: __("Definicion de Filas"), reqd: 1, default: "DET|Detalle principal|1|Detalle|\nSUB|Subtotal|1|Subtotal|+DET" },
         ],
         primary_action_label: __("Construir Tabla"),
         primary_action(values) {

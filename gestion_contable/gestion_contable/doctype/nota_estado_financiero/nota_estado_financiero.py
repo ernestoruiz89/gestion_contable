@@ -1,3 +1,5 @@
+import re
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -57,6 +59,7 @@ TIPOS_FILA = ("Detalle", "Subtotal", "Total", "Comentario")
 TIPOS_DATO_COLUMNA = ("Texto", "Numero", "Moneda", "Porcentaje")
 ALINEACIONES_COLUMNA = ("Left", "Center", "Right")
 FORMATOS_NUMERO = ("Numero", "Moneda", "Porcentaje")
+FORMULA_SPLIT_RE = re.compile(r"[\n,;]+")
 
 
 class NotaEstadoFinanciero(Document):
@@ -187,6 +190,8 @@ class NotaEstadoFinanciero(Document):
             row.codigo_columna = cstr(row.codigo_columna or "").strip().upper()
             row.tipo_dato = row.tipo_dato or "Texto"
             row.alineacion = row.alineacion or "Left"
+            row.calculo_automatico = cint(row.calculo_automatico or 0)
+            row.formula_columnas = cstr(row.formula_columnas or "").strip().upper()
             if row.seccion_id not in section_ids:
                 frappe.throw(_("La columna <b>{0}</b> referencia una seccion inexistente.").format(row.codigo_columna or idx), title=_("Seccion Invalida"))
             if not row.codigo_columna or not cstr(row.etiqueta or "").strip():
@@ -195,6 +200,10 @@ class NotaEstadoFinanciero(Document):
                 frappe.throw(_("El tipo de dato de la columna <b>{0}</b> no es valido.").format(row.codigo_columna), title=_("Columna Invalida"))
             if row.alineacion not in ALINEACIONES_COLUMNA:
                 frappe.throw(_("La alineacion de la columna <b>{0}</b> no es valida.").format(row.codigo_columna), title=_("Columna Invalida"))
+            if row.formula_columnas and not row.calculo_automatico:
+                row.calculo_automatico = 1
+            if row.calculo_automatico and not row.formula_columnas:
+                frappe.throw(_("La columna <b>{0}</b> esta marcada como calculo automatico pero no tiene formula.").format(row.codigo_columna), title=_("Formula Requerida"))
             key = (row.seccion_id, row.codigo_columna)
             if key in seen:
                 frappe.throw(_("La columna <b>{0}</b> esta duplicada en la seccion <b>{1}</b>.").format(row.codigo_columna, row.seccion_id), title=_("Columna Duplicada"))
@@ -209,12 +218,18 @@ class NotaEstadoFinanciero(Document):
             row.seccion_id = cstr(row.seccion_id or "").strip().upper()
             row.codigo_fila = cstr(row.codigo_fila or "").strip().upper()
             row.tipo_fila = row.tipo_fila or "Detalle"
+            row.calculo_automatico = cint(row.calculo_automatico or 0)
+            row.formula_filas = cstr(row.formula_filas or "").strip().upper()
             if row.seccion_id not in section_ids:
                 frappe.throw(_("La fila <b>{0}</b> referencia una seccion inexistente.").format(row.codigo_fila or idx), title=_("Seccion Invalida"))
             if not row.codigo_fila or not cstr(row.descripcion or "").strip():
                 frappe.throw(_("Cada fila tabular debe indicar codigo y descripcion."), title=_("Fila Invalida"))
             if row.tipo_fila not in TIPOS_FILA:
                 frappe.throw(_("El tipo de fila <b>{0}</b> no es valido.").format(row.codigo_fila), title=_("Fila Invalida"))
+            if row.formula_filas and not row.calculo_automatico:
+                row.calculo_automatico = 1
+            if row.calculo_automatico and not row.formula_filas:
+                frappe.throw(_("La fila <b>{0}</b> esta marcada como calculo automatico pero no tiene formula.").format(row.codigo_fila), title=_("Formula Requerida"))
             key = (row.seccion_id, row.codigo_fila)
             if key in seen:
                 frappe.throw(_("La fila <b>{0}</b> esta duplicada en la seccion <b>{1}</b>.").format(row.codigo_fila, row.seccion_id), title=_("Fila Duplicada"))
@@ -253,6 +268,8 @@ class NotaEstadoFinanciero(Document):
                 if not (has_columns and has_rows and has_cells):
                     frappe.throw(_("La seccion <b>{0}</b> requiere columnas, filas y celdas para su tabla estructurada.").format(section.titulo_seccion), title=_("Tabla Incompleta"))
 
+        self.validar_formulas_tabulares()
+
     def validar_contenido(self):
         has_narrative = bool(cstr(self.contenido_narrativo or "").strip())
         has_policy = bool(cstr(self.politica_contable or "").strip())
@@ -281,11 +298,86 @@ class NotaEstadoFinanciero(Document):
                 title=_("Nota Duplicada"),
             )
 
+    def validar_formulas_tabulares(self):
+        row_codes_by_section = {}
+        col_codes_by_section = {}
+
+        for row in self.filas_tabulares or []:
+            row_codes_by_section.setdefault(row.seccion_id, set()).add(row.codigo_fila)
+        for row in self.columnas_tabulares or []:
+            col_codes_by_section.setdefault(row.seccion_id, set()).add(row.codigo_columna)
+
+        row_graph = {}
+        col_graph = {}
+
+        for row in self.filas_tabulares or []:
+            refs = self._parse_formula_references(row.formula_filas, _("la fila {0}").format(row.codigo_fila))
+            if row.codigo_fila in {code for _sign, code in refs}:
+                frappe.throw(_("La fila <b>{0}</b> no puede referenciarse a si misma en la formula.").format(row.codigo_fila), title=_("Formula Invalida"))
+            for _sign, code in refs:
+                if code not in row_codes_by_section.get(row.seccion_id, set()):
+                    frappe.throw(_("La fila <b>{0}</b> referencia la fila inexistente <b>{1}</b>.").format(row.codigo_fila, code), title=_("Formula Invalida"))
+            row_graph[(row.seccion_id, row.codigo_fila)] = [(row.seccion_id, code) for _sign, code in refs]
+
+        for row in self.columnas_tabulares or []:
+            refs = self._parse_formula_references(row.formula_columnas, _("la columna {0}").format(row.codigo_columna))
+            if row.codigo_columna in {code for _sign, code in refs}:
+                frappe.throw(_("La columna <b>{0}</b> no puede referenciarse a si misma en la formula.").format(row.codigo_columna), title=_("Formula Invalida"))
+            for _sign, code in refs:
+                if code not in col_codes_by_section.get(row.seccion_id, set()):
+                    frappe.throw(_("La columna <b>{0}</b> referencia la columna inexistente <b>{1}</b>.").format(row.codigo_columna, code), title=_("Formula Invalida"))
+            col_graph[(row.seccion_id, row.codigo_columna)] = [(row.seccion_id, code) for _sign, code in refs]
+
+        self._validate_dependency_cycles(row_graph, _("las formulas de filas"))
+        self._validate_dependency_cycles(col_graph, _("las formulas de columnas"))
+
+    def _validate_dependency_cycles(self, graph, label):
+        visited = set()
+        visiting = set()
+
+        def visit(node):
+            if node in visiting:
+                frappe.throw(_("Se detecto una referencia circular en {0}.").format(label), title=_("Formula Invalida"))
+            if node in visited:
+                return
+            visiting.add(node)
+            for child in graph.get(node, []):
+                visit(child)
+            visiting.remove(node)
+            visited.add(node)
+
+        for node in graph:
+            visit(node)
+
+    def _parse_formula_references(self, expression, label):
+        expression = cstr(expression or "").strip().upper()
+        if not expression:
+            return []
+
+        references = []
+        for token in FORMULA_SPLIT_RE.split(expression):
+            token = cstr(token or "").strip().upper()
+            if not token:
+                continue
+            sign = 1
+            if token[0] in "+-":
+                sign = -1 if token[0] == "-" else 1
+                token = token[1:].strip()
+            if not token:
+                frappe.throw(_("La formula de {0} contiene un operador sin codigo.").format(label), title=_("Formula Invalida"))
+            references.append((sign, token))
+
+        if not references:
+            frappe.throw(_("La formula de {0} no contiene codigos validos.").format(label), title=_("Formula Invalida"))
+        return references
+
     def get_structured_sections(self):
         sections = sorted(self.secciones_estructuradas or [], key=lambda row: (cint(row.orden or 0), row.idx or 0))
         columns = sorted(self.columnas_tabulares or [], key=lambda row: (row.seccion_id, cint(row.orden or 0), row.idx or 0))
         rows = sorted(self.filas_tabulares or [], key=lambda row: (row.seccion_id, cint(row.orden or 0), row.idx or 0))
         cells = list(self.celdas_tabulares or [])
+        row_lookup = {(row.seccion_id, row.codigo_fila): row for row in rows}
+        column_lookup = {(row.seccion_id, row.codigo_columna): row for row in columns}
         cell_map = {
             (cell.seccion_id, cell.codigo_fila, cell.codigo_columna): {
                 "valor_texto": cstr(cell.valor_texto or "").strip(),
@@ -295,6 +387,40 @@ class NotaEstadoFinanciero(Document):
             }
             for cell in cells
         }
+        numeric_cache = {}
+
+        def get_numeric_value(section_id, row_code, column_code, stack=None):
+            key = (section_id, row_code, column_code)
+            if key in numeric_cache:
+                return numeric_cache[key]
+
+            stack = stack or set()
+            if key in stack:
+                frappe.throw(_("Se detecto una referencia circular al calcular la tabla estructurada de la nota."), title=_("Formula Invalida"))
+
+            explicit = cell_map.get(key)
+            if explicit and explicit["valor_numero"] is not None:
+                numeric_cache[key] = flt(explicit["valor_numero"])
+                return numeric_cache[key]
+
+            row_obj = row_lookup.get((section_id, row_code))
+            col_obj = column_lookup.get((section_id, column_code))
+            value = None
+            next_stack = set(stack)
+            next_stack.add(key)
+
+            if row_obj and cint(row_obj.calculo_automatico or 0) and cstr(row_obj.formula_filas or "").strip():
+                value = 0.0
+                for sign, ref_code in self._parse_formula_references(row_obj.formula_filas, _("la fila {0}").format(row_code)):
+                    value += sign * flt(get_numeric_value(section_id, ref_code, column_code, next_stack) or 0)
+            elif col_obj and cint(col_obj.calculo_automatico or 0) and cstr(col_obj.formula_columnas or "").strip():
+                value = 0.0
+                for sign, ref_code in self._parse_formula_references(col_obj.formula_columnas, _("la columna {0}").format(column_code)):
+                    value += sign * flt(get_numeric_value(section_id, row_code, ref_code, next_stack) or 0)
+
+            numeric_cache[key] = value
+            return value
+
         output = []
         for section in sections:
             section_columns = [col for col in columns if col.seccion_id == section.seccion_id]
@@ -304,17 +430,20 @@ class NotaEstadoFinanciero(Document):
                     continue
                 rendered_cells = []
                 for col in section_columns:
-                    rendered_cells.append(cell_map.get((section.seccion_id, row.codigo_fila, col.codigo_columna), {
-                        "valor_texto": "",
-                        "valor_numero": None,
-                        "formato_numero": col.tipo_dato if col.tipo_dato in FORMATOS_NUMERO else "Numero",
-                        "comentario": None,
-                    }))
+                    explicit = cell_map.get((section.seccion_id, row.codigo_fila, col.codigo_columna), {})
+                    rendered_cells.append({
+                        "valor_texto": explicit.get("valor_texto", ""),
+                        "valor_numero": get_numeric_value(section.seccion_id, row.codigo_fila, col.codigo_columna),
+                        "formato_numero": explicit.get("formato_numero") or (col.tipo_dato if col.tipo_dato in FORMATOS_NUMERO else "Numero"),
+                        "comentario": explicit.get("comentario"),
+                    })
                 section_rows.append({
                     "codigo_fila": row.codigo_fila,
                     "descripcion": row.descripcion,
                     "nivel": cint(row.nivel or 1),
                     "tipo_fila": row.tipo_fila,
+                    "calculo_automatico": cint(row.calculo_automatico or 0),
+                    "formula_filas": row.formula_filas,
                     "negrita": cint(row.negrita or 0),
                     "subrayado": cint(row.subrayado or 0),
                     "celdas": rendered_cells,
