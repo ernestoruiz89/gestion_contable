@@ -78,13 +78,15 @@
             "fieldname": "nombre_archivo",
             "fieldtype": "Data",
             "label": "Nombre Archivo",
-            "read_only": 1
+            "read_only": 1,
+            "length": 255
         },
         {
             "fieldname": "archivo_url",
             "fieldtype": "Data",
             "label": "Archivo URL",
-            "read_only": 1
+            "read_only": 1,
+            "length": 255
         },
         {
             "fieldname": "requerimiento_cliente",
