@@ -1,7 +1,7 @@
 {
     "actions": [],
     "allow_guest_to_view": 0,
-    "has_web_view": 1,
+    "has_web_view": 0,
     "is_published_field": "",
     "creation": "2026-03-06 20:00:00.000000",
     "doctype": "DocType",
