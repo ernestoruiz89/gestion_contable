@@ -11,8 +11,11 @@ frappe.pages["creador-de-notas-eeff"].on_page_load = function (wrapper) {
 
 frappe.pages["creador-de-notas-eeff"].on_page_show = function () {
     const editor = frappe.pages["creador-de-notas-eeff"].editor;
-    if (editor) {
-        editor.apply_route_options();
+    if (!editor) return;
+
+    editor.apply_route_options();
+    const hasRouteOptions = !!Object.keys(editor.state.route_options || {}).length;
+    if (hasRouteOptions || !editor.bootstrapped) {
         editor.load_bootstrap();
     }
 };
@@ -34,7 +37,7 @@ class CreadorNotasEEFF {
         this.setting_filters = false;
         this.loading_bootstrap = false;
         this.last_bootstrap_key = null;
-        this.pending_bootstrap_args = null;
+        this.bootstrapped = false;
     }
 
     init() {
@@ -200,17 +203,10 @@ class CreadorNotasEEFF {
                 this.render_notes();
                 this.render_editor();
                 this.last_bootstrap_key = bootstrapKey;
-                if (!this.state.note && !args.note_name && this.state.notes.length) {
-                    this.pending_bootstrap_args = { note_name: this.state.notes[0].name };
-                }
+                this.bootstrapped = true;
             },
             always: () => {
                 this.loading_bootstrap = false;
-                if (this.pending_bootstrap_args) {
-                    const pending = this.pending_bootstrap_args;
-                    this.pending_bootstrap_args = null;
-                    this.load_bootstrap(pending);
-                }
             },
         });
     }

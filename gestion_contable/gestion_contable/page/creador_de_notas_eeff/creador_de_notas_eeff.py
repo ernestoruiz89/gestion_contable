@@ -233,7 +233,6 @@ def _serialize_note(doc):
 
     return {
         "doc": note,
-        "structured_sections": doc.get_structured_sections(),
     }
 
 
