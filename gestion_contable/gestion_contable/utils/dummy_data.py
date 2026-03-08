@@ -493,9 +493,53 @@ def _create_task(subject, cliente, company, periodo, encargo_name, status, assig
     return task.name
 
 
+def _resolve_demo_document_title(titulo, cliente, periodo, encargo_name=None, task_name=None, entregable_name=None):
+    filters = {
+        "titulo_del_documento": titulo,
+        "cliente": cliente,
+        "periodo": periodo,
+    }
+    if encargo_name:
+        filters["encargo_contable"] = encargo_name
+    if task_name:
+        filters["task"] = task_name
+    if entregable_name:
+        filters["entregable_cliente"] = entregable_name
+    existing = frappe.db.get_value("Documento Contable", filters, "name")
+    if existing:
+        return existing, titulo
+
+    if not frappe.db.exists("Documento Contable", titulo):
+        return None, titulo
+
+    suffix_parts = [cliente]
+    if periodo:
+        suffix_parts.append(periodo)
+    if task_name:
+        suffix_parts.append(task_name)
+    elif encargo_name:
+        suffix_parts.append(encargo_name)
+    elif entregable_name:
+        suffix_parts.append(entregable_name)
+    suffix = " | ".join(part for part in suffix_parts if part)
+    unique_title = f"{titulo} | {suffix}" if suffix else f"{titulo} | demo"
+    return None, unique_title
+
+
 def _create_internal_document(titulo, cliente, company, periodo, encargo_name=None, task_name=None, entregable_name=None, tipo="Otro", file_name=None, content=b"", prepared_by=None):
+    existing_name, resolved_title = _resolve_demo_document_title(
+        titulo,
+        cliente,
+        periodo,
+        encargo_name=encargo_name,
+        task_name=task_name,
+        entregable_name=entregable_name,
+    )
+    if existing_name:
+        return existing_name
+
     file_doc = save_file(file_name or f"{DEMO_FILE_PREFIX}-documento.txt", content, "Task", task_name or encargo_name or cliente, is_private=1)
-    doc = frappe.get_doc({"doctype": "Documento Contable", "titulo_del_documento": titulo, "cliente": cliente, "company": company, "periodo": periodo, "encargo_contable": encargo_name, "task": task_name, "entregable_cliente": entregable_name, "tipo": tipo, "archivo_adjunto": file_doc.file_url, "preparado_por": prepared_by})
+    doc = frappe.get_doc({"doctype": "Documento Contable", "titulo_del_documento": resolved_title, "cliente": cliente, "company": company, "periodo": periodo, "encargo_contable": encargo_name, "task": task_name, "entregable_cliente": entregable_name, "tipo": tipo, "archivo_adjunto": file_doc.file_url, "preparado_por": prepared_by})
     doc.flags.ignore_governance_validation = True
     doc.insert(ignore_permissions=True)
     frappe.db.set_value("File", file_doc.name, {"attached_to_doctype": "Documento Contable", "attached_to_name": doc.name}, update_modified=False)
