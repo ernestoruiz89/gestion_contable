@@ -1,6 +1,6 @@
 {
     "charts": [],
-    "content": "[{\"id\":\"hdr_gc\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Panel de Gestion Contable</span>\",\"col\":12}},{\"id\":\"card_ops\",\"type\":\"card\",\"data\":{\"card_name\":\"Operaciones\",\"col\":4}},{\"id\":\"card_com\",\"type\":\"card\",\"data\":{\"card_name\":\"Comercial\",\"col\":4}},{\"id\":\"card_panel\",\"type\":\"card\",\"data\":{\"card_name\":\"Panel\",\"col\":4}},{\"id\":\"card_fin\",\"type\":\"card\",\"data\":{\"card_name\":\"Estados Financieros\",\"col\":4}}]",
+    "content": "[{\"id\":\"hdr_gc\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Panel de Gestion Contable</span>\",\"col\":12}},{\"id\":\"card_ops\",\"type\":\"card\",\"data\":{\"card_name\":\"Operaciones\",\"col\":4}},{\"id\":\"card_com\",\"type\":\"card\",\"data\":{\"card_name\":\"Comercial\",\"col\":4}},{\"id\":\"card_panel\",\"type\":\"card\",\"data\":{\"card_name\":\"Panel\",\"col\":4}},{\"id\":\"card_fin\",\"type\":\"card\",\"data\":{\"card_name\":\"Estados Financieros\",\"col\":4}},{\"id\":\"card_aud\",\"type\":\"card\",\"data\":{\"card_name\":\"Auditoria\",\"col\":4}},{\"id\":\"card_conf\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuracion\",\"col\":4}}]",
     "creation": "2024-03-04 14:00:00.000000",
     "custom_blocks": [],
     "docstatus": 0,
@@ -424,6 +424,25 @@
             "label": "Informes Finales Auditoria",
             "link_count": 0,
             "link_to": "Informe Final Auditoria",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Configuracion",
+            "link_count": 1,
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Configuracion Despacho Contable",
+            "link_count": 0,
+            "link_to": "Configuracion Despacho Contable",
             "link_type": "DocType",
             "onboard": 0,
             "type": "Link"
