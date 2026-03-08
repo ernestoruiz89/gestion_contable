@@ -81,12 +81,16 @@ def get_editor_bootstrap(note_name=None, package_name=None, cliente=None):
 
 
 @frappe.whitelist()
-def create_note_for_editor(package_name, numero_nota, titulo=None, categoria_nota="Otra"):
+def create_note_for_editor(package_name, numero_nota, titulo=None, categoria_nota="Otra", contenido_inicial=None):
     _ensure_page_access()
     if not frappe.db.exists("Paquete Estados Financieros Cliente", package_name):
         frappe.throw(_("Debes seleccionar un paquete valido."), title=_("Paquete Invalido"))
     if not numero_nota:
         frappe.throw(_("Debes indicar el numero de nota."), title=_("Numero Requerido"))
+
+    initial_content = (contenido_inicial or "").strip() or _(
+        "Borrador inicial de la nota. Reemplaza este texto con el contenido definitivo."
+    )
 
     doc = frappe.get_doc(
         {
@@ -95,6 +99,7 @@ def create_note_for_editor(package_name, numero_nota, titulo=None, categoria_not
             "numero_nota": numero_nota,
             "titulo": titulo or _("Nota {0}").format(numero_nota),
             "categoria_nota": categoria_nota or "Otra",
+            "contenido_narrativo": initial_content,
         }
     )
     doc.insert()

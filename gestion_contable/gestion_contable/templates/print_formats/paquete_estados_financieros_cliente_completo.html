@@ -25,6 +25,7 @@
   .pefc-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
   .pefc-row-comment td { font-style: italic; color: #000000; }
   .pefc-table-compact th, .pefc-table-compact td { font-size: 10pt; padding: 3px 6px; }
+  .pefc-note-comment { margin-top: 4px; }
 </style>
 {% set estados = frappe.get_all(
   "Estado Financiero Cliente",
@@ -90,7 +91,7 @@
     <div class="pefc-section">
       <h2>{{ estado_doc.titulo_formal or estado_doc.tipo_estado }}</h2>
       {% if estado_doc.subtitulo %}<p>{{ estado_doc.subtitulo }}</p>{% endif %}
-      <table class="pefc-table{% if section.columnas|length > 5 %} pefc-table-compact{% endif %}">
+      <table class="pefc-table">
         <thead>
           <tr>
             <th>Descripcion</th>
@@ -151,7 +152,6 @@
                 <th>Concepto</th>
                 <th>Monto Actual</th>
                 <th>Monto Comparativo</th>
-                <th>Comentario</th>
               </tr>
             </thead>
             <tbody>
@@ -160,17 +160,19 @@
                 {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
                 {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
                 <tr>
-                  <td>{{ cifra.concepto }}{% if cifra.subconcepto %} - {{ cifra.subconcepto }}{% endif %}</td>
+                  <td>
+                    <div><strong>{{ cifra.concepto }}</strong></div>
+                    {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
+                    {% if cifra.comentario %}<div class="pefc-note-comment">{{ cifra.comentario }}</div>{% endif %}
+                  </td>
                   <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
                   <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
-                  <td>{{ cifra.comentario or "-" }}</td>
                 </tr>
               {% endfor %}
               <tr class="pefc-row-total">
                 <td>Total</td>
                 <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
                 <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
-                <td>-</td>
               </tr>
             </tbody>
           </table>

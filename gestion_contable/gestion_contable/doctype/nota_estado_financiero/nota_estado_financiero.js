@@ -1,5 +1,25 @@
 frappe.ui.form.on("Nota Estado Financiero", {
+    setup(frm) {
+        frm.__note_number_syncing = false;
+        frm.__original_numero_nota = normalize_note_number(frm.doc.numero_nota || "");
+    },
+
+    onload(frm) {
+        frm.__original_numero_nota = normalize_note_number(frm.doc.numero_nota || "");
+        sync_generated_note_name(frm);
+    },
+
+    paquete_estados_financieros_cliente(frm) {
+        sync_generated_note_name(frm);
+    },
+
+    numero_nota(frm) {
+        handle_note_number_change(frm);
+    },
+
     refresh(frm) {
+        frm.__original_numero_nota = normalize_note_number(frm.doc.numero_nota || frm.__original_numero_nota || "");
+        sync_generated_note_name(frm);
         refresh_workflow_comment_fields(frm);
 
         if (frm.is_new()) {
@@ -34,6 +54,112 @@ frappe.ui.form.on("Nota Estado Financiero", {
         }
     },
 });
+
+function normalize_note_number(value) {
+    return (value || "").toString().trim().toUpperCase();
+}
+
+function build_note_name_preview(packageName, noteNumber) {
+    const normalized = normalize_note_number(noteNumber);
+    if (!packageName || !normalized) {
+        return "";
+    }
+    return `Nota ${normalized} - ${packageName}`;
+}
+
+function sync_generated_note_name(frm) {
+    const generatedName = build_note_name_preview(frm.doc.paquete_estados_financieros_cliente, frm.doc.numero_nota);
+    if (!generatedName || frm.doc.nombre_de_la_nota === generatedName) {
+        return;
+    }
+    frm.doc.nombre_de_la_nota = generatedName;
+    frm.refresh_field("nombre_de_la_nota");
+}
+
+function set_note_number_silently(frm, value) {
+    frm.__note_number_syncing = true;
+    frm.doc.numero_nota = value || "";
+    frm.refresh_field("numero_nota");
+    sync_generated_note_name(frm);
+    frm.__note_number_syncing = false;
+}
+
+function handle_note_number_change(frm) {
+    if (frm.__note_number_syncing) {
+        return;
+    }
+
+    const targetNumber = normalize_note_number(frm.doc.numero_nota);
+    const previousNumber = normalize_note_number(frm.__original_numero_nota || "");
+    sync_generated_note_name(frm);
+
+    if (!targetNumber || !frm.doc.paquete_estados_financieros_cliente || targetNumber === previousNumber) {
+        return;
+    }
+
+    frappe.call({
+        method: "gestion_contable.gestion_contable.doctype.nota_estado_financiero.nota_estado_financiero.preview_note_number_change",
+        args: {
+            numero_nota: targetNumber,
+            note_name: frm.is_new() ? null : frm.doc.name,
+            package_name: frm.doc.paquete_estados_financieros_cliente,
+        },
+        callback: (response) => {
+            const payload = response.message || {};
+            if (!payload.conflict) {
+                frm.__original_numero_nota = targetNumber;
+                sync_generated_note_name(frm);
+                return;
+            }
+
+            if (!payload.can_cascade) {
+                frappe.msgprint({
+                    title: __("Numero de Nota Duplicado"),
+                    message: __("Ya existe una nota con el numero {0} dentro de este paquete. Usa un numero unico o uno numerico para renumerar en cascada.", [targetNumber]),
+                    indicator: "red",
+                });
+                set_note_number_silently(frm, previousNumber);
+                return;
+            }
+
+            const affectedHtml = (payload.affected_notes || [])
+                .map((item) => `<li><b>${frappe.utils.escape_html(item.numero_actual)}</b> &rarr; <b>${frappe.utils.escape_html(item.numero_nuevo)}</b> (${frappe.utils.escape_html(item.titulo || item.name)})</li>`)
+                .join("");
+            const message = [
+                __("Ya existe una nota numero <b>{0}</b> en este paquete.", [targetNumber]),
+                __("Si confirmas, esa nota y las siguientes se renumeraran en cascada."),
+                affectedHtml ? `<ul style="margin-top:8px;">${affectedHtml}</ul>` : "",
+            ].join("<br>");
+
+            frappe.confirm(message, () => {
+                frappe.call({
+                    method: "gestion_contable.gestion_contable.doctype.nota_estado_financiero.nota_estado_financiero.apply_note_number_change",
+                    freeze: true,
+                    freeze_message: __("Renumerando notas..."),
+                    args: {
+                        numero_nota: targetNumber,
+                        note_name: frm.is_new() ? null : frm.doc.name,
+                        package_name: frm.doc.paquete_estados_financieros_cliente,
+                        cascade: 1,
+                    },
+                    callback: () => {
+                        if (frm.is_new()) {
+                            frm.__original_numero_nota = targetNumber;
+                            sync_generated_note_name(frm);
+                            frappe.show_alert({ message: __("Las notas existentes fueron renumeradas. Ya puedes guardar la nueva nota con el numero {0}.", [targetNumber]), indicator: "green" });
+                            return;
+                        }
+                        frm.reload_doc().then(() => {
+                            frm.__original_numero_nota = normalize_note_number(frm.doc.numero_nota || "");
+                        });
+                    },
+                });
+            }, () => {
+                set_note_number_silently(frm, previousNumber);
+            });
+        },
+    });
+}
 
 function refresh_workflow_comment_fields(frm) {
     const state = frm.doc.estado_aprobacion || "Borrador";

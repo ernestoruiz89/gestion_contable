@@ -14,6 +14,7 @@
   .nefi-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
   .nefi-row-comment td { font-style: italic; color: #000000; }
   .nefi-table-compact th, .nefi-table-compact td { font-size: 10pt; padding: 3px 6px; }
+  .nefi-note-comment { margin-top: 4px; }
 </style>
 {% set structured_sections = doc.get_structured_sections() %}
 <div class="nefi-wrap">
@@ -43,7 +44,11 @@
             {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
             {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
             <tr>
-              <td>{{ cifra.concepto or "-" }}{% if cifra.subconcepto %} - {{ cifra.subconcepto }}{% endif %}</td>
+              <td>
+                <div><strong>{{ cifra.concepto or "-" }}</strong></div>
+                {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
+                {% if cifra.comentario %}<div class="nefi-note-comment">{{ cifra.comentario }}</div>{% endif %}
+              </td>
               <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
               <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
             </tr>

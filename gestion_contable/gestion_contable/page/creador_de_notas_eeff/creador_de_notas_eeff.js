@@ -257,6 +257,12 @@ class CreadorNotasEEFF {
                 { fieldname: "numero_nota", fieldtype: "Data", label: __("Numero Nota"), reqd: 1 },
                 { fieldname: "titulo", fieldtype: "Data", label: __("Titulo"), reqd: 1 },
                 { fieldname: "categoria_nota", fieldtype: "Select", label: __("Categoria"), options: "Base de Preparacion\nPoliticas Contables\nEfectivo\nCuentas por Cobrar\nInventarios\nPropiedad Planta y Equipo\nPasivos\nPatrimonio\nIngresos\nGastos\nImpuestos\nPartes Relacionadas\nContingencias\nHechos Posteriores\nOtra", default: "Otra" },
+                {
+                    fieldname: "contenido_inicial",
+                    fieldtype: "Small Text",
+                    label: __("Contenido Inicial"),
+                    description: __("Si lo dejas vacio, el sistema creara un borrador inicial valido para editar la nota."),
+                },
             ],
             primary_action_label: __("Crear"),
             primary_action: (values) => {
@@ -267,6 +273,7 @@ class CreadorNotasEEFF {
                         numero_nota: values.numero_nota,
                         titulo: values.titulo,
                         categoria_nota: values.categoria_nota,
+                        contenido_inicial: values.contenido_inicial,
                     },
                     freeze: true,
                     callback: (r) => {

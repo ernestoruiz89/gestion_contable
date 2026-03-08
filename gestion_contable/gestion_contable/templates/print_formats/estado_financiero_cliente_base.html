@@ -21,6 +21,7 @@
   .efc-row-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
   .efc-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
   .efc-row-comment td { font-style: italic; color: #000000; }
+  .efc-note-comment { margin-top: 4px; }
 </style>
 {% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
 {% set referenced_numbers = [] %}
@@ -124,7 +125,6 @@
                     <th>Concepto</th>
                     <th>Monto Actual</th>
                     <th>Monto Comparativo</th>
-                    <th>Comentario</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -133,17 +133,19 @@
                     {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
                     {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
                     <tr>
-                      <td>{{ cifra.concepto }}{% if cifra.subconcepto %} - {{ cifra.subconcepto }}{% endif %}</td>
+                      <td>
+                        <div><strong>{{ cifra.concepto }}</strong></div>
+                        {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
+                        {% if cifra.comentario %}<div class="efc-note-comment">{{ cifra.comentario }}</div>{% endif %}
+                      </td>
                       <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
                       <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
-                      <td>{{ cifra.comentario or "-" }}</td>
                     </tr>
                   {% endfor %}
                   <tr class="efc-row-total">
                     <td>Total</td>
                     <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
                     <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
-                    <td>-</td>
                   </tr>
                 </tbody>
               </table>

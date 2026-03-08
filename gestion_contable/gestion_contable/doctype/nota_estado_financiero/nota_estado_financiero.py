@@ -9,6 +9,7 @@ from gestion_contable.gestion_contable.utils.estados_financieros import (
     get_note_line_references,
     get_required_note_numbers,
     normalize_note_number,
+    sync_note_cross_references,
     sync_package_summary,
 )
 from gestion_contable.gestion_contable.utils.governance import validate_governance
@@ -74,6 +75,7 @@ class NotaEstadoFinanciero(Document):
 
     def validate(self):
         ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden gestionar notas a los estados financieros del cliente."))
+        previous_doc = self.get_doc_before_save() if not self.is_new() else None
         self.sincronizar_desde_paquete()
         self.validar_categoria()
         self.normalizar_cifras()
@@ -83,7 +85,6 @@ class NotaEstadoFinanciero(Document):
         self.normalizar_celdas_tabulares()
         self.validar_contenido()
         self.validar_unicidad_numero()
-        self.sincronizar_referencias_cruzadas()
         validate_governance(
             self,
             content_fields=CONTENT_FIELDS,
@@ -91,6 +92,8 @@ class NotaEstadoFinanciero(Document):
             draft_roles=CREATE_ROLES,
             label=_("la nota a los estados financieros del cliente"),
         )
+        self.sincronizar_referencias_por_cambio_de_numero(previous_doc)
+        self.sincronizar_referencias_cruzadas()
 
     def on_update(self):
         sync_package_summary(self.paquete_estados_financieros_cliente)
@@ -124,6 +127,7 @@ class NotaEstadoFinanciero(Document):
         self.numero_nota = normalize_note_number(self.numero_nota)
         if not self.numero_nota:
             frappe.throw(_("Debes indicar el numero de nota."), title=_("Numero Requerido"))
+        self.nombre_de_la_nota = _build_note_display_name(self.paquete_estados_financieros_cliente, self.numero_nota)
         if not cstr(self.titulo or "").strip():
             self.titulo = f"Nota {self.numero_nota}"
         self.orden_presentacion = cint(self.orden_presentacion or 0)
@@ -280,6 +284,25 @@ class NotaEstadoFinanciero(Document):
                 _("La nota debe incluir contenido narrativo, politica contable, cifras simples o al menos una seccion estructurada."),
                 title=_("Contenido Requerido"),
             )
+
+    def sincronizar_referencias_por_cambio_de_numero(self, previous_doc=None):
+        previous_doc = previous_doc or (self.get_doc_before_save() if not self.is_new() else None)
+        if not previous_doc:
+            return False
+
+        previous_number = normalize_note_number(previous_doc.numero_nota)
+        current_number = normalize_note_number(self.numero_nota)
+        if not previous_number or not current_number or previous_number == current_number:
+            return False
+
+        if cstr(previous_doc.titulo or "").strip() == f"Nota {previous_number}":
+            self.titulo = f"Nota {current_number}"
+
+        _remap_note_number_references(
+            self.paquete_estados_financieros_cliente,
+            {previous_number: current_number},
+        )
+        return True
 
     def validar_unicidad_numero(self):
         existing = frappe.get_all(
@@ -498,3 +521,207 @@ class NotaEstadoFinanciero(Document):
             groups.append(current_group)
 
         return groups, True
+
+
+def _build_note_display_name(package_name, note_number):
+    normalized = normalize_note_number(note_number) or "SN"
+    return f"Nota {normalized} - {package_name or frappe.generate_hash(length=6)}"
+
+
+def _resolve_note_package(note_name=None, package_name=None):
+    if note_name:
+        package_name = frappe.db.get_value("Nota Estado Financiero", note_name, "paquete_estados_financieros_cliente")
+    if not package_name:
+        frappe.throw(_("Debes indicar el paquete de estados financieros del cliente."), title=_("Paquete Requerido"))
+    return package_name
+
+
+def _get_numeric_notes(package_name, exclude_note_name=None, min_number=None):
+    rows = frappe.get_all(
+        "Nota Estado Financiero",
+        filters={"paquete_estados_financieros_cliente": package_name},
+        fields=["name", "numero_nota", "titulo", "nombre_de_la_nota", "orden_presentacion"],
+        order_by="creation asc",
+    )
+    output = []
+    for row in rows:
+        if exclude_note_name and row.name == exclude_note_name:
+            continue
+        normalized = normalize_note_number(row.numero_nota)
+        if not normalized.isdigit():
+            continue
+        row.numero_nota = normalized
+        row.numero_entero = cint(normalized)
+        if min_number is not None and row.numero_entero < cint(min_number):
+            continue
+        output.append(row)
+    output.sort(key=lambda row: (row.numero_entero, row.name))
+    return output
+
+
+def _update_note_sequence_fields(note_row, package_name, new_number):
+    current_number = normalize_note_number(note_row.numero_nota)
+    updates = {
+        "numero_nota": new_number,
+        "orden_presentacion": cint(new_number),
+        "nombre_de_la_nota": _build_note_display_name(package_name, new_number),
+    }
+    if cstr(note_row.titulo or "").strip() == f"Nota {current_number}":
+        updates["titulo"] = f"Nota {new_number}"
+    frappe.db.set_value("Nota Estado Financiero", note_row.name, updates, update_modified=False)
+
+
+def _remap_note_number_references(package_name, mapping):
+    normalized_mapping = {
+        normalize_note_number(source): normalize_note_number(target)
+        for source, target in (mapping or {}).items()
+        if normalize_note_number(source) and normalize_note_number(target)
+    }
+    if not normalized_mapping:
+        return
+
+    state_names = frappe.get_all(
+        "Estado Financiero Cliente",
+        filters={"paquete_estados_financieros_cliente": package_name},
+        pluck="name",
+    )
+    if state_names:
+        state_rows = frappe.get_all(
+            "Linea Estado Financiero Cliente",
+            filters={"parent": ["in", state_names]},
+            fields=["name", "numero_nota_referencial"],
+            limit_page_length=0,
+        )
+        for row in state_rows:
+            current = normalize_note_number(row.numero_nota_referencial)
+            if current in normalized_mapping:
+                frappe.db.set_value(
+                    "Linea Estado Financiero Cliente",
+                    row.name,
+                    "numero_nota_referencial",
+                    normalized_mapping[current],
+                    update_modified=False,
+                )
+
+    adjustment_names = frappe.get_all(
+        "Ajuste Estados Financieros Cliente",
+        filters={"paquete_estados_financieros_cliente": package_name},
+        pluck="name",
+    )
+    if adjustment_names:
+        adjustment_rows = frappe.get_all(
+            "Linea Ajuste Estado Financiero Cliente",
+            filters={"parent": ["in", adjustment_names]},
+            fields=["name", "numero_nota_referencial"],
+            limit_page_length=0,
+        )
+        for row in adjustment_rows:
+            current = normalize_note_number(row.numero_nota_referencial)
+            if current in normalized_mapping:
+                frappe.db.set_value(
+                    "Linea Ajuste Estado Financiero Cliente",
+                    row.name,
+                    "numero_nota_referencial",
+                    normalized_mapping[current],
+                    update_modified=False,
+                )
+
+
+@frappe.whitelist()
+def preview_note_number_change(numero_nota, note_name=None, package_name=None):
+    ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden renumerar notas a los estados financieros del cliente."))
+    package_name = _resolve_note_package(note_name=note_name, package_name=package_name)
+    target_number = normalize_note_number(numero_nota)
+    if not target_number:
+        frappe.throw(_("Debes indicar el numero de nota."), title=_("Numero Requerido"))
+
+    duplicate = frappe.get_all(
+        "Nota Estado Financiero",
+        filters={
+            "paquete_estados_financieros_cliente": package_name,
+            "numero_nota": target_number,
+            "name": ["!=", note_name or ""],
+        },
+        fields=["name", "numero_nota", "titulo"],
+        limit_page_length=1,
+    )
+
+    response = {
+        "package_name": package_name,
+        "note_name": note_name,
+        "numero_nota": target_number,
+        "suggested_note_name": _build_note_display_name(package_name, target_number),
+        "conflict": bool(duplicate),
+        "can_cascade": bool(duplicate) and target_number.isdigit(),
+        "affected_notes": [],
+    }
+
+    if response["conflict"] and response["can_cascade"]:
+        affected = _get_numeric_notes(package_name, exclude_note_name=note_name, min_number=cint(target_number))
+        response["affected_notes"] = [
+            {
+                "name": row.name,
+                "titulo": row.titulo,
+                "numero_actual": row.numero_nota,
+                "numero_nuevo": cstr(row.numero_entero + 1),
+            }
+            for row in affected
+        ]
+
+    return response
+
+
+@frappe.whitelist()
+def apply_note_number_change(numero_nota, note_name=None, package_name=None, cascade=0):
+    ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden renumerar notas a los estados financieros del cliente."))
+    package_name = _resolve_note_package(note_name=note_name, package_name=package_name)
+    target_number = normalize_note_number(numero_nota)
+    if not target_number:
+        frappe.throw(_("Debes indicar el numero de nota."), title=_("Numero Requerido"))
+
+    duplicate = frappe.get_all(
+        "Nota Estado Financiero",
+        filters={
+            "paquete_estados_financieros_cliente": package_name,
+            "numero_nota": target_number,
+            "name": ["!=", note_name or ""],
+        },
+        fields=["name"],
+        limit_page_length=1,
+    )
+    if duplicate and not cint(cascade):
+        frappe.throw(_("Ya existe una nota numero <b>{0}</b> dentro de este paquete.").format(target_number), title=_("Nota Duplicada"))
+    if duplicate and not target_number.isdigit():
+        frappe.throw(_("Solo se puede renumerar en cascada cuando el numero de nota es numerico."), title=_("Renumeracion No Soportada"))
+
+    shifted = []
+    mapping = {}
+    if duplicate:
+        affected = _get_numeric_notes(package_name, exclude_note_name=note_name, min_number=cint(target_number))
+        for row in sorted(affected, key=lambda item: item.numero_entero, reverse=True):
+            new_number = cstr(row.numero_entero + 1)
+            _update_note_sequence_fields(row, package_name, new_number)
+            mapping[row.numero_nota] = new_number
+            shifted.append({
+                "name": row.name,
+                "numero_actual": row.numero_nota,
+                "numero_nuevo": new_number,
+            })
+        _remap_note_number_references(package_name, mapping)
+
+    updated_note = None
+    if note_name:
+        note = frappe.get_doc("Nota Estado Financiero", note_name)
+        note.numero_nota = target_number
+        note.save(ignore_permissions=True)
+        updated_note = note.name
+
+    sync_note_cross_references(package_name)
+    sync_package_summary(package_name)
+
+    return {
+        "package_name": package_name,
+        "note_name": updated_note or note_name,
+        "numero_nota": target_number,
+        "shifted_notes": shifted,
+    }

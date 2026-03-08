@@ -2,6 +2,7 @@ import frappe
 
 from gestion_contable.gestion_contable.doctype.paquete_estados_financieros_cliente.paquete_estados_financieros_cliente import emitir_paquete_estados_financieros
 from gestion_contable.gestion_contable.tests.base import GestionContableIntegrationTestCase
+from gestion_contable.gestion_contable.doctype.nota_estado_financiero.nota_estado_financiero import apply_note_number_change
 from gestion_contable.gestion_contable.utils.estados_financieros import sync_package_summary
 
 
@@ -258,3 +259,63 @@ class TestNotaEstadoFinanciero(GestionContableIntegrationTestCase):
         self.assertEqual(sections[0]["grupos_columnas"][0]["span"], 3)
         self.assertEqual(sections[0]["grupos_columnas"][1]["label"], "31 diciembre 2022")
         self.assertEqual(sections[0]["grupos_columnas"][1]["span"], 3)
+
+
+    def test_cambio_numero_actualiza_nombre_y_referencias(self):
+        estado = self._crear_estado("Estado de Situacion Financiera", requiere_nota=True, numero_nota="1")
+        nota = self._crear_nota("1")
+
+        nota.numero_nota = "5"
+        nota.save(ignore_permissions=True)
+        estado.reload()
+        nota.reload()
+
+        self.assertEqual(nota.numero_nota, "5")
+        self.assertEqual(nota.nombre_de_la_nota, f"Nota 5 - {self.paquete.name}")
+        self.assertEqual(nota.titulo, "Nota 5")
+        self.assertEqual(estado.lineas[0].numero_nota_referencial, "5")
+
+    def test_renumeracion_en_cascada_desplaza_notas_y_referencias(self):
+        estado = self._crear_estado("Estado de Situacion Financiera", requiere_nota=True, numero_nota="2")
+        nota_1 = self._crear_nota("1")
+        nota_2 = self._crear_nota("2")
+        nota_3 = self._crear_nota("3")
+
+        ajuste = frappe.get_doc(
+            {
+                "doctype": "Ajuste Estados Financieros Cliente",
+                "paquete_estados_financieros_cliente": self.paquete.name,
+                "estado_financiero_cliente": estado.name,
+                "tipo_ajuste": "Auditoria",
+                "origen_ajuste": "Auditoria",
+                "estado_ajuste": "Propuesto",
+                "descripcion": "Ajuste de prueba",
+                "justificacion": "Renumeracion de notas",
+                "lineas_ajuste": [
+                    {
+                        "descripcion_linea": "Linea de prueba",
+                        "monto_previo": 10,
+                        "monto_ajuste": 2,
+                        "numero_nota_referencial": "3",
+                    }
+                ],
+            }
+        ).insert(ignore_permissions=True)
+        self.track_doc("Ajuste Estados Financieros Cliente", ajuste.name)
+
+        apply_note_number_change("2", note_name=nota_1.name, package_name=self.paquete.name, cascade=1)
+
+        nota_1.reload()
+        nota_2.reload()
+        nota_3.reload()
+        estado.reload()
+        ajuste.reload()
+
+        self.assertEqual(nota_1.numero_nota, "2")
+        self.assertEqual(nota_2.numero_nota, "3")
+        self.assertEqual(nota_3.numero_nota, "4")
+        self.assertEqual(nota_1.nombre_de_la_nota, f"Nota 2 - {self.paquete.name}")
+        self.assertEqual(nota_2.nombre_de_la_nota, f"Nota 3 - {self.paquete.name}")
+        self.assertEqual(nota_3.nombre_de_la_nota, f"Nota 4 - {self.paquete.name}")
+        self.assertEqual(estado.lineas[0].numero_nota_referencial, "3")
+        self.assertEqual(ajuste.lineas_ajuste[0].numero_nota_referencial, "4")

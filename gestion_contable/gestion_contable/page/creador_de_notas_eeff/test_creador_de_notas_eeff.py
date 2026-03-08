@@ -141,6 +141,7 @@ class TestCreadorDeNotasEEFF(GestionContableIntegrationTestCase):
 
     def test_create_note_for_editor_crea_nota_en_paquete(self):
         response = create_note_for_editor(self.paquete.name, "2", "Nota nueva", "Otra")
+        self.assertIn('Borrador inicial de la nota', response['note']['doc']['contenido_narrativo'])
         created_name = response["note"]["doc"]["name"]
         self.track_doc("Nota Estado Financiero", created_name)
         self.assertTrue(frappe.db.exists("Nota Estado Financiero", created_name))
