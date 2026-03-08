@@ -34,7 +34,7 @@ class PeriodoContable(Document):
     def calcular_campos(self):
         if self.anio and self.mes:
             base_name = f"{self.mes} {self.anio}"
-            scope = [value for value in (self.company, self.cliente, base_name) if value]
+            scope = [value for value in (self.cliente, base_name) if value]
             self.nombre_del_periodo = " - ".join(scope)
             num_mes = MESES.get(self.mes)
             if num_mes:

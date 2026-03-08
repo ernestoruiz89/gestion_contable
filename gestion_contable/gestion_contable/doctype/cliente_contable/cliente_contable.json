@@ -332,8 +332,9 @@
     "modified_by": "Administrator",
     "module": "Gestion Contable",
     "name": "Cliente Contable",
-    "naming_rule": "By fieldname",
-    "autoname": "field:customer",
+    "naming_rule": "Expression",
+    "autoname": "CC-.####",
+    "title_field": "customer",
     "owner": "Administrator",
     "permissions": [
         {

@@ -72,10 +72,20 @@ class PaqueteEstadosFinancierosCliente(Document):
         if self.nombre_del_paquete:
             self.name = self.nombre_del_paquete
             return
+            
         cliente = self.cliente or "Cliente"
-        periodo = self.periodo_contable or self.fecha_corte or nowdate()
+        
+        periodo_str = ""
+        if self.periodo_contable and frappe.db.exists("Periodo Contable", self.periodo_contable):
+            p = frappe.db.get_value("Periodo Contable", self.periodo_contable, ["mes", "anio"], as_dict=True)
+            if p and p.mes and p.anio:
+                periodo_str = f"{p.mes} {p.anio}"
+                
+        if not periodo_str:
+            periodo_str = self.periodo_contable or self.fecha_corte or nowdate()
+            
         version = self.version or 1
-        base_name = f"EEFF - {cliente} - {periodo} - V{version}"
+        base_name = f"EEFF - {cliente} - {periodo_str} - V{version}"
         self.nombre_del_paquete = self._build_unique_name(base_name)
         self.name = self.nombre_del_paquete
 
