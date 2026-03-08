@@ -1,12 +1,12 @@
 <style>
-  .icea-wrap { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #0f172a; font-size: 12pt; line-height: 1.25; }
-  .icea-cover { border: 2px solid #0f172a; padding: 36px 32px; margin-bottom: 28px; page-break-after: always; min-height: 920px; position: relative; }
-  .icea-cover-kicker { font-size: 11pt; letter-spacing: 1.8px; text-transform: uppercase; color: #475569; margin-bottom: 38px; }
+  .icea-wrap { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #000000; font-size: 12pt; line-height: 1.25; }
+  .icea-cover { border: 2px solid #000000; padding: 36px 32px; margin-bottom: 28px; page-break-after: always; min-height: 920px; position: relative; }
+  .icea-cover-kicker { font-size: 11pt; letter-spacing: 1.8px; text-transform: uppercase; color: #000000; margin-bottom: 38px; }
   .icea-cover h1 { margin: 0 0 10px; font-size: 24pt; line-height: 1.2; }
-  .icea-cover h2 { margin: 0 0 18px; font-size: 16pt; font-weight: 500; color: #334155; }
-  .icea-cover-summary { font-size: 12pt; line-height: 1.7; color: #334155; max-width: 680px; margin-bottom: 24px; }
-  .icea-cover-badge { display: inline-block; padding: 6px 12px; border: 1px solid #94a3b8; font-size: 10pt; text-transform: uppercase; letter-spacing: 0.6px; color: #334155; margin-bottom: 22px; }
-  .icea-cover-footer { position: absolute; left: 32px; right: 32px; bottom: 36px; font-size: 11pt; color: #475569; }
+  .icea-cover h2 { margin: 0 0 18px; font-size: 16pt; font-weight: 500; color: #000000; }
+  .icea-cover-summary { font-size: 12pt; line-height: 1.7; color: #000000; max-width: 680px; margin-bottom: 24px; }
+  .icea-cover-badge { display: inline-block; padding: 6px 12px; border: 1px solid #94a3b8; font-size: 10pt; text-transform: uppercase; letter-spacing: 0.6px; color: #000000; margin-bottom: 22px; }
+  .icea-cover-footer { position: absolute; left: 32px; right: 32px; bottom: 36px; font-size: 11pt; color: #000000; }
   .icea-meta { width: 100%; border-collapse: collapse; margin: 16px 0 0; }
   .icea-meta td { border: 1px solid #dbe3ef; padding: 8px 10px; vertical-align: top; font-size: 11pt; }
   .icea-section { margin: 0 0 22px; }
@@ -17,23 +17,23 @@
   .icea-table th { background: transparent; text-align: left; font-weight: 700; }
   .icea-table td.num { text-align: right; white-space: nowrap; }
   .icea-line-total td, .icea-line-subtotal td { font-weight: 700; }
-  .icea-line-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
-  .icea-line-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
+  .icea-line-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
+  .icea-line-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
   .icea-note { margin-top: 18px; page-break-inside: avoid; }
   .icea-note h4 { margin: 0 0 6px; font-size: 13pt; }
   .icea-ref-list { margin: 6px 0 0 16px; padding: 0; }
   .icea-ref-list li { margin-bottom: 4px; }
-  .icea-small { font-size: 11pt; color: #475569; }
+  .icea-small { font-size: 11pt; color: #000000; }
   .icea-sign { margin-top: 42px; }
   .icea-delivery { margin-top: 30px; page-break-before: always; }
   .icea-delivery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 34px; }
   .icea-sign-box { min-height: 94px; display: flex; align-items: flex-end; }
-  .icea-sign-line { border-top: 1px solid #0f172a; width: 100%; padding-top: 8px; font-size: 11pt; }
+  .icea-sign-line { border-top: 1px solid #000000; width: 100%; padding-top: 8px; font-size: 11pt; }
   .icea-sign-line strong { display: block; margin-bottom: 4px; }
   .icea-row-subtotal td, .icea-row-total td { font-weight: 700; }
-  .icea-row-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
-  .icea-row-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
-  .icea-row-comment td { font-style: italic; color: #334155; }
+  .icea-row-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
+  .icea-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
+  .icea-row-comment td { font-style: italic; color: #000000; }
   .icea-table-compact th, .icea-table-compact td { font-size: 10pt; padding: 3px 6px; }
 </style>
 {% set dictamen = frappe.get_doc("Informe Final Auditoria", doc.dictamen_de_auditoria) if doc.dictamen_de_auditoria and frappe.db.exists("Informe Final Auditoria", doc.dictamen_de_auditoria) else None %}

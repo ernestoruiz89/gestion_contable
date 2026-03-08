@@ -1,8 +1,8 @@
 <style>
-  .efc-wrap { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #0f172a; font-size: 12pt; line-height: 1.25; }
-  .efc-head { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 18px; }
+  .efc-wrap { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #000000; font-size: 12pt; line-height: 1.25; }
+  .efc-head { border-bottom: 2px solid #000000; padding-bottom: 10px; margin-bottom: 18px; }
   .efc-head h1 { margin: 0; font-size: 18pt; }
-  .efc-head p { margin: 4px 0 0; color: #475569; font-size: 11pt; }
+  .efc-head p { margin: 4px 0 0; color: #000000; font-size: 11pt; }
   .efc-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
   .efc-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; font-size: 11pt; }
   .efc-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
@@ -10,17 +10,17 @@
   .efc-table th { background: transparent; text-align: left; font-weight: 700; }
   .efc-table td.num { text-align: right; white-space: nowrap; }
   .efc-line-total td, .efc-line-subtotal td { font-weight: 700; }
-  .efc-line-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
-  .efc-line-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
+  .efc-line-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
+  .efc-line-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
   .efc-note { margin-top: 18px; page-break-inside: avoid; }
   .efc-note h3 { margin: 0 0 6px; font-size: 13pt; }
-  .efc-note-meta { color: #475569; margin-bottom: 6px; font-size: 11pt; }
+  .efc-note-meta { color: #000000; margin-bottom: 6px; font-size: 11pt; }
   .efc-ref-list { margin: 6px 0 0 16px; padding: 0; }
   .efc-ref-list li { margin-bottom: 4px; }
   .efc-row-subtotal td, .efc-row-total td { font-weight: 700; }
-  .efc-row-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
-  .efc-row-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
-  .efc-row-comment td { font-style: italic; color: #334155; }
+  .efc-row-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
+  .efc-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
+  .efc-row-comment td { font-style: italic; color: #000000; }
 </style>
 {% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
 {% set referenced_numbers = [] %}

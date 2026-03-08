@@ -1,5 +1,5 @@
 <style>
-  .nefi-wrap { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #0f172a; font-size: 12pt; line-height: 1.25; }
+  .nefi-wrap { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #000000; font-size: 12pt; line-height: 1.25; }
   .nefi-head { margin-bottom: 18px; }
   .nefi-head h1 { margin: 0; font-size: 18pt; }
   .nefi-section { margin: 0 0 18px; }
@@ -10,9 +10,9 @@
   .nefi-table th { background: transparent; text-align: left; font-weight: 700; }
   .nefi-table td.num { text-align: right; white-space: nowrap; }
   .nefi-row-subtotal td, .nefi-row-total td { font-weight: 700; }
-  .nefi-row-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
-  .nefi-row-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
-  .nefi-row-comment td { font-style: italic; color: #334155; }
+  .nefi-row-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
+  .nefi-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
+  .nefi-row-comment td { font-style: italic; color: #000000; }
   .nefi-table-compact th, .nefi-table-compact td { font-size: 10pt; padding: 3px 6px; }
 </style>
 {% set structured_sections = doc.get_structured_sections() %}
@@ -29,7 +29,7 @@
 
   {% if doc.cifras_nota %}
     <div class="nefi-section">
-      <table class="nefi-table{% if section.columnas|length > 5 %} nefi-table-compact{% endif %}">
+      <table class="nefi-table">
         <thead>
           <tr>
             <th>Concepto</th>
@@ -55,7 +55,7 @@
       <div class="nefi-section">
         <h3>{{ section.titulo_seccion }}</h3>
         {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
-          <table class="nefi-table">
+          <table class="nefi-table{% if section.columnas|length > 5 %} nefi-table-compact{% endif %}">
             <thead>
               {% if section.tiene_grupos_columnas %}
                 <tr>
