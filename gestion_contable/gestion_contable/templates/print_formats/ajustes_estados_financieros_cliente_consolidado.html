@@ -1,0 +1,137 @@
+<style>
+  .aefc-wrap, .aefc-wrap * { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important; color: #000000 !important; font-size: 12pt; line-height: 1.25; }
+  .aefc-head { border-bottom: 2px solid #000000; padding-bottom: 10px; margin-bottom: 18px; }
+  .aefc-head h1 { margin: 0; font-size: 18pt; }
+  .aefc-head p { margin: 4px 0 0; font-size: 11pt; }
+  .aefc-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  .aefc-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; font-size: 11pt; }
+  .aefc-section { margin: 0 0 18px; }
+  .aefc-section h2 { margin: 0 0 8px; font-size: 14pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+  .aefc-adjust { margin-top: 18px; page-break-inside: avoid; }
+  .aefc-adjust h3 { margin: 0 0 6px; font-size: 13pt; }
+  .aefc-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .aefc-table th, .aefc-table td { border: none; padding: 4px 8px; vertical-align: middle; }
+  .aefc-table th { background: transparent; text-align: left; font-weight: 700; }
+  .aefc-table td.num { text-align: right; white-space: nowrap; }
+  .aefc-total td { font-weight: 700; border-top: 1px solid #000000; border-bottom: 3px double #000000; }
+</style>
+{% set ajustes = frappe.get_all(
+  "Ajuste Estados Financieros Cliente",
+  filters={"paquete_estados_financieros_cliente": doc.name},
+  fields=["name", "nombre_del_ajuste", "estado_financiero_cliente", "fecha_ajuste", "tipo_ajuste", "origen_ajuste", "estado_ajuste", "material", "generalizado", "impacta_dictamen", "impacta_informe_final", "aceptado_por_cliente", "registrado_en_version_final", "descripcion", "justificacion", "monto_total", "observaciones", "estado_aprobacion"],
+  order_by="fecha_ajuste asc, creation asc",
+  limit_page_length=300
+) %}
+<div class="aefc-wrap">
+  <div class="aefc-head">
+    <h1>{{ doc.razon_social_reportante or doc.cliente }}</h1>
+    <p>Ajustes de Estados Financieros del Cliente</p>
+  </div>
+
+  <table class="aefc-meta">
+    <tr>
+      <td><strong>Cliente</strong><br>{{ doc.cliente or "-" }}</td>
+      <td><strong>Periodo</strong><br>{{ doc.periodo_contable or "-" }}</td>
+      <td><strong>Fecha de Corte</strong><br>{{ doc.fecha_corte or "-" }}</td>
+      <td><strong>Version</strong><br>{{ doc.version or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Marco Contable</strong><br>{{ doc.marco_contable or "-" }}</td>
+      <td><strong>Tipo de Paquete</strong><br>{{ doc.tipo_paquete or "-" }}</td>
+      <td><strong>Estado Preparacion</strong><br>{{ doc.estado_preparacion or "-" }}</td>
+      <td><strong>Total Ajustes</strong><br>{{ doc.total_ajustes or 0 }}</td>
+    </tr>
+  </table>
+
+  <div class="aefc-section">
+    <h2>Resumen</h2>
+    <table class="aefc-meta">
+      <tr>
+        <td><strong>Ajustes Registrados</strong><br>{{ doc.total_ajustes or 0 }}</td>
+        <td><strong>No Registrados</strong><br>{{ doc.ajustes_no_registrados or 0 }}</td>
+        <td><strong>Monto Ajustes</strong><br>{{ frappe.format_value(doc.monto_ajustes or 0, {"fieldtype": "Currency"}) }}</td>
+        <td><strong>Paquete</strong><br>{{ doc.name }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="aefc-section">
+    <h2>Detalle de Ajustes</h2>
+    {% for ajuste in ajustes %}
+      {% set ajuste_doc = frappe.get_doc("Ajuste Estados Financieros Cliente", ajuste.name) %}
+      <div class="aefc-adjust">
+        <h3>{{ ajuste_doc.nombre_del_ajuste or ajuste_doc.name }}</h3>
+        <table class="aefc-meta">
+          <tr>
+            <td><strong>Estado Financiero</strong><br>{{ ajuste_doc.estado_financiero_cliente or "-" }}</td>
+            <td><strong>Fecha Ajuste</strong><br>{{ ajuste_doc.fecha_ajuste or "-" }}</td>
+            <td><strong>Tipo Ajuste</strong><br>{{ ajuste_doc.tipo_ajuste or "-" }}</td>
+            <td><strong>Estado Ajuste</strong><br>{{ ajuste_doc.estado_ajuste or "-" }}</td>
+          </tr>
+          <tr>
+            <td><strong>Origen</strong><br>{{ ajuste_doc.origen_ajuste or "-" }}</td>
+            <td><strong>Estado Aprobacion</strong><br>{{ ajuste_doc.estado_aprobacion or "-" }}</td>
+            <td><strong>Material</strong><br>{{ "Si" if ajuste_doc.material else "No" }}</td>
+            <td><strong>Generalizado</strong><br>{{ "Si" if ajuste_doc.generalizado else "No" }}</td>
+          </tr>
+          <tr>
+            <td><strong>Impacta Dictamen</strong><br>{{ "Si" if ajuste_doc.impacta_dictamen else "No" }}</td>
+            <td><strong>Impacta Informe Final</strong><br>{{ "Si" if ajuste_doc.impacta_informe_final else "No" }}</td>
+            <td><strong>Aceptado por Cliente</strong><br>{{ "Si" if ajuste_doc.aceptado_por_cliente else "No" }}</td>
+            <td><strong>Registrado Version Final</strong><br>{{ "Si" if ajuste_doc.registrado_en_version_final else "No" }}</td>
+          </tr>
+        </table>
+
+        <div style="margin-top: 8px;"><strong>Descripcion</strong></div>
+        <div>{{ ajuste_doc.descripcion or "-" }}</div>
+        {% if ajuste_doc.justificacion %}
+          <div style="margin-top: 8px;"><strong>Justificacion</strong></div>
+          <div>{{ ajuste_doc.justificacion | safe }}</div>
+        {% endif %}
+
+        <table class="aefc-table">
+          <thead>
+            <tr>
+              <th>Estado Financiero</th>
+              <th>Codigo</th>
+              <th>Descripcion</th>
+              <th>Nota</th>
+              <th>Monto Previo</th>
+              <th>Monto Ajuste</th>
+              <th>Monto Ajustado</th>
+              <th>Afecta Resultado</th>
+              <th>Afecta Patrimonio</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in ajuste_doc.lineas_ajuste %}
+              <tr>
+                <td>{{ row.estado_financiero_cliente or "-" }}</td>
+                <td>{{ row.codigo_rubro or "-" }}</td>
+                <td>{{ row.descripcion_linea or "-" }}</td>
+                <td>{{ row.numero_nota_referencial or "-" }}</td>
+                <td class="num">{{ frappe.format_value(row.monto_previo or 0, {"fieldtype": "Currency"}) }}</td>
+                <td class="num">{{ frappe.format_value(row.monto_ajuste or 0, {"fieldtype": "Currency"}) }}</td>
+                <td class="num">{{ frappe.format_value(row.monto_ajustado or 0, {"fieldtype": "Currency"}) }}</td>
+                <td>{{ "Si" if row.afecta_resultado else "No" }}</td>
+                <td>{{ "Si" if row.afecta_patrimonio else "No" }}</td>
+              </tr>
+            {% endfor %}
+            <tr class="aefc-total">
+              <td colspan="5">Monto Total</td>
+              <td class="num">{{ frappe.format_value(ajuste_doc.monto_total or 0, {"fieldtype": "Currency"}) }}</td>
+              <td colspan="3"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        {% if ajuste_doc.observaciones %}
+          <div style="margin-top: 8px;"><strong>Observaciones</strong></div>
+          <div>{{ ajuste_doc.observaciones }}</div>
+        {% endif %}
+      </div>
+    {% else %}
+      <p>No hay ajustes registrados para este paquete.</p>
+    {% endfor %}
+  </div>
+</div>

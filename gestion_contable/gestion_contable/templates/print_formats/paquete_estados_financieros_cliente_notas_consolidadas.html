@@ -9,13 +9,10 @@
   .pefn-section h2 { margin: 0 0 8px; font-size: 14pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
   .pefn-note { margin-top: 18px; page-break-inside: avoid; }
   .pefn-note h3 { margin: 0 0 6px; font-size: 13pt; }
-  .pefn-note-meta { color: #000000; margin-bottom: 6px; font-size: 11pt; }
   .pefn-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
   .pefn-table th, .pefn-table td { border: none; padding: 4px 8px; vertical-align: middle; }
   .pefn-table th { background: transparent; text-align: left; font-weight: 700; }
   .pefn-table td.num { text-align: right; white-space: nowrap; }
-  .pefn-ref-list { margin: 6px 0 0 16px; padding: 0; }
-  .pefn-ref-list li { margin-bottom: 4px; }
   .pefn-row-subtotal td, .pefn-row-total td { font-weight: 700; }
   .pefn-row-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
   .pefn-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
@@ -70,27 +67,8 @@
       {% set structured_sections = nota_doc.get_structured_sections() %}
       <div class="pefn-note">
         <h3>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h3>
-        <div class="pefn-note-meta">
-          Categoria: {{ nota_doc.categoria_nota or "-" }} | Estado: {{ nota_doc.estado_aprobacion or "-" }} | Referencias: {{ nota_doc.total_referencias or 0 }}
-        </div>
-        {% if nota_doc.referencias_cruzadas %}
-          <ul class="pefn-ref-list">
-            {% for ref in nota_doc.referencias_cruzadas %}
-              <li>
-                {{ ref.tipo_estado or "Estado" }}
-                {% if ref.codigo_rubro %} | {{ ref.codigo_rubro }}{% endif %}
-                {% if ref.descripcion_linea_estado %} | {{ ref.descripcion_linea_estado }}{% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        {% if nota_doc.politica_contable %}
-          <div style="margin-top: 8px;"><strong>Politica contable</strong></div>
-          <div>{{ nota_doc.politica_contable | safe }}</div>
-        {% endif %}
         {% if nota_doc.contenido_narrativo %}
-          <div style="margin-top: 8px;"><strong>Contenido narrativo</strong></div>
-          <div>{{ nota_doc.contenido_narrativo | safe }}</div>
+          <div style="margin-top: 8px;">{{ nota_doc.contenido_narrativo | safe }}</div>
         {% endif %}
         {% if nota_doc.cifras_nota %}
           <table class="pefn-table">
@@ -128,11 +106,8 @@
           {% for section in structured_sections %}
             <div style="margin-top: 10px;">
               <div style="font-weight: 700; margin-bottom: 6px;">{{ section.titulo_seccion }}</div>
-              {% if section.contenido_narrativo %}
-                <div style="margin-bottom: 8px;">{{ section.contenido_narrativo | safe }}</div>
-              {% endif %}
               {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
-                <table class="pefn-table">
+                <table class="pefn-table{% if section.columnas|length > 5 %} pefn-table-compact{% endif %}">
                   <thead>
                     {% if section.tiene_grupos_columnas %}
                       <tr>
@@ -188,12 +163,17 @@
                   </tbody>
                 </table>
               {% endif %}
+              {% if section.contenido_narrativo %}
+                <div style="margin-top: 8px;">{{ section.contenido_narrativo | safe }}</div>
+              {% endif %}
             </div>
           {% endfor %}
         {% endif %}
         {% if nota_doc.observaciones_preparacion %}
-          <div style="margin-top: 8px;"><strong>Observaciones de preparacion</strong></div>
-          <div>{{ nota_doc.observaciones_preparacion }}</div>
+          <div style="margin-top: 8px;">
+            <strong>Observaciones</strong>
+            <div>{{ nota_doc.observaciones_preparacion }}</div>
+          </div>
         {% endif %}
       </div>
     {% else %}

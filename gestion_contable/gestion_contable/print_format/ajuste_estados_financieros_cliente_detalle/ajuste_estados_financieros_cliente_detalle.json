@@ -1,0 +1,15 @@
+{
+  "doc_type": "Ajuste Estados Financieros Cliente",
+  "doctype": "Print Format",
+  "module": "Gestion Contable",
+  "name": "Ajuste Estados Financieros Cliente - Detalle",
+  "print_format_type": "Jinja",
+  "raw_printing": 0,
+  "disabled": 0,
+  "standard": "Yes",
+  "custom_format": 0,
+  "align_labels_right": 0,
+  "line_breaks": 0,
+  "show_section_headings": 0,
+  "format_data": "<div>{% include \"gestion_contable/templates/print_formats/ajuste_estados_financieros_cliente_detalle.html\" %}</div>"
+}
