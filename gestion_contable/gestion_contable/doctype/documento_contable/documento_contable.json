@@ -194,16 +194,6 @@
     "index_web_pages_for_search": 1,
     "links": [
         {
-            "group": "Trazabilidad",
-            "link_doctype": "Task",
-            "link_fieldname": "task"
-        },
-        {
-            "group": "Trazabilidad",
-            "link_doctype": "Encargo Contable",
-            "link_fieldname": "encargo_contable"
-        },
-        {
             "group": "Operacion",
             "link_doctype": "Entregable Cliente",
             "link_fieldname": "documento_contable"
