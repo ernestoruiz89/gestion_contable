@@ -106,7 +106,7 @@
               {% set row_class = "pefc-line-subtotal" %}
             {% endif %}
             <tr class="{{ row_class }}">
-              <td style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px;">{{ linea.descripcion }}{% if linea.numero_nota_referencial %}<sup>{{ linea.numero_nota_referencial }}</sup>{% endif %}</td>
+              <td style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px;">{{ linea.descripcion }}</td>
               <td class="num">{{ frappe.format_value(linea.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
               <td class="num">{{ frappe.format_value(linea.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
               <td class="num">{{ linea.numero_nota_referencial or "-" }}</td>
