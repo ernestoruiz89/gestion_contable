@@ -421,11 +421,6 @@
             "group": "Auditoria",
             "link_doctype": "Informe Final Auditoria",
             "link_fieldname": "expediente_auditoria"
-        },
-        {
-            "group": "Operacion",
-            "link_doctype": "Encargo Contable",
-            "link_fieldname": "encargo_contable"
         }
     ],
     "modified": "2026-03-06 18:30:00.000000",
@@ -496,6 +491,3 @@
     "sort_order": "DESC",
     "track_changes": 1
 }
-
-
-

@@ -652,6 +652,11 @@
             "group": "Evidencias",
             "link_doctype": "Documento Contable",
             "link_fieldname": "encargo_contable"
+        },
+        {
+            "group": "Auditoria",
+            "link_doctype": "Expediente Auditoria",
+            "link_fieldname": "encargo_contable"
         }
     ],
     "modified": "2026-03-06 12:10:00.000000",
