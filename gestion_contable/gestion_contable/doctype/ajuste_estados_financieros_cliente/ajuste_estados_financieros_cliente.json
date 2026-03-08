@@ -295,18 +295,7 @@
             "label": "Observaciones"
         }
     ],
-    "links": [
-        {
-            "group": "Estados Financieros",
-            "link_doctype": "Paquete Estados Financieros Cliente",
-            "link_fieldname": "paquete_estados_financieros_cliente"
-        },
-        {
-            "group": "Auditoria",
-            "link_doctype": "Expediente Auditoria",
-            "link_fieldname": "expediente_auditoria"
-        }
-    ],
+    "links": [],
     "module": "Gestion Contable",
     "name": "Ajuste Estados Financieros Cliente",
     "naming_rule": "By fieldname",

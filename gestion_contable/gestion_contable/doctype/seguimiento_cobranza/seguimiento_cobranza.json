@@ -1,266 +1,260 @@
 {
-  "actions": [],
-  "creation": "2026-03-06 17:10:00.000000",
-  "doctype": "DocType",
-  "engine": "InnoDB",
-  "field_order": [
-    "sales_invoice",
-    "encargo_contable",
-    "column_break_1",
-    "cliente_contable",
-    "customer",
-    "servicio_contable",
-    "section_estado",
-    "estado_seguimiento",
-    "fecha_gestion",
-    "column_break_2",
-    "responsable",
-    "canal",
-    "indicador_modo_envio_correo",
-    "proxima_gestion",
-    "section_finanzas",
-    "company",
-    "moneda",
-    "monto_factura",
-    "saldo_pendiente",
-    "column_break_3",
-    "compromiso_pago_monto",
-    "compromiso_pago_fecha",
-    "payment_entry",
-    "section_resultado",
-    "comentarios"
-  ],
-  "fields": [
-    {
-      "fieldname": "sales_invoice",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "label": "Sales Invoice",
-      "options": "Sales Invoice",
-      "reqd": 1
-    },
-    {
-      "fieldname": "encargo_contable",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "label": "Encargo Contable",
-      "options": "Encargo Contable",
-      "read_only": 1
-    },
-    {
-      "fieldname": "column_break_1",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "cliente_contable",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "label": "Cliente Contable",
-      "options": "Cliente Contable",
-      "read_only": 1
-    },
-    {
-      "fieldname": "customer",
-      "fieldtype": "Link",
-      "label": "Customer",
-      "options": "Customer",
-      "read_only": 1
-    },
-    {
-      "fieldname": "servicio_contable",
-      "fieldtype": "Link",
-      "label": "Servicio Contable",
-      "options": "Servicio Contable",
-      "read_only": 1
-    },
-    {
-      "fieldname": "section_estado",
-      "fieldtype": "Section Break",
-      "label": "Gestion"
-    },
-    {
-      "default": "Pendiente",
-      "fieldname": "estado_seguimiento",
-      "fieldtype": "Select",
-      "in_list_view": 1,
-      "label": "Estado Seguimiento",
-      "options": "Pendiente\nContactado\nCompromiso de Pago\nEscalado\nPagado\nCerrado"
-    },
-    {
-      "fieldname": "fecha_gestion",
-      "fieldtype": "Datetime",
-      "in_list_view": 1,
-      "label": "Fecha Gestion"
-    },
-    {
-      "fieldname": "column_break_2",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "responsable",
-      "fieldtype": "Link",
-      "label": "Responsable",
-      "options": "User"
-    },
-    {
-      "fieldname": "canal",
-      "fieldtype": "Select",
-      "label": "Canal",
-      "options": "Correo\nLlamada\nWhatsApp\nReunion\nPortal\nOtro"
-    },
-    {
-      "fieldname": "indicador_modo_envio_correo",
-      "fieldtype": "HTML",
-      "label": "Modo Envio Correo"
-    },
-    {
-      "fieldname": "proxima_gestion",
-      "fieldtype": "Date",
-      "label": "Proxima Gestion"
-    },
-    {
-      "fieldname": "section_finanzas",
-      "fieldtype": "Section Break",
-      "label": "Situacion Financiera"
-    },
-    {
-      "fieldname": "company",
-      "fieldtype": "Link",
-      "label": "Compania",
-      "options": "Company",
-      "read_only": 1
-    },
-    {
-      "fieldname": "moneda",
-      "fieldtype": "Link",
-      "label": "Moneda",
-      "options": "Currency",
-      "read_only": 1
-    },
-    {
-      "fieldname": "monto_factura",
-      "fieldtype": "Currency",
-      "label": "Monto Factura",
-      "options": "moneda",
-      "read_only": 1
-    },
-    {
-      "fieldname": "saldo_pendiente",
-      "fieldtype": "Currency",
-      "label": "Saldo Pendiente",
-      "options": "moneda",
-      "read_only": 1
-    },
-    {
-      "fieldname": "column_break_3",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "compromiso_pago_monto",
-      "fieldtype": "Currency",
-      "label": "Compromiso Pago Monto",
-      "options": "moneda"
-    },
-    {
-      "fieldname": "compromiso_pago_fecha",
-      "fieldtype": "Date",
-      "label": "Compromiso Pago Fecha"
-    },
-    {
-      "fieldname": "payment_entry",
-      "fieldtype": "Link",
-      "label": "Payment Entry",
-      "options": "Payment Entry"
-    },
-    {
-      "fieldname": "section_resultado",
-      "fieldtype": "Section Break",
-      "label": "Comentarios"
-    },
-    {
-      "fieldname": "comentarios",
-      "fieldtype": "Small Text",
-      "label": "Comentarios"
-    }
-  ],
-  "index_web_pages_for_search": 1,
-  "links": [
-    {
-      "group": "Cobranza",
-      "link_doctype": "Encargo Contable",
-      "link_fieldname": "encargo_contable"
-    }
-  ],
-  "modified": "2026-03-07 16:25:00.000000",
-  "modified_by": "Administrator",
-  "module": "Gestion Contable",
-  "name": "Seguimiento Cobranza",
-  "naming_rule": "Prompt",
-  "autoname": "prompt",
-  "owner": "Administrator",
-  "permissions": [
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "System Manager",
-      "share": 1,
-      "write": 1
-    },
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "Contador del Despacho",
-      "share": 1,
-      "write": 1
-    },
-    {
-      "create": 0,
-      "delete": 0,
-      "email": 1,
-      "export": 0,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "Auxiliar Contable del Despacho",
-      "share": 1,
-      "write": 0
-    },
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "Supervisor del Despacho",
-      "share": 1,
-      "write": 1
-    },
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "Socio del Despacho",
-      "share": 1,
-      "write": 1
-    }
-  ],
-  "sort_field": "modified",
-  "sort_order": "DESC",
-  "track_changes": 1
+    "actions": [],
+    "creation": "2026-03-06 17:10:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "sales_invoice",
+        "encargo_contable",
+        "column_break_1",
+        "cliente_contable",
+        "customer",
+        "servicio_contable",
+        "section_estado",
+        "estado_seguimiento",
+        "fecha_gestion",
+        "column_break_2",
+        "responsable",
+        "canal",
+        "indicador_modo_envio_correo",
+        "proxima_gestion",
+        "section_finanzas",
+        "company",
+        "moneda",
+        "monto_factura",
+        "saldo_pendiente",
+        "column_break_3",
+        "compromiso_pago_monto",
+        "compromiso_pago_fecha",
+        "payment_entry",
+        "section_resultado",
+        "comentarios"
+    ],
+    "fields": [
+        {
+            "fieldname": "sales_invoice",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Sales Invoice",
+            "options": "Sales Invoice",
+            "reqd": 1
+        },
+        {
+            "fieldname": "encargo_contable",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Encargo Contable",
+            "options": "Encargo Contable",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "cliente_contable",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Cliente Contable",
+            "options": "Cliente Contable",
+            "read_only": 1
+        },
+        {
+            "fieldname": "customer",
+            "fieldtype": "Link",
+            "label": "Customer",
+            "options": "Customer",
+            "read_only": 1
+        },
+        {
+            "fieldname": "servicio_contable",
+            "fieldtype": "Link",
+            "label": "Servicio Contable",
+            "options": "Servicio Contable",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_estado",
+            "fieldtype": "Section Break",
+            "label": "Gestion"
+        },
+        {
+            "default": "Pendiente",
+            "fieldname": "estado_seguimiento",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Estado Seguimiento",
+            "options": "Pendiente\nContactado\nCompromiso de Pago\nEscalado\nPagado\nCerrado"
+        },
+        {
+            "fieldname": "fecha_gestion",
+            "fieldtype": "Datetime",
+            "in_list_view": 1,
+            "label": "Fecha Gestion"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "responsable",
+            "fieldtype": "Link",
+            "label": "Responsable",
+            "options": "User"
+        },
+        {
+            "fieldname": "canal",
+            "fieldtype": "Select",
+            "label": "Canal",
+            "options": "Correo\nLlamada\nWhatsApp\nReunion\nPortal\nOtro"
+        },
+        {
+            "fieldname": "indicador_modo_envio_correo",
+            "fieldtype": "HTML",
+            "label": "Modo Envio Correo"
+        },
+        {
+            "fieldname": "proxima_gestion",
+            "fieldtype": "Date",
+            "label": "Proxima Gestion"
+        },
+        {
+            "fieldname": "section_finanzas",
+            "fieldtype": "Section Break",
+            "label": "Situacion Financiera"
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company",
+            "read_only": 1
+        },
+        {
+            "fieldname": "moneda",
+            "fieldtype": "Link",
+            "label": "Moneda",
+            "options": "Currency",
+            "read_only": 1
+        },
+        {
+            "fieldname": "monto_factura",
+            "fieldtype": "Currency",
+            "label": "Monto Factura",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "saldo_pendiente",
+            "fieldtype": "Currency",
+            "label": "Saldo Pendiente",
+            "options": "moneda",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "compromiso_pago_monto",
+            "fieldtype": "Currency",
+            "label": "Compromiso Pago Monto",
+            "options": "moneda"
+        },
+        {
+            "fieldname": "compromiso_pago_fecha",
+            "fieldtype": "Date",
+            "label": "Compromiso Pago Fecha"
+        },
+        {
+            "fieldname": "payment_entry",
+            "fieldtype": "Link",
+            "label": "Payment Entry",
+            "options": "Payment Entry"
+        },
+        {
+            "fieldname": "section_resultado",
+            "fieldtype": "Section Break",
+            "label": "Comentarios"
+        },
+        {
+            "fieldname": "comentarios",
+            "fieldtype": "Small Text",
+            "label": "Comentarios"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-03-07 16:25:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Seguimiento Cobranza",
+    "naming_rule": "Prompt",
+    "autoname": "prompt",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Contador del Despacho",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 0,
+            "delete": 0,
+            "email": 1,
+            "export": 0,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Auxiliar Contable del Despacho",
+            "share": 1,
+            "write": 0
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Supervisor del Despacho",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Socio del Despacho",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
 }

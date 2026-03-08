@@ -1,0 +1,157 @@
+<style>
+  .pta-wrap { font-family: Arial, sans-serif; color: #0f172a; font-size: 12px; }
+  .pta-header { margin-bottom: 18px; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; }
+  .pta-title { margin: 0 0 4px; font-size: 24px; font-weight: 700; }
+  .pta-subtitle { margin: 0; color: #475569; }
+  .pta-pill { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; border: 1px solid #cbd5e1; margin-right: 6px; }
+  .pta-pill.estado { background: #eff6ff; color: #1d4ed8; }
+  .pta-pill.aprobacion { background: #ecfdf5; color: #047857; }
+  .pta-grid { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .pta-grid td { padding: 6px 8px; border: 1px solid #dbe3ef; vertical-align: top; }
+  .pta-grid td.label { width: 18%; font-weight: 700; background: #f8fafc; color: #334155; }
+  .pta-section { margin-top: 18px; }
+  .pta-section h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .4px; color: #0f172a; }
+  .pta-box { border: 1px solid #dbe3ef; border-radius: 10px; padding: 10px 12px; background: #fff; }
+  .pta-comments { white-space: pre-wrap; }
+</style>
+<div class="pta-wrap">
+  <div class="pta-header">
+    <h1 class="pta-title">Papel de Trabajo de Auditor?a</h1>
+    <p class="pta-subtitle"><strong>{{ doc.codigo }}</strong>{% if doc.referencia %} | Ref. {{ doc.referencia }}{% endif %}</p>
+    <p class="pta-subtitle">{{ doc.titulo or "Sin t?tulo" }}</p>
+    <p class="pta-subtitle">
+      <span class="pta-pill estado">{{ doc.estado_papel or "Borrador" }}</span>
+      <span class="pta-pill aprobacion">{{ doc.estado_aprobacion or "Borrador" }}</span>
+    </p>
+  </div>
+
+  <table class="pta-grid">
+    <tr>
+      <td class="label">Expediente</td>
+      <td>{{ doc.expediente_auditoria or "-" }}</td>
+      <td class="label">Encargo</td>
+      <td>{{ doc.encargo_contable or "-" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Cliente</td>
+      <td>{{ doc.cliente or "-" }}</td>
+      <td class="label">Periodo</td>
+      <td>{{ doc.periodo or "-" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Compa??a</td>
+      <td>{{ doc.company or "-" }}</td>
+      <td class="label">Tipo Papel</td>
+      <td>{{ doc.tipo_papel or "-" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Riesgo-Control</td>
+      <td>{{ doc.riesgo_control_auditoria or "-" }}</td>
+      <td class="label">Tarea</td>
+      <td>{{ doc.task or "-" }}</td>
+    </tr>
+  </table>
+
+  <div class="pta-section">
+    <h3>V?nculo Documental</h3>
+    <table class="pta-grid">
+      <tr>
+        <td class="label">Documento Contable</td>
+        <td>{{ doc.documento_contable or "-" }}</td>
+        <td class="label">Archivo Evidencia</td>
+        <td>{{ doc.evidencia_documental_file or "-" }}</td>
+      </tr>
+      <tr>
+        <td class="label">C?digo Evidencia</td>
+        <td>{{ doc.codigo_evidencia_documental or "-" }}</td>
+        <td class="label">Versi?n Evidencia</td>
+        <td>{{ doc.version_evidencia_documental or "-" }}</td>
+      </tr>
+      <tr>
+        <td class="label">Hash SHA256</td>
+        <td colspan="3" style="word-break: break-all;">{{ doc.hash_evidencia_sha256 or "-" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="pta-section">
+    <h3>Objetivo de la Prueba</h3>
+    <div class="pta-box">{{ doc.objetivo_prueba or "Sin objetivo documentado." }}</div>
+  </div>
+
+  <div class="pta-section">
+    <h3>Procedimiento Ejecutado</h3>
+    <div class="pta-box">{{ doc.procedimiento_ejecutado or "<p>Sin procedimiento documentado.</p>" }}</div>
+  </div>
+
+  <div class="pta-section">
+    <h3>Resultado</h3>
+    <div class="pta-box">{{ doc.resultado or "<p>Sin resultado documentado.</p>" }}</div>
+  </div>
+
+  <div class="pta-section">
+    <h3>Conclusi?n</h3>
+    <div class="pta-box">{{ doc.conclusion or "<p>Sin conclusi?n documentada.</p>" }}</div>
+  </div>
+
+  {% if doc.notas %}
+  <div class="pta-section">
+    <h3>Notas</h3>
+    <div class="pta-box pta-comments">{{ doc.notas }}</div>
+  </div>
+  {% endif %}
+
+  <div class="pta-section">
+    <h3>Preparaci?n y Revisi?n</h3>
+    <table class="pta-grid">
+      <tr>
+        <td class="label">Preparado por</td>
+        <td>{{ doc.preparado_por or "-" }}</td>
+        <td class="label">Fecha Preparaci?n</td>
+        <td>{{ frappe.format(doc.fecha_preparacion, {"fieldtype": "Date"}) if doc.fecha_preparacion else "-" }}</td>
+      </tr>
+      <tr>
+        <td class="label">Revisado por</td>
+        <td>{{ doc.revisado_por or "-" }}</td>
+        <td class="label">Fecha Revisi?n</td>
+        <td>{{ frappe.format(doc.fecha_revision, {"fieldtype": "Datetime"}) if doc.fecha_revision else "-" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="pta-section">
+    <h3>Gobierno y Aprobaci?n</h3>
+    <table class="pta-grid">
+      <tr>
+        <td class="label">Fecha Env?o Revisi?n</td>
+        <td>{{ frappe.format(doc.fecha_envio_revision, {"fieldtype": "Datetime"}) if doc.fecha_envio_revision else "-" }}</td>
+        <td class="label">Supervisor</td>
+        <td>
+          {{ doc.revisado_por_supervisor or "-" }}<br>
+          {{ frappe.format(doc.fecha_revision_supervisor, {"fieldtype": "Datetime"}) if doc.fecha_revision_supervisor else "" }}
+        </td>
+      </tr>
+      <tr>
+        <td class="label">Socio</td>
+        <td>
+          {{ doc.aprobado_por_socio or "-" }}<br>
+          {{ frappe.format(doc.fecha_aprobacion_socio, {"fieldtype": "Datetime"}) if doc.fecha_aprobacion_socio else "" }}
+        </td>
+        <td class="label">Estado Aprobaci?n</td>
+        <td>{{ doc.estado_aprobacion or "Borrador" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  {% if doc.comentarios_supervisor or doc.comentarios_socio %}
+  <div class="pta-section">
+    <h3>Comentarios de Revisi?n</h3>
+    {% if doc.comentarios_supervisor %}
+      <div class="pta-box pta-comments"><strong>Supervisor</strong><br>{{ doc.comentarios_supervisor }}</div>
+    {% endif %}
+    {% if doc.comentarios_socio %}
+      <div class="pta-box pta-comments" style="margin-top:8px;"><strong>Socio</strong><br>{{ doc.comentarios_socio }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>

@@ -1,0 +1,137 @@
+<style>
+  .rca-wrap { font-family: Arial, sans-serif; color: #0f172a; font-size: 12px; }
+  .rca-header { margin-bottom: 18px; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; }
+  .rca-title { margin: 0 0 4px; font-size: 24px; font-weight: 700; }
+  .rca-subtitle { margin: 0; color: #475569; }
+  .rca-grid { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .rca-grid td { padding: 6px 8px; border: 1px solid #dbe3ef; vertical-align: top; }
+  .rca-grid td.label { width: 18%; font-weight: 700; background: #f8fafc; color: #334155; }
+  .rca-section { margin-top: 18px; }
+  .rca-section h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .4px; color: #0f172a; }
+  .rca-box { border: 1px solid #dbe3ef; border-radius: 10px; padding: 10px 12px; background: #fff; }
+  .rca-pill { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; border: 1px solid #cbd5e1; margin-right: 6px; }
+  .rca-pill.estado { background: #eff6ff; color: #1d4ed8; }
+  .rca-pill.aprobacion { background: #ecfdf5; color: #047857; }
+  .rca-risk-grid { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .rca-risk-grid th, .rca-risk-grid td { border: 1px solid #dbe3ef; padding: 8px; vertical-align: top; }
+  .rca-risk-grid th { background: #f8fafc; text-align: left; font-size: 11px; text-transform: uppercase; color: #475569; }
+  .rca-comments { white-space: pre-wrap; }
+</style>
+<div class="rca-wrap">
+  <div class="rca-header">
+    <h1 class="rca-title">Matriz Riesgo-Control</h1>
+    <p class="rca-subtitle"><strong>{{ doc.codigo }}</strong></p>
+    <p class="rca-subtitle">
+      <span class="rca-pill estado">{{ doc.estado_evaluacion or "Planeado" }}</span>
+      <span class="rca-pill aprobacion">{{ doc.estado_aprobacion or "Borrador" }}</span>
+    </p>
+  </div>
+
+  <table class="rca-grid">
+    <tr>
+      <td class="label">Expediente</td>
+      <td>{{ doc.expediente_auditoria or "-" }}</td>
+      <td class="label">Encargo</td>
+      <td>{{ doc.encargo_contable or "-" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Cliente</td>
+      <td>{{ doc.cliente or "-" }}</td>
+      <td class="label">Periodo</td>
+      <td>{{ doc.periodo or "-" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Compania</td>
+      <td>{{ doc.company or "-" }}</td>
+      <td class="label">Papel Principal</td>
+      <td>{{ doc.papel_trabajo_principal or "-" }}</td>
+    </tr>
+  </table>
+
+  <div class="rca-section">
+    <h3>Contexto de Auditoria</h3>
+    <table class="rca-grid">
+      <tr>
+        <td class="label">Area</td>
+        <td>{{ doc.area_auditoria or "-" }}</td>
+        <td class="label">Proceso</td>
+        <td>{{ doc.proceso or "-" }}</td>
+      </tr>
+      <tr>
+        <td class="label">Afirmacion</td>
+        <td colspan="3">{{ doc.afirmacion or "-" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="rca-section">
+    <h3>Matriz Riesgo-Control</h3>
+    <table class="rca-risk-grid">
+      <thead>
+        <tr>
+          <th style="width: 26%;">Riesgo</th>
+          <th style="width: 26%;">Control Clave</th>
+          <th style="width: 16%;">Tipo / Frecuencia</th>
+          <th style="width: 16%;">Riesgo Inherente / Residual</th>
+          <th style="width: 16%;">Respuesta de Auditoria</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ doc.riesgo or "-" }}</td>
+          <td>{{ doc.control_clave or "-" }}</td>
+          <td>
+            <strong>Tipo:</strong> {{ doc.tipo_control or "-" }}<br>
+            <strong>Frecuencia:</strong> {{ doc.frecuencia_control or "-" }}
+          </td>
+          <td>
+            <strong>Inherente:</strong> {{ doc.riesgo_inherente or "-" }}<br>
+            <strong>Residual:</strong> {{ doc.riesgo_residual or "-" }}
+          </td>
+          <td>{{ doc.respuesta_auditoria or "-" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rca-section">
+    <h3>Procedimiento Planificado</h3>
+    <div class="rca-box">{{ doc.procedimiento_planificado or "Sin procedimiento documentado." }}</div>
+  </div>
+
+  <div class="rca-section">
+    <h3>Gobierno y Revision</h3>
+    <table class="rca-grid">
+      <tr>
+        <td class="label">Fecha Envio Revision</td>
+        <td>{{ frappe.format(doc.fecha_envio_revision, {"fieldtype": "Datetime"}) if doc.fecha_envio_revision else "-" }}</td>
+        <td class="label">Revision Supervisor</td>
+        <td>
+          {{ doc.revisado_por_supervisor or "-" }}<br>
+          {{ frappe.format(doc.fecha_revision_supervisor, {"fieldtype": "Datetime"}) if doc.fecha_revision_supervisor else "" }}
+        </td>
+      </tr>
+      <tr>
+        <td class="label">Aprobacion Socio</td>
+        <td>
+          {{ doc.aprobado_por_socio or "-" }}<br>
+          {{ frappe.format(doc.fecha_aprobacion_socio, {"fieldtype": "Datetime"}) if doc.fecha_aprobacion_socio else "" }}
+        </td>
+        <td class="label">Estado de Aprobacion</td>
+        <td>{{ doc.estado_aprobacion or "Borrador" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  {% if doc.comentarios_supervisor or doc.comentarios_socio %}
+  <div class="rca-section">
+    <h3>Comentarios de Revision</h3>
+    {% if doc.comentarios_supervisor %}
+      <div class="rca-box rca-comments"><strong>Supervisor</strong><br>{{ doc.comentarios_supervisor }}</div>
+    {% endif %}
+    {% if doc.comentarios_socio %}
+      <div class="rca-box rca-comments" style="margin-top:8px;"><strong>Socio</strong><br>{{ doc.comentarios_socio }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>

@@ -262,12 +262,7 @@
     ],
     "links": [
         {
-            "group": "Operacion",
-            "link_doctype": "Requerimiento Cliente",
-            "link_fieldname": "requerimiento_cliente"
-        },
-        {
-            "group": "Operacion",
+            "group": "Documentos",
             "link_doctype": "Documento Contable",
             "link_fieldname": "entregable_cliente"
         }

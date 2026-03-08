@@ -397,18 +397,7 @@
             "read_only": 1
         }
     ],
-    "links": [
-        {
-            "group": "Auditoria",
-            "link_doctype": "Expediente Auditoria",
-            "link_fieldname": "expediente_auditoria"
-        },
-        {
-            "group": "Auditoria",
-            "link_doctype": "Encargo Contable",
-            "link_fieldname": "encargo_contable"
-        }
-    ],
+    "links": [],
     "module": "Gestion Contable",
     "name": "Informe Final Auditoria",
     "naming_rule": "By fieldname",

@@ -348,18 +348,7 @@
             "label": "Observaciones Generales"
         }
     ],
-    "links": [
-        {
-            "group": "Auditoria",
-            "link_doctype": "Expediente Auditoria",
-            "link_fieldname": "expediente_auditoria"
-        },
-        {
-            "group": "Auditoria",
-            "link_doctype": "Informe Final Auditoria",
-            "link_fieldname": "dictamen_de_auditoria"
-        }
-    ],
+    "links": [],
     "module": "Gestion Contable",
     "name": "Paquete Estados Financieros Cliente",
     "naming_rule": "By fieldname",

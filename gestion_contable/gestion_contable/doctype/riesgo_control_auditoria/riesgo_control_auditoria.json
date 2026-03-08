@@ -253,11 +253,6 @@
     "links": [
         {
             "group": "Auditoria",
-            "link_doctype": "Expediente Auditoria",
-            "link_fieldname": "expediente_auditoria"
-        },
-        {
-            "group": "Auditoria",
             "link_doctype": "Papel Trabajo Auditoria",
             "link_fieldname": "riesgo_control_auditoria"
         },

@@ -249,23 +249,7 @@
             "permlevel": 2
         }
     ],
-    "links": [
-        {
-            "group": "Auditoria",
-            "link_doctype": "Expediente Auditoria",
-            "link_fieldname": "expediente_auditoria"
-        },
-        {
-            "group": "Auditoria",
-            "link_doctype": "Riesgo Control Auditoria",
-            "link_fieldname": "riesgo_control_auditoria"
-        },
-        {
-            "group": "Auditoria",
-            "link_doctype": "Papel Trabajo Auditoria",
-            "link_fieldname": "papel_trabajo_auditoria"
-        }
-    ],
+    "links": [],
     "modified": "2026-03-06 18:30:00.000000",
     "modified_by": "Administrator",
     "module": "Gestion Contable",

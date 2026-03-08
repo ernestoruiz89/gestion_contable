@@ -1,391 +1,386 @@
 {
-  "actions": [],
-  "allow_guest_to_view": 0,
-  "has_web_view": 0,
-  "is_published_field": "estado_requerimiento",
-  "creation": "2026-03-06 20:00:00.000000",
-  "doctype": "DocType",
-  "engine": "InnoDB",
-  "field_order": [
-    "nombre_del_requerimiento",
-    "cliente",
-    "company",
-    "encargo_contable",
-    "periodo",
-    "column_break_1",
-    "prioridad",
-    "canal_envio",
-    "indicador_modo_envio_correo",
-    "responsable_interno",
-    "workflow_section",
-    "estado_aprobacion",
-    "fecha_envio_revision",
-    "workflow_column_break",
-    "revisado_por_supervisor",
-    "fecha_revision_supervisor",
-    "workflow_column_break_2",
-    "aprobado_por_socio",
-    "fecha_aprobacion_socio",
-    "workflow_comments_section",
-    "comentarios_supervisor",
-    "comentarios_socio",
-    "section_estado",
-    "estado_requerimiento",
-    "fecha_solicitud",
-    "fecha_envio",
-    "fecha_vencimiento",
-    "fecha_cierre",
-    "fecha_ultimo_recordatorio_correo",
-    "fecha_ultimo_aviso_vencido_correo",
-    "contacto_cliente",
-    "section_descripcion",
-    "descripcion",
-    "instrucciones_cliente",
-    "section_resumen",
-    "total_entregables",
-    "entregables_recibidos",
-    "entregables_validados",
-    "column_break_resumen",
-    "entregables_vencidos",
-    "entregables_obligatorios_pendientes",
-    "porcentaje_cumplimiento"
-  ],
-  "fields": [
-    {
-      "fieldname": "nombre_del_requerimiento",
-      "fieldtype": "Data",
-      "label": "Nombre del Requerimiento",
-      "reqd": 1,
-      "read_only": 1,
-      "in_list_view": 1
-    },
-    {
-      "fieldname": "cliente",
-      "fieldtype": "Link",
-      "label": "Cliente",
-      "options": "Cliente Contable",
-      "reqd": 1,
-      "in_list_view": 1
-    },
-    {
-      "fieldname": "company",
-      "fieldtype": "Link",
-      "label": "Compania",
-      "options": "Company",
-      "in_list_view": 0
-    },
-    {
-      "fieldname": "encargo_contable",
-      "fieldtype": "Link",
-      "label": "Encargo Contable",
-      "options": "Encargo Contable",
-      "in_list_view": 1
-    },
-    {
-      "fieldname": "periodo",
-      "fieldtype": "Link",
-      "label": "Periodo",
-      "options": "Periodo Contable"
-    },
-    {
-      "fieldname": "column_break_1",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "prioridad",
-      "fieldtype": "Select",
-      "label": "Prioridad",
-      "options": "Baja\nMedia\nAlta\nCritica",
-      "default": "Media"
-    },
-    {
-      "fieldname": "canal_envio",
-      "fieldtype": "Select",
-      "label": "Canal Envio",
-      "options": "Correo\nPortal\nWhatsApp\nTelefono\nReunion\nOtro",
-      "default": "Correo"
-    },
-    {
-      "fieldname": "indicador_modo_envio_correo",
-      "fieldtype": "HTML",
-      "label": "Modo Envio Correo"
-    },
-    {
-      "fieldname": "responsable_interno",
-      "fieldtype": "Link",
-      "label": "Responsable Interno",
-      "options": "User"
-    },
-    {
-      "fieldname": "workflow_section",
-      "fieldtype": "Section Break",
-      "label": "Gobierno y Aprobacion"
-    },
-    {
-      "fieldname": "estado_aprobacion",
-      "fieldtype": "Select",
-      "label": "Estado de Aprobacion",
-      "options": "Borrador\nRevision Supervisor\nRevision Socio\nAprobado\nDevuelto",
-      "default": "Borrador",
-      "in_list_view": 1,
-      "read_only": 1
-    },
-    {
-      "fieldname": "fecha_envio_revision",
-      "fieldtype": "Datetime",
-      "label": "Fecha Envio Revision",
-      "read_only": 1
-    },
-    {
-      "fieldname": "workflow_column_break",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "revisado_por_supervisor",
-      "fieldtype": "Link",
-      "label": "Revisado por Supervisor",
-      "options": "User",
-      "read_only": 1,
-      "permlevel": 1
-    },
-    {
-      "fieldname": "fecha_revision_supervisor",
-      "fieldtype": "Datetime",
-      "label": "Fecha Revision Supervisor",
-      "read_only": 1,
-      "permlevel": 1
-    },
-    {
-      "fieldname": "workflow_column_break_2",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "aprobado_por_socio",
-      "fieldtype": "Link",
-      "label": "Aprobado por Socio",
-      "options": "User",
-      "read_only": 1,
-      "permlevel": 2
-    },
-    {
-      "fieldname": "fecha_aprobacion_socio",
-      "fieldtype": "Datetime",
-      "label": "Fecha Aprobacion Socio",
-      "read_only": 1,
-      "permlevel": 2
-    },
-    {
-      "fieldname": "workflow_comments_section",
-      "fieldtype": "Section Break",
-      "label": "Comentarios de Revision"
-    },
-    {
-      "fieldname": "comentarios_supervisor",
-      "fieldtype": "Small Text",
-      "label": "Comentarios Supervisor",
-      "permlevel": 1
-    },
-    {
-      "fieldname": "comentarios_socio",
-      "fieldtype": "Small Text",
-      "label": "Comentarios Socio",
-      "permlevel": 2
-    },
-    {
-      "fieldname": "section_estado",
-      "fieldtype": "Section Break",
-      "label": "Estado y Fechas"
-    },
-    {
-      "fieldname": "estado_requerimiento",
-      "fieldtype": "Select",
-      "label": "Estado Requerimiento",
-      "options": "Borrador\nEnviado\nParcial\nRecibido\nCerrado\nVencido\nCancelado",
-      "default": "Borrador",
-      "in_list_view": 1
-    },
-    {
-      "fieldname": "fecha_solicitud",
-      "fieldtype": "Date",
-      "label": "Fecha Solicitud",
-      "default": "Today"
-    },
-    {
-      "fieldname": "fecha_envio",
-      "fieldtype": "Datetime",
-      "label": "Fecha Envio",
-      "read_only": 1
-    },
-    {
-      "fieldname": "fecha_vencimiento",
-      "fieldtype": "Date",
-      "label": "Fecha Vencimiento"
-    },
-    {
-      "fieldname": "fecha_cierre",
-      "fieldtype": "Datetime",
-      "label": "Fecha Cierre",
-      "read_only": 1
-    },
-    {
-      "fieldname": "fecha_ultimo_recordatorio_correo",
-      "fieldtype": "Date",
-      "label": "Fecha Ultimo Recordatorio Correo",
-      "read_only": 1,
-      "hidden": 1
-    },
-    {
-      "fieldname": "fecha_ultimo_aviso_vencido_correo",
-      "fieldtype": "Date",
-      "label": "Fecha Ultimo Aviso Vencido Correo",
-      "read_only": 1,
-      "hidden": 1
-    },
-    {
-      "fieldname": "contacto_cliente",
-      "fieldtype": "Data",
-      "label": "Contacto Cliente"
-    },
-    {
-      "fieldname": "section_descripcion",
-      "fieldtype": "Section Break",
-      "label": "Detalle"
-    },
-    {
-      "fieldname": "descripcion",
-      "fieldtype": "Text Editor",
-      "label": "Descripcion"
-    },
-    {
-      "fieldname": "instrucciones_cliente",
-      "fieldtype": "Text Editor",
-      "label": "Instrucciones Cliente"
-    },
-    {
-      "fieldname": "section_resumen",
-      "fieldtype": "Section Break",
-      "label": "Resumen de Entregables"
-    },
-    {
-      "fieldname": "total_entregables",
-      "fieldtype": "Int",
-      "label": "Total Entregables",
-      "read_only": 1
-    },
-    {
-      "fieldname": "entregables_recibidos",
-      "fieldtype": "Int",
-      "label": "Entregables Recibidos",
-      "read_only": 1
-    },
-    {
-      "fieldname": "entregables_validados",
-      "fieldtype": "Int",
-      "label": "Entregables Validados",
-      "read_only": 1
-    },
-    {
-      "fieldname": "column_break_resumen",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "entregables_vencidos",
-      "fieldtype": "Int",
-      "label": "Entregables Vencidos",
-      "read_only": 1
-    },
-    {
-      "fieldname": "entregables_obligatorios_pendientes",
-      "fieldtype": "Int",
-      "label": "Obligatorios Pendientes",
-      "read_only": 1
-    },
-    {
-      "fieldname": "porcentaje_cumplimiento",
-      "fieldtype": "Percent",
-      "label": "Porcentaje Cumplimiento",
-      "read_only": 1
-    }
-  ],
-  "links": [
-    {
-      "group": "Operacion",
-      "link_doctype": "Entregable Cliente",
-      "link_fieldname": "requerimiento_cliente"
-    },
-    {
-      "group": "Operacion",
-      "link_doctype": "Encargo Contable",
-      "link_fieldname": "encargo_contable"
-    }
-  ],
-  "modified": "2026-03-07 16:25:00.000000",
-  "modified_by": "Administrator",
-  "module": "Gestion Contable",
-  "name": "Requerimiento Cliente",
-  "naming_rule": "By fieldname",
-  "autoname": "field:nombre_del_requerimiento",
-  "owner": "Administrator",
-  "permissions": [
-    {
-      "role": "System Manager",
-      "create": 1,
-      "read": 1,
-      "write": 1,
-      "delete": 1,
-      "report": 1,
-      "export": 1,
-      "email": 1,
-      "print": 1,
-      "share": 1
-    },
-    {
-      "role": "Contador del Despacho",
-      "create": 1,
-      "read": 1,
-      "write": 1,
-      "delete": 1,
-      "report": 1,
-      "export": 1,
-      "email": 1,
-      "print": 1,
-      "share": 1
-    },
-    {
-      "role": "Supervisor del Despacho",
-      "create": 1,
-      "read": 1,
-      "write": 1,
-      "delete": 1,
-      "report": 1,
-      "export": 1,
-      "email": 1,
-      "print": 1,
-      "share": 1
-    },
-    {
-      "role": "Socio del Despacho",
-      "create": 1,
-      "read": 1,
-      "write": 1,
-      "report": 1,
-      "export": 1,
-      "email": 1,
-      "print": 1,
-      "share": 1
-    },
-    {
-      "role": "Auxiliar Contable del Despacho",
-      "create": 1,
-      "read": 1,
-      "write": 1,
-      "report": 1,
-      "email": 1,
-      "print": 1,
-      "share": 1
-    }
-  ],
-  "sort_field": "modified",
-  "sort_order": "DESC",
-  "track_changes": 1
+    "actions": [],
+    "allow_guest_to_view": 0,
+    "has_web_view": 0,
+    "is_published_field": "estado_requerimiento",
+    "creation": "2026-03-06 20:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "nombre_del_requerimiento",
+        "cliente",
+        "company",
+        "encargo_contable",
+        "periodo",
+        "column_break_1",
+        "prioridad",
+        "canal_envio",
+        "indicador_modo_envio_correo",
+        "responsable_interno",
+        "workflow_section",
+        "estado_aprobacion",
+        "fecha_envio_revision",
+        "workflow_column_break",
+        "revisado_por_supervisor",
+        "fecha_revision_supervisor",
+        "workflow_column_break_2",
+        "aprobado_por_socio",
+        "fecha_aprobacion_socio",
+        "workflow_comments_section",
+        "comentarios_supervisor",
+        "comentarios_socio",
+        "section_estado",
+        "estado_requerimiento",
+        "fecha_solicitud",
+        "fecha_envio",
+        "fecha_vencimiento",
+        "fecha_cierre",
+        "fecha_ultimo_recordatorio_correo",
+        "fecha_ultimo_aviso_vencido_correo",
+        "contacto_cliente",
+        "section_descripcion",
+        "descripcion",
+        "instrucciones_cliente",
+        "section_resumen",
+        "total_entregables",
+        "entregables_recibidos",
+        "entregables_validados",
+        "column_break_resumen",
+        "entregables_vencidos",
+        "entregables_obligatorios_pendientes",
+        "porcentaje_cumplimiento"
+    ],
+    "fields": [
+        {
+            "fieldname": "nombre_del_requerimiento",
+            "fieldtype": "Data",
+            "label": "Nombre del Requerimiento",
+            "reqd": 1,
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company",
+            "in_list_view": 0
+        },
+        {
+            "fieldname": "encargo_contable",
+            "fieldtype": "Link",
+            "label": "Encargo Contable",
+            "options": "Encargo Contable",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "periodo",
+            "fieldtype": "Link",
+            "label": "Periodo",
+            "options": "Periodo Contable"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "prioridad",
+            "fieldtype": "Select",
+            "label": "Prioridad",
+            "options": "Baja\nMedia\nAlta\nCritica",
+            "default": "Media"
+        },
+        {
+            "fieldname": "canal_envio",
+            "fieldtype": "Select",
+            "label": "Canal Envio",
+            "options": "Correo\nPortal\nWhatsApp\nTelefono\nReunion\nOtro",
+            "default": "Correo"
+        },
+        {
+            "fieldname": "indicador_modo_envio_correo",
+            "fieldtype": "HTML",
+            "label": "Modo Envio Correo"
+        },
+        {
+            "fieldname": "responsable_interno",
+            "fieldtype": "Link",
+            "label": "Responsable Interno",
+            "options": "User"
+        },
+        {
+            "fieldname": "workflow_section",
+            "fieldtype": "Section Break",
+            "label": "Gobierno y Aprobacion"
+        },
+        {
+            "fieldname": "estado_aprobacion",
+            "fieldtype": "Select",
+            "label": "Estado de Aprobacion",
+            "options": "Borrador\nRevision Supervisor\nRevision Socio\nAprobado\nDevuelto",
+            "default": "Borrador",
+            "in_list_view": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_envio_revision",
+            "fieldtype": "Datetime",
+            "label": "Fecha Envio Revision",
+            "read_only": 1
+        },
+        {
+            "fieldname": "workflow_column_break",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "revisado_por_supervisor",
+            "fieldtype": "Link",
+            "label": "Revisado por Supervisor",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "fecha_revision_supervisor",
+            "fieldtype": "Datetime",
+            "label": "Fecha Revision Supervisor",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "workflow_column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "aprobado_por_socio",
+            "fieldtype": "Link",
+            "label": "Aprobado por Socio",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "fecha_aprobacion_socio",
+            "fieldtype": "Datetime",
+            "label": "Fecha Aprobacion Socio",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "workflow_comments_section",
+            "fieldtype": "Section Break",
+            "label": "Comentarios de Revision"
+        },
+        {
+            "fieldname": "comentarios_supervisor",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Supervisor",
+            "permlevel": 1
+        },
+        {
+            "fieldname": "comentarios_socio",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Socio",
+            "permlevel": 2
+        },
+        {
+            "fieldname": "section_estado",
+            "fieldtype": "Section Break",
+            "label": "Estado y Fechas"
+        },
+        {
+            "fieldname": "estado_requerimiento",
+            "fieldtype": "Select",
+            "label": "Estado Requerimiento",
+            "options": "Borrador\nEnviado\nParcial\nRecibido\nCerrado\nVencido\nCancelado",
+            "default": "Borrador",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "fecha_solicitud",
+            "fieldtype": "Date",
+            "label": "Fecha Solicitud",
+            "default": "Today"
+        },
+        {
+            "fieldname": "fecha_envio",
+            "fieldtype": "Datetime",
+            "label": "Fecha Envio",
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_vencimiento",
+            "fieldtype": "Date",
+            "label": "Fecha Vencimiento"
+        },
+        {
+            "fieldname": "fecha_cierre",
+            "fieldtype": "Datetime",
+            "label": "Fecha Cierre",
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_ultimo_recordatorio_correo",
+            "fieldtype": "Date",
+            "label": "Fecha Ultimo Recordatorio Correo",
+            "read_only": 1,
+            "hidden": 1
+        },
+        {
+            "fieldname": "fecha_ultimo_aviso_vencido_correo",
+            "fieldtype": "Date",
+            "label": "Fecha Ultimo Aviso Vencido Correo",
+            "read_only": 1,
+            "hidden": 1
+        },
+        {
+            "fieldname": "contacto_cliente",
+            "fieldtype": "Data",
+            "label": "Contacto Cliente"
+        },
+        {
+            "fieldname": "section_descripcion",
+            "fieldtype": "Section Break",
+            "label": "Detalle"
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Text Editor",
+            "label": "Descripcion"
+        },
+        {
+            "fieldname": "instrucciones_cliente",
+            "fieldtype": "Text Editor",
+            "label": "Instrucciones Cliente"
+        },
+        {
+            "fieldname": "section_resumen",
+            "fieldtype": "Section Break",
+            "label": "Resumen de Entregables"
+        },
+        {
+            "fieldname": "total_entregables",
+            "fieldtype": "Int",
+            "label": "Total Entregables",
+            "read_only": 1
+        },
+        {
+            "fieldname": "entregables_recibidos",
+            "fieldtype": "Int",
+            "label": "Entregables Recibidos",
+            "read_only": 1
+        },
+        {
+            "fieldname": "entregables_validados",
+            "fieldtype": "Int",
+            "label": "Entregables Validados",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_resumen",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "entregables_vencidos",
+            "fieldtype": "Int",
+            "label": "Entregables Vencidos",
+            "read_only": 1
+        },
+        {
+            "fieldname": "entregables_obligatorios_pendientes",
+            "fieldtype": "Int",
+            "label": "Obligatorios Pendientes",
+            "read_only": 1
+        },
+        {
+            "fieldname": "porcentaje_cumplimiento",
+            "fieldtype": "Percent",
+            "label": "Porcentaje Cumplimiento",
+            "read_only": 1
+        }
+    ],
+    "links": [
+        {
+            "group": "Portal Cliente",
+            "link_doctype": "Entregable Cliente",
+            "link_fieldname": "requerimiento_cliente"
+        }
+    ],
+    "modified": "2026-03-07 16:25:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Requerimiento Cliente",
+    "naming_rule": "By fieldname",
+    "autoname": "field:nombre_del_requerimiento",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Auxiliar Contable del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
 }
