@@ -512,18 +512,24 @@ def _resolve_demo_document_title(titulo, cliente, periodo, encargo_name=None, ta
     if not frappe.db.exists("Documento Contable", titulo):
         return None, titulo
 
-    suffix_parts = [cliente]
+    suffix_parts = []
     if periodo:
         suffix_parts.append(periodo)
     if task_name:
         suffix_parts.append(task_name)
     elif encargo_name:
-        suffix_parts.append(encargo_name)
+        suffix_parts.append(encargo_name[-12:])
     elif entregable_name:
-        suffix_parts.append(entregable_name)
+        suffix_parts.append(entregable_name[-12:])
+    else:
+        suffix_parts.append(cliente[:24])
+
     suffix = " | ".join(part for part in suffix_parts if part)
     unique_title = f"{titulo} | {suffix}" if suffix else f"{titulo} | demo"
-    return None, unique_title
+    if len(unique_title) > 140:
+        max_title_len = max(24, 140 - len(suffix) - 3)
+        unique_title = f"{titulo[:max_title_len].rstrip()} | {suffix}"
+    return None, unique_title[:140]
 
 
 def _create_internal_document(titulo, cliente, company, periodo, encargo_name=None, task_name=None, entregable_name=None, tipo="Otro", file_name=None, content=b"", prepared_by=None):
