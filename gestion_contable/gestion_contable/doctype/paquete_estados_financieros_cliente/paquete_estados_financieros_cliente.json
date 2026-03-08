@@ -350,11 +350,6 @@
     ],
     "links": [
         {
-            "group": "Cliente",
-            "link_doctype": "Cliente Contable",
-            "link_fieldname": "cliente"
-        },
-        {
             "group": "Auditoria",
             "link_doctype": "Expediente Auditoria",
             "link_fieldname": "expediente_auditoria"
