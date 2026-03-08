@@ -132,23 +132,33 @@ def get_required_note_numbers(package_name):
     if not frappe.db.exists("DocType", "Estado Financiero Cliente"):
         return required_numbers, missing_reference_rows
 
-    state_names = frappe.get_all(
+    states = frappe.get_all(
         "Estado Financiero Cliente",
         filters={"paquete_estados_financieros_cliente": package_name},
-        pluck="name",
+        fields=["name", "tipo_estado"],
         limit_page_length=200,
     )
-    for state_name in state_names:
-        state_doc = frappe.get_doc("Estado Financiero Cliente", state_name)
-        for row in state_doc.lineas or []:
-            if not cint(row.requiere_nota):
-                continue
-            note_number = normalize_note_number(row.numero_nota_referencial)
-            if note_number:
-                required_numbers.add(note_number)
-                continue
-            line_label = cstr(row.descripcion or row.codigo_rubro or _("Fila {0}").format(row.idx)).strip()
-            missing_reference_rows.append(f"{state_doc.tipo_estado}: {line_label}")
+    if not states:
+        return required_numbers, missing_reference_rows
+
+    state_map = {state.name: state.tipo_estado for state in states}
+
+    lines = frappe.get_all(
+        "Linea Estado Financiero Cliente",
+        filters={"parent": ["in", list(state_map.keys())], "parenttype": "Estado Financiero Cliente", "requiere_nota": 1},
+        fields=["parent", "numero_nota_referencial", "descripcion", "codigo_rubro", "idx"],
+        limit_page_length=5000,
+        order_by="idx asc"
+    )
+
+    for row in lines:
+        note_number = normalize_note_number(row.numero_nota_referencial)
+        if note_number:
+            required_numbers.add(note_number)
+            continue
+        line_label = cstr(row.descripcion or row.codigo_rubro or _("Fila {0}").format(row.idx)).strip()
+        missing_reference_rows.append(f"{state_map.get(row.parent, '')}: {line_label}")
+
     return required_numbers, missing_reference_rows
 
 
@@ -158,29 +168,40 @@ def get_note_line_references(package_name, note_number=None):
     if not note_number:
         return references
 
-    state_names = frappe.get_all(
+    states = frappe.get_all(
         "Estado Financiero Cliente",
         filters={"paquete_estados_financieros_cliente": package_name},
-        pluck="name",
+        fields=["name", "tipo_estado"],
         limit_page_length=200,
     )
-    for state_name in state_names:
-        state_doc = frappe.get_doc("Estado Financiero Cliente", state_name)
-        for row in state_doc.lineas or []:
-            if normalize_note_number(row.numero_nota_referencial) != note_number:
-                continue
-            references.append(
-                {
-                    "estado_financiero_cliente": state_doc.name,
-                    "tipo_estado": state_doc.tipo_estado,
-                    "numero_linea": cint(row.idx or 0),
-                    "codigo_rubro": row.codigo_rubro,
-                    "descripcion_linea_estado": cstr(row.descripcion or row.codigo_rubro or _("Fila {0}").format(row.idx)).strip(),
-                    "linea_estado_name": row.name,
-                    "tipo_referencia": "Principal",
-                    "obligatoria": 1,
-                }
-            )
+    if not states:
+        return references
+
+    state_map = {state.name: state.tipo_estado for state in states}
+
+    lines = frappe.get_all(
+        "Linea Estado Financiero Cliente",
+        filters={"parent": ["in", list(state_map.keys())], "parenttype": "Estado Financiero Cliente"},
+        fields=["name", "parent", "idx", "codigo_rubro", "descripcion", "numero_nota_referencial"],
+        limit_page_length=5000,
+        order_by="idx asc"
+    )
+
+    for row in lines:
+        if normalize_note_number(row.numero_nota_referencial) != note_number:
+            continue
+        references.append(
+            {
+                "estado_financiero_cliente": row.parent,
+                "tipo_estado": state_map.get(row.parent, ""),
+                "numero_linea": cint(row.idx or 0),
+                "codigo_rubro": row.codigo_rubro,
+                "descripcion_linea_estado": cstr(row.descripcion or row.codigo_rubro or _("Fila {0}").format(row.idx)).strip(),
+                "linea_estado_name": row.name,
+                "tipo_referencia": "Principal",
+                "obligatoria": 1,
+            }
+        )
     return references
 
 
