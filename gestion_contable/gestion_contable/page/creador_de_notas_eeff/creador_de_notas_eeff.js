@@ -81,6 +81,21 @@ class CreadorNotasEEFF {
     }
 
     render_shell() {
+        this.wrapper.html(`
+            <div class="cne-shell">
+                <aside class="cne-sidebar">
+                    <div class="cne-sidebar-head">
+                        <h3>Notas del paquete</h3>
+                        <p>La page edita la nota, pero el doctype sigue siendo la fuente de verdad.</p>
+                    </div>
+                    <div class="cne-note-list" data-role="note-list"></div>
+                </aside>
+                <section class="cne-main">
+                    <div data-role="editor"></div>
+                </section>
+            </div>
+        `);
+
         this.clientField = this.page.add_field({
             fieldtype: "Select",
             fieldname: "cliente",
@@ -102,21 +117,6 @@ class CreadorNotasEEFF {
             options: "\n",
             change: () => this.on_note_change(),
         });
-
-        this.wrapper.html(`
-            <div class="cne-shell">
-                <aside class="cne-sidebar">
-                    <div class="cne-sidebar-head">
-                        <h3>Notas del paquete</h3>
-                        <p>La page edita la nota, pero el doctype sigue siendo la fuente de verdad.</p>
-                    </div>
-                    <div class="cne-note-list" data-role="note-list"></div>
-                </aside>
-                <section class="cne-main">
-                    <div data-role="editor"></div>
-                </section>
-            </div>
-        `);
 
         this.$noteList = this.wrapper.find('[data-role="note-list"]');
         this.$editor = this.wrapper.find('[data-role="editor"]');
