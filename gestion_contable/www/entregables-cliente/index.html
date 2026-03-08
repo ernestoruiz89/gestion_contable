@@ -11,13 +11,20 @@
     <section class="gc-portal-hero">
         <div>
             <h1>Entregables del Cliente</h1>
-            <p>{{ cliente.customer }}{% if cliente.company_default %} ? {{ cliente.company_default }}{% endif %}</p>
+            <p>{{ cliente.customer }}{% if cliente.company_default %} | {{ cliente.company_default }}{% endif %}</p>
         </div>
         <div class="gc-portal-flags">
             <span>Pendientes: {{ summary.entregables_pendientes }}</span>
             <span>Vencidos: {{ summary.entregables_vencidos }}</span>
+            <span>Carga documental: {{ "Habilitada" if cliente.permite_carga_documentos else "Restringida" }}</span>
         </div>
     </section>
+
+    {% if upload_status %}
+    <div class="gc-alert {{ 'error' if upload_status == 'error' else 'success' }}">
+        {{ upload_message or ("Operacion completada" if upload_status == 'ok' else "No se pudo completar la operacion") }}
+    </div>
+    {% endif %}
 
     <article class="gc-card">
         <div class="gc-card-header">
@@ -36,11 +43,12 @@
                         <th>Compromiso</th>
                         <th>Recepcion</th>
                         <th>Documento</th>
+                        <th>Accion Portal</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for row in entregables %}
-                    <tr id="{{ row.name }}">
+                    <tr id="{{ row.name }}" class="{{ 'gc-row-highlight' if upload_target == row.name else '' }}">
                         <td>
                             <strong>{{ row.tipo_entregable or row.name }}</strong>
                             <div class="gc-subtle">{{ row.descripcion or row.name }}</div>
@@ -51,6 +59,39 @@
                         <td>{{ row.fecha_compromiso or "Sin fecha" }}</td>
                         <td>{{ row.fecha_recepcion or "Pendiente" }}</td>
                         <td>{{ row.documento_contable or "Sin documento" }}</td>
+                        <td>
+                            {% if row.portal_permite_carga %}
+                            <form class="gc-upload-form" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="entregable_name" value="{{ row.name }}">
+                                {% if row.version_documento_eeff %}
+                                <input type="hidden" name="version_documento_name" value="{{ row.version_documento_eeff }}">
+                                {% endif %}
+                                <input type="text" name="titulo_documento" placeholder="Titulo del documento" maxlength="140">
+                                <select name="tipo_documental">
+                                    <option value="">Tipo documental</option>
+                                    <option value="Factura">Factura</option>
+                                    <option value="Estado de Cuenta">Estado de Cuenta</option>
+                                    <option value="Declaracion">Declaracion</option>
+                                    <option value="Recibo">Recibo</option>
+                                    <option value="Contrato">Contrato</option>
+                                    <option value="Cedula de Auditoria">Cedula de Auditoria</option>
+                                    <option value="Correspondencia">Correspondencia</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                                <textarea name="observaciones" placeholder="Observaciones del cliente" rows="2"></textarea>
+                                <input type="file" name="archivo" required>
+                                {% if row.version_documento_eeff_label %}
+                                <div class="gc-subtle">Vinculado a {{ row.version_documento_eeff_label }}</div>
+                                {% endif %}
+                                <button type="submit">Cargar documento</button>
+                            </form>
+                            {% elif cliente.permite_carga_documentos %}
+                            <span class="gc-subtle">Sin carga disponible para este estado.</span>
+                            {% else %}
+                            <span class="gc-subtle">Carga no habilitada.</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -63,7 +104,7 @@
 </div>
 
 <style>
-.gc-portal-shell { max-width: 1180px; margin: 0 auto; padding: 24px 0 40px; }
+.gc-portal-shell { max-width: 1280px; margin: 0 auto; padding: 24px 0 40px; }
 .gc-portal-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
 .gc-portal-nav a { padding: 10px 14px; border: 1px solid #d7e0ea; border-radius: 999px; background: #fff; color: #1f2937; font-weight: 600; }
 .gc-portal-nav a.active { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
@@ -80,6 +121,13 @@
 .gc-table thead th { border-top: 0; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
 .gc-subtle { color: #64748b; font-size: 12px; margin-top: 4px; }
 .gc-empty { color: #64748b; margin: 0; }
+.gc-upload-form { display: grid; gap: 8px; min-width: 240px; }
+.gc-upload-form input[type="text"], .gc-upload-form select, .gc-upload-form textarea, .gc-upload-form input[type="file"] { width: 100%; padding: 8px 10px; border: 1px solid #d7e0ea; border-radius: 10px; font-size: 13px; background: #fff; }
+.gc-upload-form button { border: 0; border-radius: 10px; background: #1d4ed8; color: #fff; font-weight: 600; padding: 9px 12px; }
+.gc-alert { margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; font-weight: 600; }
+.gc-alert.success { background: #ecfdf5; border: 1px solid #86efac; color: #166534; }
+.gc-alert.error { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+.gc-row-highlight { background: #f8fbff; }
 @media (max-width: 860px) {
     .gc-portal-hero { flex-direction: column; }
 }

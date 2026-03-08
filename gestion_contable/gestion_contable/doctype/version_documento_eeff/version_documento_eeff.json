@@ -14,6 +14,9 @@
         "archivo_file",
         "nombre_archivo",
         "archivo_url",
+        "requerimiento_cliente",
+        "entregable_cliente",
+        "documento_revision_cliente",
         "fecha_envio_cliente",
         "fecha_revision_cliente",
         "hash_sha256",
@@ -81,6 +84,25 @@
             "fieldname": "archivo_url",
             "fieldtype": "Data",
             "label": "Archivo URL",
+            "read_only": 1
+        },
+        {
+            "fieldname": "requerimiento_cliente",
+            "fieldtype": "Link",
+            "label": "Requerimiento Cliente",
+            "options": "Requerimiento Cliente"
+        },
+        {
+            "fieldname": "entregable_cliente",
+            "fieldtype": "Link",
+            "label": "Entregable Cliente",
+            "options": "Entregable Cliente"
+        },
+        {
+            "fieldname": "documento_revision_cliente",
+            "fieldtype": "Link",
+            "label": "Documento Revision Cliente",
+            "options": "Documento Contable",
             "read_only": 1
         },
         {

@@ -211,6 +211,12 @@ class PaqueteEstadosFinancierosCliente(Document):
                 row.nombre_archivo = frappe.db.get_value("File", row.archivo_file, "file_name")
             if row.archivo_file and not row.archivo_url:
                 row.archivo_url = frappe.db.get_value("File", row.archivo_file, "file_url")
+            if row.entregable_cliente and frappe.db.exists("Entregable Cliente", row.entregable_cliente) and not row.requerimiento_cliente:
+                row.requerimiento_cliente = frappe.db.get_value("Entregable Cliente", row.entregable_cliente, "requerimiento_cliente")
+            if row.estado_documento in ("Enviado a Cliente", "Comentado por Cliente", "Aprobado por Cliente") and not row.fecha_envio_cliente:
+                row.fecha_envio_cliente = row.fecha_generacion
+            if row.estado_documento in ("Comentado por Cliente", "Aprobado por Cliente") and row.documento_revision_cliente and not row.fecha_revision_cliente:
+                row.fecha_revision_cliente = now_datetime()
             if row.estado_documento == "Reemplazado":
                 row.es_version_vigente = 0
             grouped.setdefault(row.tipo_documento, []).append(row)
@@ -238,6 +244,47 @@ class PaqueteEstadosFinancierosCliente(Document):
                 frappe.throw(_("El archivo vinculado en la version <b>{0}</b> no existe.").format(row.version_documento), title=_("Archivo Invalido"))
             if row.fecha_revision_cliente and not row.fecha_envio_cliente:
                 frappe.throw(_("No puedes registrar fecha de revision del cliente sin fecha de envio al cliente en la version <b>{0}</b>.").format(row.version_documento), title=_("Fechas Inconsistentes"))
+            if row.requerimiento_cliente:
+                requerimiento = frappe.db.get_value(
+                    "Requerimiento Cliente",
+                    row.requerimiento_cliente,
+                    ["cliente"],
+                    as_dict=True,
+                )
+                if not requerimiento:
+                    frappe.throw(_("El requerimiento vinculado en la version <b>{0}</b> no existe.").format(row.version_documento), title=_("Requerimiento Invalido"))
+                if requerimiento.cliente and requerimiento.cliente != self.cliente:
+                    frappe.throw(_("La version <b>{0}</b> referencia un requerimiento de otro cliente.").format(row.version_documento), title=_("Cliente Inconsistente"))
+            if row.entregable_cliente:
+                entregable = frappe.db.get_value(
+                    "Entregable Cliente",
+                    row.entregable_cliente,
+                    ["cliente", "requerimiento_cliente"],
+                    as_dict=True,
+                )
+                if not entregable:
+                    frappe.throw(_("El entregable vinculado en la version <b>{0}</b> no existe.").format(row.version_documento), title=_("Entregable Invalido"))
+                if entregable.cliente and entregable.cliente != self.cliente:
+                    frappe.throw(_("La version <b>{0}</b> referencia un entregable de otro cliente.").format(row.version_documento), title=_("Cliente Inconsistente"))
+                if row.requerimiento_cliente and entregable.requerimiento_cliente and row.requerimiento_cliente != entregable.requerimiento_cliente:
+                    frappe.throw(_("La version <b>{0}</b> tiene requerimiento y entregable inconsistentes.").format(row.version_documento), title=_("Intercambio Inconsistente"))
+            if row.documento_revision_cliente:
+                documento = frappe.db.get_value(
+                    "Documento Contable",
+                    row.documento_revision_cliente,
+                    ["cliente", "entregable_cliente"],
+                    as_dict=True,
+                )
+                if not documento:
+                    frappe.throw(_("El documento de revision del cliente en la version <b>{0}</b> no existe.").format(row.version_documento), title=_("Documento Invalido"))
+                if documento.cliente and documento.cliente != self.cliente:
+                    frappe.throw(_("La version <b>{0}</b> referencia un documento de otro cliente.").format(row.version_documento), title=_("Cliente Inconsistente"))
+                if row.entregable_cliente and documento.entregable_cliente and row.entregable_cliente != documento.entregable_cliente:
+                    frappe.throw(_("La version <b>{0}</b> no coincide con el entregable del documento de revision del cliente.").format(row.version_documento), title=_("Documento Inconsistente"))
+            if row.estado_documento in ("Enviado a Cliente", "Comentado por Cliente", "Aprobado por Cliente") and not row.fecha_envio_cliente:
+                frappe.throw(_("Debes indicar fecha de envio al cliente en la version <b>{0}</b>.").format(row.version_documento), title=_("Fecha Requerida"))
+            if row.estado_documento == "Comentado por Cliente" and not row.documento_revision_cliente:
+                frappe.throw(_("Debes vincular el documento devuelto por el cliente en la version <b>{0}</b> marcada como comentada.").format(row.version_documento), title=_("Documento Requerido"))
 
 
     def validar_versionado(self):
@@ -297,6 +344,82 @@ class PaqueteEstadosFinancierosCliente(Document):
         if self.tipo_paquete == "Auditado" and not self.dictamen_de_auditoria:
             frappe.throw(_("Un paquete auditado requiere vincular un Dictamen de Auditoria emitido."), title=_("Dictamen Requerido"))
         self.fecha_emision = self.fecha_emision or nowdate()
+
+
+def sincronizar_version_documento_eeff_con_intercambio_cliente(
+    *,
+    cliente,
+    requerimiento_cliente=None,
+    entregable_cliente=None,
+    documento_revision_cliente=None,
+    version_documento_name=None,
+    nuevo_estado=None,
+):
+    if not cliente or not frappe.db.exists("DocType", "Version Documento EEFF"):
+        return None
+
+    conditions = ["pkg.cliente = %(cliente)s", "row.tipo_documento = 'Word Revision Cliente'"]
+    values = {"cliente": cliente}
+    if version_documento_name:
+        conditions.append("row.name = %(version_documento_name)s")
+        values["version_documento_name"] = version_documento_name
+    elif entregable_cliente:
+        conditions.append("row.entregable_cliente = %(entregable_cliente)s")
+        values["entregable_cliente"] = entregable_cliente
+    elif requerimiento_cliente:
+        conditions.append("row.requerimiento_cliente = %(requerimiento_cliente)s")
+        values["requerimiento_cliente"] = requerimiento_cliente
+    else:
+        return None
+
+    row = frappe.db.sql(
+        f"""
+        SELECT row.name, row.requerimiento_cliente, row.entregable_cliente, row.version_documento, row.estado_documento
+        FROM `tabVersion Documento EEFF` row
+        INNER JOIN `tabPaquete Estados Financieros Cliente` pkg
+            ON pkg.name = row.parent
+        WHERE {' AND '.join(conditions)}
+          AND row.estado_documento != 'Reemplazado'
+        ORDER BY row.version_documento DESC, row.modified DESC
+        LIMIT 1
+        """,
+        values,
+        as_dict=True,
+    )
+    if not row:
+        return None
+
+    updates = {}
+    if requerimiento_cliente:
+        updates["requerimiento_cliente"] = requerimiento_cliente
+    if entregable_cliente:
+        updates["entregable_cliente"] = entregable_cliente
+    if documento_revision_cliente:
+        updates["documento_revision_cliente"] = documento_revision_cliente
+    if nuevo_estado:
+        updates["estado_documento"] = nuevo_estado
+    if (nuevo_estado or row[0].get("estado_documento")) in ("Enviado a Cliente", "Comentado por Cliente", "Aprobado por Cliente"):
+        updates.setdefault("fecha_envio_cliente", now_datetime())
+    if (nuevo_estado or row[0].get("estado_documento")) in ("Comentado por Cliente", "Aprobado por Cliente"):
+        updates["fecha_revision_cliente"] = now_datetime()
+
+    if updates:
+        frappe.db.set_value("Version Documento EEFF", row[0].name, updates, update_modified=False)
+
+    return frappe.db.get_value(
+        "Version Documento EEFF",
+        row[0].name,
+        [
+            "name",
+            "requerimiento_cliente",
+            "entregable_cliente",
+            "documento_revision_cliente",
+            "estado_documento",
+            "fecha_envio_cliente",
+            "fecha_revision_cliente",
+        ],
+        as_dict=True,
+    )
 
 
 @frappe.whitelist()

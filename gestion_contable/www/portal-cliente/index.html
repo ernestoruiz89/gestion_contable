@@ -11,7 +11,7 @@
     <section class="gc-portal-hero">
         <div>
             <h1>Portal Cliente</h1>
-            <p>{{ cliente.customer }}{% if cliente.company_default %} ? {{ cliente.company_default }}{% endif %}</p>
+            <p>{{ cliente.customer }}{% if cliente.company_default %} | {{ cliente.company_default }}{% endif %}</p>
         </div>
         <div class="gc-portal-flags">
             <span>Portal: {{ "Activo" if cliente.portal_habilitado else "Inactivo" }}</span>
@@ -38,7 +38,7 @@
                     <li>
                         <div>
                             <strong>{{ row.nombre_del_requerimiento or row.name }}</strong>
-                            <div>{{ row.periodo or "Sin periodo" }}{% if row.company %} ? {{ row.company }}{% endif %}</div>
+                            <div>{{ row.periodo or "Sin periodo" }}{% if row.company %} | {{ row.company }}{% endif %}</div>
                         </div>
                         <div class="gc-meta">
                             <span>{{ row.estado_requerimiento }}</span>
@@ -64,10 +64,16 @@
                         <div>
                             <strong>{{ row.tipo_entregable or row.name }}</strong>
                             <div>{{ row.descripcion or row.requerimiento_cliente }}</div>
+                            {% if row.version_documento_eeff_label %}
+                            <div class="gc-tag">{{ row.version_documento_eeff_label }}</div>
+                            {% endif %}
                         </div>
                         <div class="gc-meta">
                             <span>{{ row.estado_entregable }}</span>
                             <span>{{ row.fecha_compromiso or "Sin fecha" }}</span>
+                            {% if row.portal_permite_carga %}
+                            <a href="/entregables-cliente#{{ row.name }}">Cargar archivo</a>
+                            {% endif %}
                         </div>
                     </li>
                     {% endfor %}
@@ -87,7 +93,7 @@
                     <li>
                         <div>
                             <strong>{{ row.titulo_del_documento }}</strong>
-                            <div>{{ row.tipo or "Documento" }}{% if row.periodo %} ? {{ row.periodo }}{% endif %}</div>
+                            <div>{{ row.tipo or "Documento" }}{% if row.periodo %} | {{ row.periodo }}{% endif %}</div>
                         </div>
                         <div class="gc-meta">
                             {% if row.archivo_adjunto %}
@@ -112,7 +118,7 @@
                     <li>
                         <div>
                             <strong>{{ row.subject or "Comunicacion" }}</strong>
-                            <div>{{ row.sender_full_name or "Despacho" }} ? {{ row.creation }}</div>
+                            <div>{{ row.sender_full_name or "Despacho" }} | {{ row.creation }}</div>
                         </div>
                         <div class="gc-meta">
                             <span>{{ row.reference_name }}</span>
@@ -153,6 +159,7 @@
 .gc-list div { color: #475569; font-size: 13px; }
 .gc-meta { display: flex; flex-direction: column; align-items: end; gap: 6px; white-space: nowrap; }
 .gc-empty { color: #64748b; margin: 0; }
+.gc-tag { display: inline-block; margin-top: 6px; padding: 4px 8px; border-radius: 999px; background: #eff6ff; color: #1d4ed8; font-size: 11px; font-weight: 600; }
 @media (max-width: 860px) {
     .gc-portal-hero { flex-direction: column; }
     .gc-portal-stats, .gc-portal-grid { grid-template-columns: 1fr; }

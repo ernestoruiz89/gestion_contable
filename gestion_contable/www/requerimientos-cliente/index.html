@@ -11,7 +11,7 @@
     <section class="gc-portal-hero">
         <div>
             <h1>Requerimientos del Cliente</h1>
-            <p>{{ cliente.customer }}{% if cliente.company_default %} ? {{ cliente.company_default }}{% endif %}</p>
+            <p>{{ cliente.customer }}{% if cliente.company_default %} | {{ cliente.company_default }}{% endif %}</p>
         </div>
         <div class="gc-portal-flags">
             <span>Abiertos: {{ summary.requerimientos_abiertos }}</span>

@@ -1,3 +1,4 @@
+import importlib.util
 import os
 
 import frappe
@@ -25,6 +26,11 @@ REQUIRED_DOCTYPES = (
     "Informe Final Auditoria",
     "Hallazgo Auditoria",
     "Papel Trabajo Auditoria",
+    "Paquete Estados Financieros Cliente",
+    "Estado Financiero Cliente",
+    "Nota Estado Financiero",
+    "Ajuste Estados Financieros Cliente",
+    "Version Documento EEFF",
 )
 REQUIRED_REPORTS = (
     "Cartera Gerencial por Encargo",
@@ -50,9 +56,19 @@ REQUIRED_PRINT_FORMATS = (
     "Informe de Control Interno - Auditoria",
     "Procedimientos Acordados - Auditoria",
     "Dictamen de Auditoria",
+    "Paquete Estados Financieros Cliente - Completo",
+    "Paquete Estados Financieros Cliente - Notas Consolidadas",
+    "Estado Financiero Cliente - Situacion Financiera",
+    "Estado Financiero Cliente - Resultados",
+    "Estado Financiero Cliente - Cambios en el Patrimonio",
+    "Estado Financiero Cliente - Flujos de Efectivo",
+    "Nota Estado Financiero - Individual",
+    "Informe Completo de EEFF Auditados",
+)
+OPTIONAL_DEPENDENCIES = (
+    ("docx", "python-docx"),
 )
 PATCHES_TO_REVIEW = (
-    "gestion_contable.gestion_contable.patches.migrate_tarea_contable_to_task",
     "gestion_contable.gestion_contable.patches.scope_periodo_contable_por_cliente_y_company_v1",
     "gestion_contable.gestion_contable.patches.refresh_encargo_financial_snapshots_v1",
     "gestion_contable.gestion_contable.patches.migrate_documento_contable_evidencias_v1",
@@ -122,9 +138,9 @@ UAT_SECTIONS = (
             },
             {
                 "id": "uat-portal-02",
-                "title": "Correo manual/automatico configurable",
-                "steps": "Cambiar configuracion de envio y probar requerimiento y cobranza con canal Correo.",
-                "expected": "El indicador del formulario coincide con la configuracion y el envio respeta modo manual o automatico.",
+                "title": "Carga documental desde portal",
+                "steps": "Subir un archivo desde Entregables del Cliente contra un entregable abierto.",
+                "expected": "Se crea Documento Contable, el entregable pasa a Recibido y queda Communication asociada al requerimiento.",
             },
         ),
     },
@@ -146,6 +162,23 @@ UAT_SECTIONS = (
         ),
     },
     {
+        "title": "Estados Financieros del Cliente",
+        "items": (
+            {
+                "id": "uat-eeff-01",
+                "title": "Paquete completo y notas",
+                "steps": "Crear paquete, registrar los cuatro estados base, notas requeridas y emitir el paquete.",
+                "expected": "El paquete valida estados, notas y cuadraturas antes de pasar a Emitido.",
+            },
+            {
+                "id": "uat-eeff-02",
+                "title": "Versiones Word y entrega al cliente",
+                "steps": "Generar Word de revision, vincularlo al intercambio con cliente y subir una respuesta desde portal.",
+                "expected": "La Version Documento EEFF queda ligada al requerimiento/entregable y registra comentario o aprobacion del cliente.",
+            },
+        ),
+    },
+    {
         "title": "Gobierno y Compliance",
         "items": (
             {
@@ -156,9 +189,9 @@ UAT_SECTIONS = (
             },
             {
                 "id": "uat-gob-02",
-                "title": "Retencion documental",
-                "steps": "Intentar eliminar un documento con retencion activa y revisar alertas diarias.",
-                "expected": "El borrado se bloquea y las alertas de retencion se generan segun politica configurada.",
+                "title": "Retencion documental y artefactos auditados",
+                "steps": "Intentar eliminar un documento con retencion activa y validar impresion/exportacion final solo cuando corresponda.",
+                "expected": "El borrado se bloquea segun politica y la documentacion auditada solo se emite bajo estados formales validos.",
             },
         ),
     },
@@ -182,6 +215,7 @@ def get_release_readiness():
         _check_portal_routes(),
         _check_print_formats(),
         _check_email_templates(),
+        _check_optional_dependencies(),
         _check_patches(),
     ]
     return {
@@ -195,6 +229,7 @@ def get_release_readiness():
         ],
         "notes": [
             "Esta vista valida estructura y configuracion minima; no sustituye la ejecucion real de UAT en el sitio.",
+            "La exportacion Word requiere la dependencia opcional python-docx instalada en el entorno del sitio.",
             "La configuracion dummy se mantiene habilitable por feature flag y no forma parte de esta salida a produccion.",
         ],
     }
@@ -244,6 +279,16 @@ def _check_email_templates():
         name = definition["name"]
         items.append(_presence_check("Email Template", name, frappe.db.exists("Email Template", name)))
     return _group("Email Templates", items)
+
+
+def _check_optional_dependencies():
+    items = []
+    for module_name, display_name in OPTIONAL_DEPENDENCIES:
+        installed = importlib.util.find_spec(module_name) is not None
+        message = "Instalada" if installed else "Dependencia opcional no instalada"
+        status = "pass" if installed else "warn"
+        items.append(_status_check("Optional Dependency", display_name, status, message))
+    return _group("Dependencias Opcionales", items)
 
 
 def _check_patches():

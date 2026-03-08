@@ -1,3 +1,8 @@
+"""Patch historico de migracion Tarea Contable -> Task.
+
+No reutilizar manualmente fuera de migraciones de sitios legacy. En instalaciones limpias debe comportarse como no-op.
+"""
+
 import json
 
 import frappe
@@ -117,12 +122,13 @@ TASK_CUSTOM_FIELDS = (
         "read_only": 1,
     },
 )
-LEGACY_PENDING_REVIEW_MOJIBAKE = "En Revisión".encode("utf-8").decode("latin-1")
+LEGACY_PENDING_REVIEW_LABEL = "En Revisi?n"
+LEGACY_PENDING_REVIEW_MOJIBAKE = LEGACY_PENDING_REVIEW_LABEL.encode("utf-8").decode("latin-1")
 LEGACY_STATUS_MAP = {
     "Pendiente": "Open",
     "En Proceso": "Working",
-    "En Revisión": "Pending Review",
-    # Compatibilidad con sitios legacy donde el estado quedó guardado con mojibake.
+    LEGACY_PENDING_REVIEW_LABEL: "Pending Review",
+    # Patch historico: mantener este alias solo para migrar sitios viejos con datos corruptos.
     LEGACY_PENDING_REVIEW_MOJIBAKE: "Pending Review",
     "Completada": "Completed",
     "Descartada": "Cancelled",
