@@ -855,7 +855,7 @@ def _create_and_emit_audit_reports(expediente_name, opinion):
         {"estado_aprobacion": "Aprobado", "estado_emision": "Emitido"},
         update_modified=False,
     )
-    updates = {"tipo_opinion": opinion, "estado_aprobacion": "Aprobado"}
+    updates = {"tipo_opinion": opinion, "estado_aprobacion": "Aprobado", "base_normativa": "NIA 700" if opinion == "Favorable" else "NIA 705"}
     if opinion != "Favorable":
         updates["asunto_que_origina_modificacion"] = "Persisten diferencias materiales no corregidas en cuentas del periodo."
         updates["fundamento_salvedad"] = "La administracion decidio no registrar un ajuste material recomendado por la firma."
