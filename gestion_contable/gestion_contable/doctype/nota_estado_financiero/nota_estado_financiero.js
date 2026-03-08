@@ -29,13 +29,13 @@ function refresh_workflow_comment_fields(frm) {
     const state = frm.doc.estado_aprobacion || "Borrador";
     const supervisorEditable = state === "Revision Supervisor";
     const socioEditable = state === "Revision Socio";
-    const showSupervisor = supervisorEditable || Boolean((frm.doc.comentarios_supervisor || "").trim());
-    const showSocio = socioEditable || Boolean((frm.doc.comentarios_socio || "").trim());
 
-    frm.set_df_property("comentarios_supervisor", "hidden", !showSupervisor);
+    frm.set_df_property("comentarios_supervisor", "hidden", false);
     frm.set_df_property("comentarios_supervisor", "read_only", !supervisorEditable);
-    frm.set_df_property("comentarios_socio", "hidden", !showSocio);
+    frm.set_df_property("comentarios_supervisor", "reqd", supervisorEditable);
+    frm.set_df_property("comentarios_socio", "hidden", false);
     frm.set_df_property("comentarios_socio", "read_only", !socioEditable);
+    frm.set_df_property("comentarios_socio", "reqd", socioEditable);
 }
 
 function get_sections(frm) {
