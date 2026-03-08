@@ -273,6 +273,6 @@ def _set_if_available(doc, fieldname, value):
 
 def _save_doc(doc):
     if doc.is_new():
-        doc.insert(ignore_permissions=True)
+        doc.insert(ignore_permissions=True, ignore_links=True)
         return
     doc.save(ignore_permissions=True)
