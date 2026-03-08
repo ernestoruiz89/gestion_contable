@@ -30,6 +30,9 @@ class CreadorNotasEEFF {
             route_options: {},
         };
         this.setting_filters = false;
+        this.loading_bootstrap = false;
+        this.last_bootstrap_key = null;
+        this.pending_bootstrap_args = null;
     }
 
     init() {
@@ -149,13 +152,20 @@ class CreadorNotasEEFF {
             return;
         }
         this.load_bootstrap({ note_name: noteName });
-    }    load_bootstrap(overrides = {}) {
+    }
+
+    load_bootstrap(overrides = {}) {
         const route = this.state.route_options || {};
         const args = {
             package_name: overrides.package_name !== undefined ? overrides.package_name : (route.package_name || this.packageField.get_value() || null),
             note_name: overrides.note_name !== undefined ? overrides.note_name : (route.note_name || this.noteField.get_value() || null),
         };
+        const bootstrapKey = JSON.stringify(args);
         this.state.route_options = {};
+
+        if (this.loading_bootstrap) return;
+        if (bootstrapKey === this.last_bootstrap_key) return;
+        this.loading_bootstrap = true;
 
         frappe.call({
             method: "gestion_contable.gestion_contable.page.creador_de_notas_eeff.creador_de_notas_eeff.get_editor_bootstrap",
@@ -172,8 +182,17 @@ class CreadorNotasEEFF {
                 this.sync_filter_options();
                 this.render_notes();
                 this.render_editor();
+                this.last_bootstrap_key = bootstrapKey;
                 if (!this.state.note && !args.note_name && this.state.notes.length) {
-                    this.load_bootstrap({ note_name: this.state.notes[0].name });
+                    this.pending_bootstrap_args = { note_name: this.state.notes[0].name };
+                }
+            },
+            always: () => {
+                this.loading_bootstrap = false;
+                if (this.pending_bootstrap_args) {
+                    const pending = this.pending_bootstrap_args;
+                    this.pending_bootstrap_args = null;
+                    this.load_bootstrap(pending);
                 }
             },
         });
@@ -189,7 +208,12 @@ class CreadorNotasEEFF {
     set_select_options(field, rows, selectedValue) {
         field.df.options = [""].concat((rows || []).map((row) => row.value)).join("\n");
         field.refresh();
-        field.set_value(selectedValue || "");
+        const safeValue = selectedValue || "";
+        field.value = safeValue;
+        field.last_value = safeValue;
+        if (field.$input) {
+            field.$input.val(safeValue);
+        }
     }
 
     open_create_note_dialog() {
@@ -254,6 +278,9 @@ class CreadorNotasEEFF {
                 this.render_notes();
                 this.render_editor();
                 frappe.show_alert({ indicator: "green", message: __("Nota guardada") });
+            },
+            always: () => {
+                this.loading_bootstrap = false;
             },
         });
     }
@@ -342,7 +369,9 @@ class CreadorNotasEEFF {
                 <div class="cne-help">Las celdas manuales sobrescriben los calculos. Para formulas usa codigos con <code>+</code> y <code>-</code>, por ejemplo <code>+COM,+CONS,-PROV</code>. Si una celda queda vacia, vuelve a mostrarse el valor calculado.</div>
             </div>
         `;
-    }    render_columns_editor(sectionId) {
+    }
+
+    render_columns_editor(sectionId) {
         const rows = this.get_columns(sectionId);
         return `
             <div class="cne-card">
