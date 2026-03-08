@@ -917,9 +917,16 @@ def _create_adjustment(package_name, expediente_name, encargo_name, client_name,
     return doc.name
 
 
+def _build_eeff_version_filename(package_name, version_label):
+    safe_name = (package_name or "eeff").lower().replace(" ", "-")
+    safe_name = "".join(ch for ch in safe_name if ch.isalnum() or ch in "-_")
+    safe_name = safe_name[:70].strip("-_") or "eeff"
+    return f"{DEMO_FILE_PREFIX}-{safe_name}-{version_label}.txt"
+
+
 def _append_word_version(package_name, requerimiento_name, entregable_name):
     package = frappe.get_doc("Paquete Estados Financieros Cliente", package_name)
-    file_doc = save_file(f"{DEMO_FILE_PREFIX}-{package.name.lower().replace(' ', '-')}-v1.txt", _txt_payload(f"Word revision {package.name}", ["Version 1 para revision del cliente."]), "Paquete Estados Financieros Cliente", package.name, is_private=1)
+    file_doc = save_file(_build_eeff_version_filename(package.name, "v1"), _txt_payload(f"Word revision {package.name}", ["Version 1 para revision del cliente."]), "Paquete Estados Financieros Cliente", package.name, is_private=1)
     package.append("versiones_documento_eeff", {"tipo_documento": "Word Revision Cliente", "version_documento": 1, "estado_documento": "Enviado a Cliente", "es_version_vigente": 1, "archivo_file": file_doc.name, "archivo_url": file_doc.file_url, "nombre_archivo": file_doc.file_name, "hash_sha256": _hash_bytes(_read_file_bytes(file_doc)), "requerimiento_cliente": requerimiento_name, "entregable_cliente": entregable_name, "fecha_generacion": now_datetime(), "fecha_envio_cliente": now_datetime(), "generado_por": frappe.session.user})
     package.flags.ignore_governance_validation = True
     package.save(ignore_permissions=True)
@@ -932,7 +939,7 @@ def _append_client_approved_word_version(package_name, requerimiento_name, entre
     for row in previous_rows:
         row.estado_documento = "Reemplazado" if row.estado_documento == "Generado" else row.estado_documento
         row.es_version_vigente = 0
-    file_doc = save_file(f"{DEMO_FILE_PREFIX}-{package.name.lower().replace(' ', '-')}-v2.txt", _txt_payload(f"Word aprobado {package.name}", ["Version 2 aprobada por cliente."]), "Paquete Estados Financieros Cliente", package.name, is_private=1)
+    file_doc = save_file(_build_eeff_version_filename(package.name, "v2"), _txt_payload(f"Word aprobado {package.name}", ["Version 2 aprobada por cliente."]), "Paquete Estados Financieros Cliente", package.name, is_private=1)
     package.append("versiones_documento_eeff", {"tipo_documento": "Word Revision Cliente", "version_documento": 2, "estado_documento": "Aprobado por Cliente", "es_version_vigente": 1, "archivo_file": file_doc.name, "archivo_url": file_doc.file_url, "nombre_archivo": file_doc.file_name, "hash_sha256": _hash_bytes(_read_file_bytes(file_doc)), "requerimiento_cliente": requerimiento_name, "entregable_cliente": entregable_name, "documento_revision_cliente": documento_revision_cliente, "fecha_generacion": now_datetime(), "fecha_envio_cliente": now_datetime(), "fecha_revision_cliente": now_datetime(), "generado_por": frappe.session.user})
     package.flags.ignore_governance_validation = True
     package.save(ignore_permissions=True)
