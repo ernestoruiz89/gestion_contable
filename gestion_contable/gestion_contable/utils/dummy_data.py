@@ -782,7 +782,7 @@ def _create_expediente(encargo_name, socio_email, supervisor_email, estado_exped
     existing = frappe.db.get_value("Expediente Auditoria", {"encargo_contable": encargo_name}, "name")
     if existing:
         return existing
-    doc = frappe.get_doc({"doctype": "Expediente Auditoria", "encargo_contable": encargo_name, "socio_a_cargo": socio_email, "supervisor_a_cargo": supervisor_email, "base_normativa": "NIA", "estado_expediente": estado_expediente, "objetivo_auditoria": "Emitir conclusion sobre la razonabilidad de los EEFF del cliente.", "alcance_auditoria": "Revision integral de saldos, revelaciones y controles relevantes.", "materialidad_monetaria": 25000, "enfoque_auditoria": "Enfoque combinado de controles y sustantivo.", "estrategia_muestreo": "Muestreo dirigido por riesgo.", "memorando_planeacion": f"{DEMO_PREFIX} Planeacion inicial del expediente."})
+    doc = frappe.get_doc({"doctype": "Expediente Auditoria", "encargo_contable": encargo_name, "socio_a_cargo": socio_email, "supervisor_a_cargo": supervisor_email, "base_normativa": "NIA", "estado_expediente": estado_expediente, "objetivo_auditoria": "Emitir conclusion sobre la razonabilidad de los EEFF del cliente.", "alcance_auditoria": "Revision integral de saldos, revelaciones y controles relevantes.", "materialidad_monetaria": 25000, "enfoque_auditoria": "Mixto", "estrategia_muestreo": "Muestreo dirigido por riesgo y pruebas selectivas por materialidad.", "memorando_planeacion": f"{DEMO_PREFIX} Planeacion inicial del expediente con enfoque combinado de controles y pruebas sustantivas."})
     _insert_demo_doc(doc)
     return doc.name
 
