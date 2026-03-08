@@ -23,40 +23,7 @@ frappe.ui.form.on("Nota Estado Financiero", {
             frm.add_custom_button(__("Editar Celdas"), () => open_edit_cells_dialog(frm), __("Tabla Compleja"));
         }
     },
-
-    async before_workflow_action(frm) {
-        if (frm.selected_workflow_action !== "Devolver") {
-            return;
-        }
-
-        const completed = await prompt_return_comment_if_needed(frm);
-        if (!completed) {
-            frappe.throw(__("Debes indicar comentarios para devolver la nota a los estados financieros del cliente."));
-        }
-    },
 });
-
-function getReturnCommentConfig(frm) {
-    if (frm.doc.estado_aprobacion === "Revision Supervisor") {
-        return {
-            fieldname: "comentarios_supervisor",
-            title: __("Comentarios del Supervisor"),
-            label: __("Comentarios para devolver"),
-            description: __("Indica los ajustes requeridos antes de devolver la nota al preparador."),
-        };
-    }
-
-    if (frm.doc.estado_aprobacion === "Revision Socio") {
-        return {
-            fieldname: "comentarios_socio",
-            title: __("Comentarios del Socio"),
-            label: __("Comentarios para devolver"),
-            description: __("Indica los ajustes requeridos antes de devolver la nota al supervisor o preparador."),
-        };
-    }
-
-    return null;
-}
 
 function refresh_workflow_comment_fields(frm) {
     const state = frm.doc.estado_aprobacion || "Borrador";
@@ -69,70 +36,6 @@ function refresh_workflow_comment_fields(frm) {
     frm.set_df_property("comentarios_supervisor", "read_only", !supervisorEditable);
     frm.set_df_property("comentarios_socio", "hidden", !showSocio);
     frm.set_df_property("comentarios_socio", "read_only", !socioEditable);
-}
-
-function prompt_return_comment_if_needed(frm) {
-    const config = getReturnCommentConfig(frm);
-    if (!config) {
-        return Promise.resolve(true);
-    }
-
-    const existing = (frm.doc[config.fieldname] || "").trim();
-    if (existing) {
-        return Promise.resolve(true);
-    }
-
-    return new Promise((resolve) => {
-        let resolved = false;
-        const dialog = new frappe.ui.Dialog({
-            title: config.title,
-            fields: [
-                {
-                    fieldname: "help_html",
-                    fieldtype: "HTML",
-                    options: `<div style="padding-bottom:8px;color:#475569;">${config.description}</div>`,
-                },
-                {
-                    fieldname: "comentario",
-                    fieldtype: "Small Text",
-                    label: config.label,
-                    reqd: 1,
-                },
-            ],
-            primary_action_label: __("Guardar Comentario"),
-            async primary_action(values) {
-                const comment = (values.comentario || "").trim();
-                if (!comment) {
-                    frappe.msgprint(__("Debes indicar comentarios antes de devolver."));
-                    return;
-                }
-
-                await frm.set_value(config.fieldname, comment);
-                frm.refresh_field(config.fieldname);
-                resolved = true;
-                dialog.hide();
-                resolve(true);
-            },
-            secondary_action_label: __("Cancelar"),
-            secondary_action() {
-                resolved = true;
-                dialog.hide();
-                resolve(false);
-            },
-        });
-
-        const originalOnHide = dialog.onhide;
-        dialog.onhide = () => {
-            if (originalOnHide) {
-                originalOnHide();
-            }
-            if (!resolved) {
-                resolve(false);
-            }
-        };
-
-        dialog.show();
-    });
 }
 
 function get_sections(frm) {
