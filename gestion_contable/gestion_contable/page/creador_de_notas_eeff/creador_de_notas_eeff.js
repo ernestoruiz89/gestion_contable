@@ -123,11 +123,16 @@ class CreadorNotasEEFF {
     }
 
     ensure_filter_bar_visible() {
-        const $pageForm = $(this.page.wrapper).find('.page-form');
-        if ($pageForm.length) {
-            $pageForm.removeClass('hide hidden d-none').show();
-            $pageForm.css({ display: 'flex', flexWrap: 'wrap', gap: '8px' });
-        }
+        const show = () => {
+            const $pageForm = $(this.page.wrapper).find('.page-form');
+            if ($pageForm.length) {
+                $pageForm.removeClass('hide hidden d-none');
+                $pageForm.attr('style', 'display: flex !important; flex-wrap: wrap; gap: 8px; align-items: flex-end; padding: 12px 15px;');
+            }
+        };
+        show();
+        setTimeout(show, 0);
+        setTimeout(show, 200);
     }
 
     bind_events() {
@@ -495,10 +500,10 @@ class CreadorNotasEEFF {
                                             ${this.truthy(row.calculo_automatico) ? '<span class="cne-pill">fx fila</span>' : ''}
                                         </td>
                                         ${columns.map((column) => {
-                                            const cell = matrix[`${row.codigo_fila}::${column.codigo_columna}`] || { value: "", is_manual: false, is_computed: false };
-                                            const value = cell.value === null || cell.value === undefined ? "" : String(cell.value);
-                                            return `<td><input class="cne-matrix-input ${cell.is_computed && !cell.is_manual ? "computed" : ""}" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}" data-type="${this.escape(column.tipo_dato || "Numero")}" value="${this.escape(value)}"></td>`;
-                                        }).join("")}
+            const cell = matrix[`${row.codigo_fila}::${column.codigo_columna}`] || { value: "", is_manual: false, is_computed: false };
+            const value = cell.value === null || cell.value === undefined ? "" : String(cell.value);
+            return `<td><input class="cne-matrix-input ${cell.is_computed && !cell.is_manual ? "computed" : ""}" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}" data-type="${this.escape(column.tipo_dato || "Numero")}" value="${this.escape(value)}"></td>`;
+        }).join("")}
                                     </tr>
                                 `).join("")}
                             </tbody>
@@ -542,7 +547,7 @@ class CreadorNotasEEFF {
     get_current_section() { return (this.get_doc()?.secciones_estructuradas || []).find((row) => row.seccion_id === this.state.current_section_id) || null; }
     get_columns(sectionId) { return (this.get_doc()?.columnas_tabulares || []).filter((row) => row.seccion_id === sectionId).sort((a, b) => this.as_int(a.orden) - this.as_int(b.orden)); }
     get_rows(sectionId) { return (this.get_doc()?.filas_tabulares || []).filter((row) => row.seccion_id === sectionId).sort((a, b) => this.as_int(a.orden) - this.as_int(b.orden)); }
-    get_cells(sectionId) { return (this.get_doc()?.celdas_tabulares || []).filter((row) => row.seccion_id === sectionId); }    ensure_current_section() {
+    get_cells(sectionId) { return (this.get_doc()?.celdas_tabulares || []).filter((row) => row.seccion_id === sectionId); } ensure_current_section() {
         const sections = this.get_sections();
         if (!sections.length) { this.state.current_section_id = null; return; }
         if (!sections.find((row) => row.seccion_id === this.state.current_section_id)) {
@@ -695,7 +700,7 @@ class CreadorNotasEEFF {
             row[fieldname] = value;
         }
         this.render_matrix_only();
-    }    update_matrix_cell(event) {
+    } update_matrix_cell(event) {
         const doc = this.get_doc();
         const section = this.get_current_section();
         if (!doc || !section) return;
