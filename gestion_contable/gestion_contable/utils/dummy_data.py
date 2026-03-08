@@ -149,7 +149,7 @@ def clear_demo_dataset(status_callback=None, commit=True):
 def _load_context():
     company = get_default_company() or frappe.db.get_value("Company", {}, "name")
     if not company:
-        frappe.throw(_("No existe una Company configurada. Crea o define una compania antes de generar la data demo."), title=_("Compania Requerida"))
+        frappe.throw(_("No existe una Company configurada. Crea o define una compa??a antes de generar la data demo."), title=_("Compania Requerida"))
     currency = frappe.db.get_value("Company", company, "default_currency") or "USD"
     customer_group = frappe.db.get_value("Customer Group", {"is_group": 0}, "name") or "Commercial"
     territory = frappe.db.get_value("Territory", {"is_group": 0}, "name") or "All Territories"
@@ -175,22 +175,22 @@ def _ensure_service_catalog(ctx):
     for service_type, data in SERVICE_CATALOG.items():
         hours_item = _ensure_item(data["hours_item"], f"{data['service_name']} - Horas", ctx, is_stock=False)
         fixed_item = _ensure_item(data["fixed_item"], f"{data['service_name']} - Honorario", ctx, is_stock=False)
-        if not frappe.db.exists("Servicio Contable", data["service_name"]):
-            frappe.get_doc(
-                {
-                    "doctype": "Servicio Contable",
-                    "nombre_del_servicio": data["service_name"],
-                    "tipo_de_servicio": service_type,
-                    "item_horas": hours_item,
-                    "item_honorario_fijo": fixed_item,
-                    "company": ctx["company"],
-                    "moneda": ctx["currency"],
-                    "tarifa_hora": data["tarifa_hora"],
-                    "honorario_fijo": data["honorario_fijo"],
-                    "costo_interno_hora": data["costo_interno_hora"],
-                    "descripcion": f"Servicio demo para {service_type.lower()}.",
-                }
-            ).insert(ignore_permissions=True)
+        payload = {
+            "nombre_del_servicio": data["service_name"],
+            "tipo_de_servicio": service_type,
+            "item_horas": hours_item,
+            "item_honorario_fijo": fixed_item,
+            "company": ctx["company"],
+            "moneda": ctx["currency"],
+            "tarifa_hora": data["tarifa_hora"],
+            "honorario_fijo": data["honorario_fijo"],
+            "costo_interno_hora": data["costo_interno_hora"],
+            "descripcion": f"Servicio demo para {service_type.lower()}.",
+        }
+        if frappe.db.exists("Servicio Contable", data["service_name"]):
+            frappe.db.set_value("Servicio Contable", data["service_name"], payload, update_modified=False)
+        else:
+            frappe.get_doc({"doctype": "Servicio Contable", **payload}).insert(ignore_permissions=True)
         services[service_type] = data["service_name"]
     return services
 
