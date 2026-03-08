@@ -883,8 +883,23 @@ def _seed_eeff_package(ctx, client_code, encargo_name, expediente_name, period_n
         frappe.get_doc("Paquete Estados Financieros Cliente", package.name).save(ignore_permissions=True)
     return package.name, version_name
 
+def _short_state_code(state_type):
+    return {
+        "Estado de Situacion Financiera": "ESF",
+        "Estado de Resultados": "ER",
+        "Estado de Cambios en el Patrimonio": "ECP",
+        "Estado de Flujos de Efectivo": "EFE",
+        "Otro Estado Complementario": "OEC",
+    }.get(state_type, "EEFF")
+
+
+def _build_demo_state_name(package_name, state_type):
+    package_suffix = (package_name or "PAQ")[-28:]
+    return f"{_short_state_code(state_type)} - {package_suffix}"[:140]
+
+
 def _create_financial_state(package_name, state_type, lines, approved):
-    doc = frappe.get_doc({"doctype": "Estado Financiero Cliente", "paquete_estados_financieros_cliente": package_name, "tipo_estado": state_type, "estado_aprobacion": "Aprobado" if approved else "Borrador", "lineas": lines})
+    doc = frappe.get_doc({"doctype": "Estado Financiero Cliente", "nombre_del_estado": _build_demo_state_name(package_name, state_type), "paquete_estados_financieros_cliente": package_name, "tipo_estado": state_type, "estado_aprobacion": "Aprobado" if approved else "Borrador", "lineas": lines})
     _insert_demo_doc(doc, target_estado_aprobacion=doc.estado_aprobacion)
     return doc.name
 
