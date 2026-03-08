@@ -1,5 +1,5 @@
 <style>
-  .icea-wrap, .icea-wrap * { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #000000; font-size: 12pt; line-height: 1.25; }
+  .icea-wrap, .icea-wrap * { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important; color: #000000 !important; font-size: 12pt; line-height: 1.25; }
   .icea-cover { border: 2px solid #000000; padding: 36px 32px; margin-bottom: 28px; page-break-after: always; min-height: 920px; position: relative; }
   .icea-cover-kicker { font-size: 11pt; letter-spacing: 1.8px; text-transform: uppercase; color: #000000; margin-bottom: 38px; }
   .icea-cover h1 { margin: 0 0 10px; font-size: 24pt; line-height: 1.2; }
@@ -213,7 +213,10 @@
               </tr>
             </thead>
             <tbody>
+              {% set ns = namespace(total_actual=0, total_comparativo=0) %}
               {% for cifra in nota_doc.cifras_nota %}
+                {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
+                {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
                 <tr>
                   <td>{{ cifra.concepto or "-" }}</td>
                   <td>{{ cifra.subconcepto or "-" }}</td>
@@ -222,6 +225,13 @@
                   <td>{{ cifra.comentario or "-" }}</td>
                 </tr>
               {% endfor %}
+              <tr class="icea-row-total">
+                <td>Total</td>
+                <td>-</td>
+                <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
+                <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
+                <td>-</td>
+              </tr>
             </tbody>
           </table>
         {% endif %}

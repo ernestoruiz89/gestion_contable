@@ -1,5 +1,5 @@
 <style>
-  .efc-wrap, .efc-wrap * { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif; color: #000000; font-size: 12pt; line-height: 1.25; }
+  .efc-wrap, .efc-wrap * { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important; color: #000000 !important; font-size: 12pt; line-height: 1.25; }
   .efc-head { border-bottom: 2px solid #000000; padding-bottom: 10px; margin-bottom: 18px; }
   .efc-head h1 { margin: 0; font-size: 18pt; }
   .efc-head p { margin: 4px 0 0; color: #000000; font-size: 11pt; }
@@ -128,7 +128,10 @@
                   </tr>
                 </thead>
                 <tbody>
+                  {% set ns = namespace(total_actual=0, total_comparativo=0) %}
                   {% for cifra in nota_doc.cifras_nota %}
+                    {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
+                    {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
                     <tr>
                       <td>{{ cifra.concepto }}{% if cifra.subconcepto %} - {{ cifra.subconcepto }}{% endif %}</td>
                       <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
@@ -136,6 +139,12 @@
                       <td>{{ cifra.comentario or "-" }}</td>
                     </tr>
                   {% endfor %}
+                  <tr class="efc-row-total">
+                    <td>Total</td>
+                    <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
+                    <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
+                    <td>-</td>
+                  </tr>
                 </tbody>
               </table>
             {% endif %}
