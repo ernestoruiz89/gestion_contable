@@ -451,12 +451,14 @@ def _create_encargo(cliente, contract_name, service_name, periodo_name, company,
     existing = frappe.db.get_value("Encargo Contable", {"cliente": cliente, "periodo_referencia": periodo_name, "servicio_contable": service_name}, "name")
     if existing:
         return existing
+    service_type = frappe.db.get_value("Servicio Contable", service_name, "tipo_de_servicio")
     doc = frappe.get_doc(
         {
             "doctype": "Encargo Contable",
             "cliente": cliente,
             "contrato_comercial": contract_name,
             "servicio_contable": service_name,
+            "tipo_de_servicio": service_type,
             "estado": estado,
             "estado_aprobacion": "Aprobado",
             "fecha_de_inicio": start_date,
