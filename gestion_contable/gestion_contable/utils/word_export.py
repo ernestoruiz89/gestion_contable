@@ -5,7 +5,7 @@ from html import unescape
 
 import frappe
 from frappe import _
-from frappe.utils import cstr, now_datetime
+from frappe.utils import cint, cstr, now_datetime
 
 REPORT_TITLE = "Informe Completo de EEFF Auditados"
 
