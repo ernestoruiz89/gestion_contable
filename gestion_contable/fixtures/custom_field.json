@@ -68,19 +68,9 @@
     {
         "doctype": "Custom Field",
         "dt": "Task",
-        "fieldname": "company",
-        "fieldtype": "Link",
-        "insert_after": "cliente",
-        "label": "Compania",
-        "name": "Task-company",
-        "options": "Company"
-    },
-    {
-        "doctype": "Custom Field",
-        "dt": "Task",
         "fieldname": "encargo_contable",
         "fieldtype": "Link",
-        "insert_after": "company",
+        "insert_after": "cliente",
         "label": "Encargo Contable",
         "name": "Task-encargo_contable",
         "options": "Encargo Contable"
