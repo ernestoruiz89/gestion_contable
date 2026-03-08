@@ -52,7 +52,7 @@ def _ensure_page_access():
 
 
 @frappe.whitelist()
-def get_editor_bootstrap(note_name=None, package_name=None):
+def get_editor_bootstrap(note_name=None, package_name=None, cliente=None):
     _ensure_page_access()
 
     note_doc = None
@@ -61,12 +61,19 @@ def get_editor_bootstrap(note_name=None, package_name=None):
             frappe.throw(_("La nota indicada no existe."), title=_("Nota Invalida"))
         note_doc = frappe.get_doc("Nota Estado Financiero", note_name)
         package_name = note_doc.paquete_estados_financieros_cliente
+        cliente = note_doc.cliente
 
-    packages = _get_packages()
+    if package_name and not cliente:
+        cliente = frappe.db.get_value("Paquete Estados Financieros Cliente", package_name, "cliente")
+
+    clients = _get_clients()
+    packages = _get_packages(cliente) if cliente else []
     notes = _get_notes(package_name) if package_name else []
 
     return {
+        "cliente": cliente,
         "package_name": package_name,
+        "clients": clients,
         "packages": packages,
         "notes": notes,
         "note": _serialize_note(note_doc) if note_doc else None,
@@ -91,9 +98,13 @@ def create_note_for_editor(package_name, numero_nota, titulo=None, categoria_not
         }
     )
     doc.insert()
+    cliente = frappe.db.get_value("Paquete Estados Financieros Cliente", package_name, "cliente")
     return {
+        "cliente": cliente,
         "note": _serialize_note(doc),
         "notes": _get_notes(package_name),
+        "packages": _get_packages(cliente),
+        "clients": _get_clients(),
         "package_name": package_name,
     }
 
@@ -115,8 +126,11 @@ def save_note_editor(note_payload):
     doc.reload()
 
     return {
+        "cliente": doc.cliente,
         "note": _serialize_note(doc),
         "notes": _get_notes(doc.paquete_estados_financieros_cliente),
+        "packages": _get_packages(doc.cliente),
+        "clients": _get_clients(),
         "package_name": doc.paquete_estados_financieros_cliente,
     }
 
@@ -127,11 +141,26 @@ def get_package_notes(package_name):
     return _get_notes(package_name)
 
 
-def _get_packages():
+def _get_clients():
+    rows = frappe.get_all(
+        "Paquete Estados Financieros Cliente",
+        fields=["cliente"],
+        filters={"cliente": ["is", "set"]},
+        distinct=True,
+        order_by="cliente asc",
+        limit_page_length=500,
+    )
+    return [{"value": row.cliente, "label": row.cliente} for row in rows if row.cliente]
+
+
+def _get_packages(cliente=None):
+    if not cliente:
+        return []
     rows = frappe.get_all(
         "Paquete Estados Financieros Cliente",
         fields=["name", "cliente", "periodo_contable", "version", "estado_preparacion", "estado_aprobacion", "modified"],
-        order_by="modified desc",
+        filters={"cliente": cliente},
+        order_by="periodo_contable desc, modified desc",
         limit_page_length=500,
     )
     return [

@@ -35,9 +35,36 @@ class TestCreadorDeNotasEEFF(GestionContableIntegrationTestCase):
         ).insert(ignore_permissions=True)
         self.track_doc("Nota Estado Financiero", self.nota.name)
 
+    def test_bootstrap_solo_lista_clientes_sin_contexto(self):
+        data = get_editor_bootstrap()
+        self.assertIsNone(data["cliente"])
+        self.assertEqual(data["packages"], [])
+        self.assertEqual(data["notes"], [])
+        self.assertTrue(any(row["value"] == self.cliente.name for row in data["clients"]))
+
+    def test_bootstrap_filtra_paquetes_por_cliente(self):
+        otro_cliente = self.create_cliente("TEST-CREADOR-EEFF-OTRO")
+        otro_periodo = self.create_periodo(otro_cliente.name, mes="Diciembre")
+        otro_paquete = frappe.get_doc(
+            {
+                "doctype": "Paquete Estados Financieros Cliente",
+                "cliente": otro_cliente.name,
+                "periodo_contable": otro_periodo.name,
+                "fecha_corte": "2026-12-31",
+                "version": 1,
+                "es_version_vigente": 1,
+            }
+        ).insert(ignore_permissions=True)
+        self.track_doc("Paquete Estados Financieros Cliente", otro_paquete.name)
+
+        data = get_editor_bootstrap(cliente=self.cliente.name)
+        self.assertEqual(data["cliente"], self.cliente.name)
+        self.assertEqual([row["value"] for row in data["packages"]], [self.paquete.name])
+
     def test_bootstrap_carga_nota_y_paquete(self):
         data = get_editor_bootstrap(note_name=self.nota.name)
         self.assertEqual(data["package_name"], self.paquete.name)
+        self.assertEqual(data["cliente"], self.cliente.name)
         self.assertEqual(data["note"]["doc"]["name"], self.nota.name)
         self.assertTrue(any(row["name"] == self.nota.name for row in data["notes"]))
 

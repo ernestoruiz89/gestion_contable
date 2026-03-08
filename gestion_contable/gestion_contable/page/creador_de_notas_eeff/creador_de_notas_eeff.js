@@ -22,7 +22,9 @@ class CreadorNotasEEFF {
         this.page = page;
         this.wrapper = page.main;
         this.state = {
+            cliente: null,
             package_name: null,
+            clients: [],
             packages: [],
             notes: [],
             note: null,
@@ -74,6 +76,13 @@ class CreadorNotasEEFF {
     }
 
     render_shell() {
+        this.clientField = this.page.add_field({
+            fieldtype: "Select",
+            fieldname: "cliente",
+            label: __("Cliente"),
+            options: "\n",
+            change: () => this.on_client_change(),
+        });
         this.packageField = this.page.add_field({
             fieldtype: "Select",
             fieldname: "package_name",
@@ -138,9 +147,14 @@ class CreadorNotasEEFF {
         this.wrapper.on("change", ".cne-matrix-input", (event) => this.update_matrix_cell(event));
     }
 
+    on_client_change() {
+        if (this.setting_filters) return;
+        this.load_bootstrap({ cliente: this.clientField.get_value() || null, package_name: null, note_name: null });
+    }
+
     on_package_change() {
         if (this.setting_filters) return;
-        this.load_bootstrap({ package_name: this.packageField.get_value() || null, note_name: null });
+        this.load_bootstrap({ cliente: this.clientField.get_value() || null, package_name: this.packageField.get_value() || null, note_name: null });
     }
 
     on_note_change() {
@@ -157,6 +171,7 @@ class CreadorNotasEEFF {
     load_bootstrap(overrides = {}) {
         const route = this.state.route_options || {};
         const args = {
+            cliente: overrides.cliente !== undefined ? overrides.cliente : (route.cliente || this.clientField.get_value() || null),
             package_name: overrides.package_name !== undefined ? overrides.package_name : (route.package_name || this.packageField.get_value() || null),
             note_name: overrides.note_name !== undefined ? overrides.note_name : (route.note_name || this.noteField.get_value() || null),
         };
@@ -174,7 +189,9 @@ class CreadorNotasEEFF {
             freeze_message: __("Cargando creador de notas..."),
             callback: (r) => {
                 const data = r.message || {};
+                this.state.cliente = data.cliente || args.cliente || null;
                 this.state.package_name = data.package_name || args.package_name || null;
+                this.state.clients = data.clients || [];
                 this.state.packages = data.packages || [];
                 this.state.notes = data.notes || [];
                 this.state.note = data.note || null;
@@ -200,6 +217,7 @@ class CreadorNotasEEFF {
 
     sync_filter_options() {
         this.setting_filters = true;
+        this.set_select_options(this.clientField, (this.state.clients || []).map((row) => ({ value: row.value, label: row.label })), this.state.cliente);
         this.set_select_options(this.packageField, this.state.packages.map((row) => ({ value: row.value, label: row.label })), this.state.package_name);
         this.set_select_options(this.noteField, this.state.notes.map((row) => ({ value: row.name, label: row.label })), this.get_doc()?.name || "");
         this.setting_filters = false;
@@ -242,7 +260,10 @@ class CreadorNotasEEFF {
                     freeze: true,
                     callback: (r) => {
                         const data = r.message || {};
+                        this.state.cliente = data.cliente || this.state.cliente;
                         this.state.package_name = data.package_name || packageName;
+                        this.state.clients = data.clients || this.state.clients || [];
+                        this.state.packages = data.packages || this.state.packages || [];
                         this.state.notes = data.notes || [];
                         this.state.note = data.note || null;
                         this.ensure_current_section();
@@ -270,7 +291,10 @@ class CreadorNotasEEFF {
             freeze_message: __("Guardando nota..."),
             callback: (r) => {
                 const data = r.message || {};
+                this.state.cliente = data.cliente || this.state.cliente;
                 this.state.package_name = data.package_name || this.state.package_name;
+                this.state.clients = data.clients || this.state.clients || [];
+                this.state.packages = data.packages || this.state.packages || [];
                 this.state.notes = data.notes || [];
                 this.state.note = data.note || null;
                 this.ensure_current_section();
@@ -302,7 +326,9 @@ class CreadorNotasEEFF {
     render_editor() {
         const doc = this.get_doc();
         if (!doc) {
-            this.$editor.html('<div class="cne-empty">Selecciona una nota para editarla desde esta vista. El doctype sigue siendo el respaldo y la fuente de verdad.</div>');
+            const hasClient = !!this.state.cliente;
+            const emptyMessage = !hasClient ? 'Selecciona primero un cliente para cargar sus paquetes y notas.' : 'Selecciona un paquete y una nota para editarla desde esta vista.';
+            this.$editor.html(`<div class="cne-empty">${emptyMessage}<br>El doctype sigue siendo el respaldo y la fuente de verdad.</div>`);
             return;
         }
         this.ensure_current_section();
