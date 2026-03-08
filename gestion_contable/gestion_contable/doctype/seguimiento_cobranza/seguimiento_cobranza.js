@@ -1,4 +1,4 @@
-﻿frappe.ui.form.on("Seguimiento Cobranza", {
+frappe.ui.form.on("Seguimiento Cobranza", {
     refresh(frm) {
         frm.set_query("sales_invoice", () => ({
             filters: {

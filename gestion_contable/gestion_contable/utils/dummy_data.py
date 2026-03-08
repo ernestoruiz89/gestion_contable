@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import hashlib
 import json
@@ -80,6 +80,16 @@ SPANISH_MONTHS = {
     10: "Octubre",
     11: "Noviembre",
     12: "Diciembre",
+}
+
+
+TASK_TYPE_ALIASES = {
+    "Cierre mensual": "Cierre Contable",
+    "Cierre Mensual": "Cierre Contable",
+    "Cierre contable": "Cierre Contable",
+    "Auditoria": "Auditoría",
+    "Declaracion DGI": "Declaración DGI",
+    "Consultoria": "Consultoría",
 }
 
 
@@ -467,10 +477,16 @@ def _create_encargo(cliente, contract_name, service_name, periodo_name, company,
     return doc.name
 
 
+def _normalize_task_type(tipo_de_tarea):
+    if not tipo_de_tarea:
+        return None
+    return TASK_TYPE_ALIASES.get(tipo_de_tarea, tipo_de_tarea)
+
+
 def _create_task(subject, cliente, company, periodo, encargo_name, status, assigned_to, due_date, description, tipo_de_tarea=None):
     task = frappe.get_doc({"doctype": "Task", "subject": subject, "status": status, "cliente": cliente, "company": company, "periodo": periodo, "encargo_contable": encargo_name, "exp_end_date": due_date, "description": description})
     if tipo_de_tarea and _task_has_field("tipo_de_tarea"):
-        task.tipo_de_tarea = tipo_de_tarea
+        task.tipo_de_tarea = _normalize_task_type(tipo_de_tarea)
     task.flags.ignore_governance_validation = True
     task.insert(ignore_permissions=True)
     frappe.db.set_value("Task", task.name, "_assign", json.dumps([assigned_to]), update_modified=False)
