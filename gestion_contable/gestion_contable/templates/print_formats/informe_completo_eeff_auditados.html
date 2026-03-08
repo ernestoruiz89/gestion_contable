@@ -21,8 +21,6 @@
   .icea-line-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
   .icea-note { margin-top: 18px; page-break-inside: avoid; }
   .icea-note h4 { margin: 0 0 6px; font-size: 13pt; }
-  .icea-ref-list { margin: 6px 0 0 16px; padding: 0; }
-  .icea-ref-list li { margin-bottom: 4px; }
   .icea-small { font-size: 11pt; color: #000000; }
   .icea-sign { margin-top: 42px; }
   .icea-delivery { margin-top: 30px; page-break-before: always; }
@@ -186,21 +184,8 @@
       {% set structured_sections = nota_doc.get_structured_sections() %}
       <div class="icea-note">
         <h4>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h4>
-        <div class="icea-small">Categoria: {{ nota_doc.categoria_nota or "-" }} | Estado: {{ nota_doc.estado_aprobacion or "-" }} | Referencias: {{ nota_doc.total_referencias or 0 }}</div>
-        {% if nota_doc.referencias_cruzadas %}
-          <ul class="icea-ref-list">
-            {% for ref in nota_doc.referencias_cruzadas %}
-              <li>{{ ref.tipo_estado or "Estado" }}{% if ref.codigo_rubro %} | {{ ref.codigo_rubro }}{% endif %}{% if ref.descripcion_linea_estado %} | {{ ref.descripcion_linea_estado }}{% endif %}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        {% if nota_doc.politica_contable %}
-          <div style="margin-top: 8px;"><strong>Politica contable</strong></div>
-          <div>{{ nota_doc.politica_contable | safe }}</div>
-        {% endif %}
         {% if nota_doc.contenido_narrativo %}
-          <div style="margin-top: 8px;"><strong>Contenido narrativo</strong></div>
-          <div>{{ nota_doc.contenido_narrativo | safe }}</div>
+          <div style="margin-top: 8px;">{{ nota_doc.contenido_narrativo | safe }}</div>
         {% endif %}
         {% if nota_doc.cifras_nota %}
           <table class="icea-table">
@@ -238,11 +223,8 @@
           {% for section in structured_sections %}
             <div style="margin-top: 10px;">
               <div style="font-weight: 700; margin-bottom: 6px;">{{ section.titulo_seccion }}</div>
-              {% if section.contenido_narrativo %}
-                <div style="margin-bottom: 8px;">{{ section.contenido_narrativo | safe }}</div>
-              {% endif %}
               {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
-                <table class="icea-table">
+                <table class="icea-table{% if section.columnas|length > 5 %} icea-table-compact{% endif %}">
                   <thead>
                     {% if section.tiene_grupos_columnas %}
                       <tr>
@@ -298,8 +280,17 @@
                   </tbody>
                 </table>
               {% endif %}
+              {% if section.contenido_narrativo %}
+                <div style="margin-top: 8px;">{{ section.contenido_narrativo | safe }}</div>
+              {% endif %}
             </div>
           {% endfor %}
+        {% endif %}
+        {% if nota_doc.observaciones_preparacion %}
+          <div style="margin-top: 10px;">
+            <strong>Observaciones</strong>
+            <div>{{ nota_doc.observaciones_preparacion }}</div>
+          </div>
         {% endif %}
       </div>
     {% else %}
