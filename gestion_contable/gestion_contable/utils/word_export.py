@@ -33,8 +33,7 @@ def export_audited_financial_package_to_word(package_name):
 
     from frappe.utils.file_manager import save_file
 
-    safe_name = _sanitize_filename(package.name)
-    file_name = f"{REPORT_TITLE} - {safe_name}.docx"
+    file_name = _build_word_export_filename(package.name)
     file_doc = save_file(file_name, content, "Paquete Estados Financieros Cliente", package.name, is_private=1)
     version_info = _register_package_document_version(
         package.name,
@@ -375,6 +374,14 @@ def _fmt_number(value):
         return f"{float(value):,.2f}"
     except Exception:
         return cstr(value)
+
+
+def _build_word_export_filename(package_name):
+    safe_name = _sanitize_filename(package_name)
+    base_name = f"{REPORT_TITLE} - {safe_name}" if safe_name else REPORT_TITLE
+    max_base_length = 135 - len(".docx")
+    base_name = base_name[:max_base_length].rstrip(" -_")
+    return f"{base_name}.docx"
 
 
 def _sanitize_filename(value):
