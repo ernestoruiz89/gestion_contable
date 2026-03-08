@@ -135,8 +135,27 @@ def ensure_native_workflows():
         return
 
     _ensure_workflow_states()
+    _ensure_workflow_actions()
     for definition in WORKFLOW_DEFINITIONS:
         _sync_workflow(definition)
+
+
+WORKFLOW_ACTIONS = (
+    "Enviar a Revision",
+    "Reenviar a Revision",
+    "Enviar a Socio",
+    "Devolver",
+    "Aprobar",
+)
+
+
+def _ensure_workflow_actions():
+    for action_name in WORKFLOW_ACTIONS:
+        if not frappe.db.exists("Workflow Action Master", action_name):
+            doc = frappe.new_doc("Workflow Action Master")
+            doc.workflow_action_name = action_name
+            doc.insert(ignore_permissions=True)
+    frappe.db.commit()
 
 
 def _workflow_doctypes_available():
@@ -272,7 +291,6 @@ def _set_if_available(doc, fieldname, value):
 
 
 def _save_doc(doc):
-    doc.flags.ignore_links = True
     if doc.is_new():
         doc.insert(ignore_permissions=True)
         return
