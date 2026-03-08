@@ -1,25 +1,36 @@
-﻿import frappe
+import frappe
 
 
 VALID_COMMUNICATION_MEDIA = {
-    "Correo electr?nico",
+    "Email",
     "Chat",
-    "Tel?fono",
+    "Phone",
     "SMS",
-    "Evento",
-    "Reuni?n",
-    "Visita",
-    "Otro",
+    "Event",
+    "Meeting",
+    "Visit",
+    "Other",
 }
 
 COMMUNICATION_MEDIA_ALIASES = {
-    "Correo": "Correo electr?nico",
-    "Email": "Correo electr?nico",
-    "Portal": "Otro",
-    "Telefono": "Tel?fono",
-    "Llamada": "Tel?fono",
-    "Reunion": "Reuni?n",
+    "Correo": "Email",
+    "Correo electr?nico": "Email",
+    "Email": "Email",
+    "Portal": "Other",
+    "Telefono": "Phone",
+    "Tel?fono": "Phone",
+    "Llamada": "Phone",
+    "Phone": "Phone",
+    "Reunion": "Meeting",
+    "Reuni?n": "Meeting",
+    "Meeting": "Meeting",
+    "Visita": "Visit",
+    "Visit": "Visit",
+    "Evento": "Event",
+    "Event": "Event",
     "WhatsApp": "Chat",
+    "Otro": "Other",
+    "Other": "Other",
 }
 
 
@@ -28,7 +39,7 @@ def _normalize_communication_medium(communication_medium):
         return None
     normalized = COMMUNICATION_MEDIA_ALIASES.get(communication_medium, communication_medium)
     if normalized not in VALID_COMMUNICATION_MEDIA:
-        return "Otro"
+        return None
     return normalized
 
 
