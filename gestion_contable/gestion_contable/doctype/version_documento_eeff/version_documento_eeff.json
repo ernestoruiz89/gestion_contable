@@ -1,0 +1,114 @@
+{
+    "actions": [],
+    "creation": "2026-03-08 03:45:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "tipo_documento",
+        "version_documento",
+        "estado_documento",
+        "es_version_vigente",
+        "fecha_generacion",
+        "generado_por",
+        "archivo_file",
+        "nombre_archivo",
+        "archivo_url",
+        "fecha_envio_cliente",
+        "fecha_revision_cliente",
+        "hash_sha256",
+        "observaciones"
+    ],
+    "fields": [
+        {
+            "fieldname": "tipo_documento",
+            "fieldtype": "Select",
+            "label": "Tipo Documento",
+            "options": "Word Revision Cliente\nPDF Paquete Completo\nPDF Notas Consolidadas\nPDF Informe Auditado\nOtro",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "version_documento",
+            "fieldtype": "Int",
+            "label": "Version Documento",
+            "reqd": 1,
+            "default": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "estado_documento",
+            "fieldtype": "Select",
+            "label": "Estado Documento",
+            "options": "Generado\nEnviado a Cliente\nComentado por Cliente\nAprobado por Cliente\nEmitido\nReemplazado",
+            "default": "Generado",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "es_version_vigente",
+            "fieldtype": "Check",
+            "label": "Es Version Vigente",
+            "default": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "fecha_generacion",
+            "fieldtype": "Datetime",
+            "label": "Fecha Generacion",
+            "read_only": 1
+        },
+        {
+            "fieldname": "generado_por",
+            "fieldtype": "Link",
+            "label": "Generado Por",
+            "options": "User",
+            "read_only": 1
+        },
+        {
+            "fieldname": "archivo_file",
+            "fieldtype": "Link",
+            "label": "Archivo File",
+            "options": "File",
+            "read_only": 1
+        },
+        {
+            "fieldname": "nombre_archivo",
+            "fieldtype": "Data",
+            "label": "Nombre Archivo",
+            "read_only": 1
+        },
+        {
+            "fieldname": "archivo_url",
+            "fieldtype": "Data",
+            "label": "Archivo URL",
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_envio_cliente",
+            "fieldtype": "Datetime",
+            "label": "Fecha Envio Cliente"
+        },
+        {
+            "fieldname": "fecha_revision_cliente",
+            "fieldtype": "Datetime",
+            "label": "Fecha Revision Cliente"
+        },
+        {
+            "fieldname": "hash_sha256",
+            "fieldtype": "Data",
+            "label": "Hash SHA256",
+            "read_only": 1
+        },
+        {
+            "fieldname": "observaciones",
+            "fieldtype": "Small Text",
+            "label": "Observaciones"
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Version Documento EEFF",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

@@ -1,0 +1,107 @@
+<style>
+  .nefi-wrap { font-family: "Helvetica Neue", Arial, sans-serif; color: #0f172a; font-size: 11px; }
+  .nefi-head { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 18px; }
+  .nefi-head h1 { margin: 0; font-size: 22px; }
+  .nefi-head p { margin: 4px 0 0; color: #475569; }
+  .nefi-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  .nefi-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; }
+  .nefi-section { margin: 0 0 18px; }
+  .nefi-section h2 { margin: 0 0 8px; font-size: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+  .nefi-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .nefi-table th, .nefi-table td { border: 1px solid #dbe3ef; padding: 6px 8px; }
+  .nefi-table th { background: #f8fafc; text-align: left; }
+  .nefi-table td.num { text-align: right; white-space: nowrap; }
+  .nefi-ref-list { margin: 6px 0 0 16px; padding: 0; }
+  .nefi-ref-list li { margin-bottom: 4px; }
+</style>
+{% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
+<div class="nefi-wrap">
+  <div class="nefi-head">
+    <h1>Nota {{ doc.numero_nota }}. {{ doc.titulo or "Sin titulo" }}</h1>
+    <p>{{ paquete.razon_social_reportante or paquete.cliente }} | Paquete {{ paquete.name }}</p>
+  </div>
+
+  <table class="nefi-meta">
+    <tr>
+      <td><strong>Cliente</strong><br>{{ doc.cliente or "-" }}</td>
+      <td><strong>Periodo</strong><br>{{ doc.periodo_contable or "-" }}</td>
+      <td><strong>Paquete</strong><br>{{ doc.paquete_estados_financieros_cliente or "-" }}</td>
+      <td><strong>Numero Nota</strong><br>{{ doc.numero_nota or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Categoria</strong><br>{{ doc.categoria_nota or "-" }}</td>
+      <td><strong>Orden Presentacion</strong><br>{{ doc.orden_presentacion or 0 }}</td>
+      <td><strong>Estado Aprobacion</strong><br>{{ doc.estado_aprobacion or "-" }}</td>
+      <td><strong>Total Referencias</strong><br>{{ doc.total_referencias or 0 }}</td>
+    </tr>
+  </table>
+
+  <div class="nefi-section">
+    <h2>Referencias Cruzadas</h2>
+    {% if doc.referencias_cruzadas %}
+      <ul class="nefi-ref-list">
+        {% for ref in doc.referencias_cruzadas %}
+          <li>
+            <strong>{{ ref.tipo_estado or "Estado" }}</strong>
+            {% if ref.codigo_rubro %} | {{ ref.codigo_rubro }}{% endif %}
+            {% if ref.descripcion_linea_estado %} | {{ ref.descripcion_linea_estado }}{% endif %}
+            {% if ref.tipo_referencia %} | {{ ref.tipo_referencia }}{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay referencias cruzadas registradas para esta nota.</p>
+    {% endif %}
+  </div>
+
+  {% if doc.politica_contable %}
+    <div class="nefi-section">
+      <h2>Politica Contable</h2>
+      <div>{{ doc.politica_contable | safe }}</div>
+    </div>
+  {% endif %}
+
+  {% if doc.contenido_narrativo %}
+    <div class="nefi-section">
+      <h2>Contenido Narrativo</h2>
+      <div>{{ doc.contenido_narrativo | safe }}</div>
+    </div>
+  {% endif %}
+
+  <div class="nefi-section">
+    <h2>Cifras de la Nota</h2>
+    {% if doc.cifras_nota %}
+      <table class="nefi-table">
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th>Subconcepto</th>
+            <th>Monto Actual</th>
+            <th>Monto Comparativo</th>
+            <th>Comentario</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cifra in doc.cifras_nota %}
+            <tr>
+              <td>{{ cifra.concepto or "-" }}</td>
+              <td>{{ cifra.subconcepto or "-" }}</td>
+              <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+              <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+              <td>{{ cifra.comentario or "-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No hay cifras tabulares registradas para esta nota.</p>
+    {% endif %}
+  </div>
+
+  {% if doc.observaciones_preparacion %}
+    <div class="nefi-section">
+      <h2>Observaciones de Preparacion</h2>
+      <div>{{ doc.observaciones_preparacion }}</div>
+    </div>
+  {% endif %}
+</div>

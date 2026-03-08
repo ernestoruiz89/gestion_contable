@@ -1,18 +1,24 @@
 {
     "actions": [],
-    "creation": "2024-03-04 14:00:00.000000",
+    "creation": "2026-03-08 00:10:00.000000",
     "doctype": "DocType",
     "engine": "InnoDB",
     "field_order": [
-        "titulo",
+        "nombre_de_la_nota",
+        "paquete_estados_financieros_cliente",
         "cliente",
-        "company",
-        "periodo",
-        "encargo_contable",
         "column_break_1",
-        "tipo_de_tarea",
-        "estado",
-        "fecha_de_vencimiento",
+        "periodo_contable",
+        "numero_nota",
+        "section_definicion",
+        "titulo",
+        "categoria_nota",
+        "column_break_2",
+        "orden_presentacion",
+        "es_requerida",
+        "section_referencias",
+        "referencias_cruzadas",
+        "total_referencias",
         "workflow_section",
         "estado_aprobacion",
         "fecha_envio_revision",
@@ -25,73 +31,108 @@
         "workflow_comments_section",
         "comentarios_supervisor",
         "comentarios_socio",
-        "asignacion_section",
-        "asignado_a",
-        "observaciones_section",
-        "notas"
+        "section_contenido",
+        "politica_contable",
+        "contenido_narrativo",
+        "section_cifras",
+        "cifras_nota",
+        "section_control",
+        "total_cifras",
+        "observaciones_preparacion"
     ],
     "fields": [
         {
-            "fieldname": "titulo",
+            "fieldname": "nombre_de_la_nota",
             "fieldtype": "Data",
-            "in_list_view": 1,
-            "label": "Título",
-            "read_only": 1
+            "label": "Nombre de la Nota",
+            "read_only": 1,
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "paquete_estados_financieros_cliente",
+            "fieldtype": "Link",
+            "label": "Paquete Estados Financieros Cliente",
+            "options": "Paquete Estados Financieros Cliente",
+            "reqd": 1,
+            "in_list_view": 1
         },
         {
             "fieldname": "cliente",
             "fieldtype": "Link",
-            "in_list_view": 1,
             "label": "Cliente",
             "options": "Cliente Contable",
-            "reqd": 1
-        },
-        {
-            "fieldname": "company",
-            "fieldtype": "Link",
-            "label": "Compania",
-            "options": "Company",
-            "in_list_view": 0
-        },
-        {
-            "fieldname": "periodo",
-            "fieldtype": "Link",
-            "in_list_view": 1,
-            "label": "Periodo",
-            "options": "Periodo Contable",
-            "reqd": 1
-        },
-        {
-            "fieldname": "encargo_contable",
-            "fieldtype": "Link",
-            "in_list_view": 1,
-            "label": "Encargo",
-            "options": "Encargo Contable"
+            "read_only": 1
         },
         {
             "fieldname": "column_break_1",
             "fieldtype": "Column Break"
         },
         {
-            "fieldname": "tipo_de_tarea",
-            "fieldtype": "Select",
-            "label": "Tipo de Tarea",
-            "options": "Impuestos\nNómina\nCierre Contable\nAuditoría\nConciliación Bancaria\nDeclaración Anual\nDictamen Fiscal\nEstados Financieros\nFacturación\nAtención a Requerimiento\nTrámite Fiscal\nConsultoría\nOtro"
+            "fieldname": "periodo_contable",
+            "fieldtype": "Link",
+            "label": "Periodo Contable",
+            "options": "Periodo Contable",
+            "read_only": 1
         },
         {
-            "default": "Pendiente",
-            "fieldname": "estado",
-            "fieldtype": "Select",
-            "in_list_view": 1,
-            "label": "Estado",
-            "options": "Pendiente\nEn Proceso\nEn Revisión\nCompletada\nDescartada"
+            "fieldname": "numero_nota",
+            "fieldtype": "Data",
+            "label": "Numero Nota",
+            "reqd": 1,
+            "in_list_view": 1
         },
         {
-            "fieldname": "fecha_de_vencimiento",
-            "fieldtype": "Date",
-            "in_list_view": 1,
-            "label": "Fecha de Vencimiento",
-            "reqd": 1
+            "fieldname": "section_definicion",
+            "fieldtype": "Section Break",
+            "label": "Definicion de la Nota"
+        },
+        {
+            "fieldname": "titulo",
+            "fieldtype": "Data",
+            "label": "Titulo",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "categoria_nota",
+            "fieldtype": "Select",
+            "label": "Categoria Nota",
+            "options": "Base de Preparacion\nPoliticas Contables\nEfectivo\nCuentas por Cobrar\nInventarios\nPropiedad Planta y Equipo\nPasivos\nPatrimonio\nIngresos\nGastos\nImpuestos\nPartes Relacionadas\nContingencias\nHechos Posteriores\nOtra",
+            "default": "Otra"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "orden_presentacion",
+            "fieldtype": "Int",
+            "label": "Orden Presentacion",
+            "default": 0
+        },
+        {
+            "fieldname": "es_requerida",
+            "fieldtype": "Check",
+            "label": "Es Requerida",
+            "default": 0
+        },
+        {
+            "fieldname": "section_referencias",
+            "fieldtype": "Section Break",
+            "label": "Referencias Cruzadas"
+        },
+        {
+            "fieldname": "referencias_cruzadas",
+            "fieldtype": "Table",
+            "label": "Referencias Cruzadas",
+            "options": "Referencia Nota Estado Financiero",
+            "read_only": 1
+        },
+        {
+            "fieldname": "total_referencias",
+            "fieldtype": "Int",
+            "label": "Total Referencias",
+            "read_only": 1
         },
         {
             "fieldname": "workflow_section",
@@ -169,47 +210,64 @@
             "permlevel": 2
         },
         {
-            "fieldname": "asignacion_section",
+            "fieldname": "section_contenido",
             "fieldtype": "Section Break",
-            "label": "Asignación"
+            "label": "Contenido"
         },
         {
-            "fieldname": "asignado_a",
-            "fieldtype": "Link",
-            "label": "Asignado a",
-            "options": "User"
+            "fieldname": "politica_contable",
+            "fieldtype": "Text Editor",
+            "label": "Politica Contable"
         },
         {
-            "fieldname": "observaciones_section",
+            "fieldname": "contenido_narrativo",
+            "fieldtype": "Text Editor",
+            "label": "Contenido Narrativo"
+        },
+        {
+            "fieldname": "section_cifras",
             "fieldtype": "Section Break",
-            "label": "Observaciones"
+            "label": "Cifras de la Nota"
         },
         {
-            "fieldname": "notas",
+            "fieldname": "cifras_nota",
+            "fieldtype": "Table",
+            "label": "Cifras Nota",
+            "options": "Cifra Nota Estado Financiero"
+        },
+        {
+            "fieldname": "section_control",
+            "fieldtype": "Section Break",
+            "label": "Control"
+        },
+        {
+            "fieldname": "total_cifras",
+            "fieldtype": "Int",
+            "label": "Total Cifras",
+            "read_only": 1
+        },
+        {
+            "fieldname": "observaciones_preparacion",
             "fieldtype": "Small Text",
-            "label": "Notas"
+            "label": "Observaciones Preparacion"
         }
     ],
-    "index_web_pages_for_search": 1,
     "links": [
         {
-            "group": "Evidencias",
-            "link_doctype": "Documento Contable",
-            "link_fieldname": "tarea_contable"
+            "group": "Estados Financieros",
+            "link_doctype": "Paquete Estados Financieros Cliente",
+            "link_fieldname": "paquete_estados_financieros_cliente"
         },
         {
-            "group": "Documentos",
-            "link_doctype": "Documento Contable",
+            "group": "Cliente",
+            "link_doctype": "Cliente Contable",
             "link_fieldname": "cliente"
         }
     ],
-    "modified": "2024-03-04 14:00:00.000000",
-    "modified_by": "Administrator",
     "module": "Gestion Contable",
-    "name": "Tarea Contable",
+    "name": "Nota Estado Financiero",
     "naming_rule": "By fieldname",
-    "autoname": "field:titulo",
-    "owner": "Administrator",
+    "autoname": "field:nombre_de_la_nota",
     "permissions": [
         {
             "role": "System Manager",
@@ -240,6 +298,7 @@
             "create": 1,
             "read": 1,
             "write": 1,
+            "delete": 0,
             "report": 1,
             "export": 1,
             "email": 1,
@@ -251,66 +310,12 @@
             "create": 1,
             "read": 1,
             "write": 1,
+            "delete": 0,
             "report": 1,
             "export": 1,
             "email": 1,
             "print": 1,
             "share": 1
-        },
-        {
-            "role": "Auxiliar Contable del Despacho",
-            "read": 1,
-            "write": 1,
-            "report": 1,
-            "email": 1,
-            "print": 1,
-            "share": 1
-        },
-        {
-            "role": "System Manager",
-            "permlevel": 1,
-            "read": 1,
-            "write": 1
-        },
-        {
-            "role": "Contador del Despacho",
-            "permlevel": 1,
-            "read": 1,
-            "write": 1
-        },
-        {
-            "role": "Supervisor del Despacho",
-            "permlevel": 1,
-            "read": 1,
-            "write": 1
-        },
-        {
-            "role": "Socio del Despacho",
-            "permlevel": 1,
-            "read": 1,
-            "write": 1
-        },
-        {
-            "role": "System Manager",
-            "permlevel": 2,
-            "read": 1,
-            "write": 1
-        },
-        {
-            "role": "Contador del Despacho",
-            "permlevel": 2,
-            "read": 1
-        },
-        {
-            "role": "Supervisor del Despacho",
-            "permlevel": 2,
-            "read": 1
-        },
-        {
-            "role": "Socio del Despacho",
-            "permlevel": 2,
-            "read": 1,
-            "write": 1
         }
     ],
     "sort_field": "modified",

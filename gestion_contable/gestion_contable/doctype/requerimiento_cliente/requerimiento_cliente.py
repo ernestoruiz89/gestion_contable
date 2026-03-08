@@ -5,6 +5,7 @@ from frappe.utils import add_to_date, flt, getdate, now_datetime, nowdate
 
 from gestion_contable.gestion_contable.doctype.cliente_contable.cliente_contable import get_cliente_defaults
 from gestion_contable.gestion_contable.doctype.periodo_contable.periodo_contable import validate_periodo_operativo
+from gestion_contable.gestion_contable.portal.cliente import portal_user_has_doc_access
 from gestion_contable.gestion_contable.utils.communications import log_linked_communication
 from gestion_contable.gestion_contable.utils.emailing import (
     build_requerimiento_email_context,
@@ -470,9 +471,4 @@ def cint_bool(value):
     return 1 if str(value) in ("1", "True", "true") or value == 1 else 0
 
 def has_website_permission(doc, ptype, user, verbose=False):
-    if not user or user == "Guest":
-        return False
-    # Validate if the user is a portal user and has permissions on the linked Customer
-    if frappe.get_all("Portal User", filters={"user": user, "parent": doc.cliente}):
-        return True
-    return False
+    return portal_user_has_doc_access(doc, user=user)

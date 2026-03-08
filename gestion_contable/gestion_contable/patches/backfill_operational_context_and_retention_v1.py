@@ -1,4 +1,4 @@
-﻿import frappe
+import frappe
 
 from gestion_contable.gestion_contable.doctype.cliente_contable.cliente_contable import get_cliente_defaults
 from gestion_contable.gestion_contable.doctype.periodo_contable.periodo_contable import get_default_company
@@ -6,6 +6,7 @@ from gestion_contable.gestion_contable.utils.retention import calculate_retentio
 
 
 CORE_DOCTYPES = (
+    "Task",
     "Tarea Contable",
     "Requerimiento Cliente",
     "Entregable Cliente",

@@ -1,4 +1,4 @@
-﻿app_name = "gestion_contable"
+app_name = "gestion_contable"
 app_title = "Gestion Contable"
 app_publisher = "Despacho"
 app_description = "Aplicacion completa para la gestion de clientes, periodos y tareas contables."
@@ -60,6 +60,7 @@ fixtures = [
                 "encargo_contable",
                 "cliente_contable",
                 "cliente",
+                "company",
                 "servicio_contable",
                 "contrato_comercial",
                 "periodo",
@@ -72,14 +73,16 @@ fixtures = [
                 "aprobado_por_socio",
                 "fecha_aprobacion_socio",
                 "comentarios_supervisor",
-                "comentarios_socio"
+                "comentarios_socio",
+                "old_tarea_id"
         ]]],
     }
 ]
 
 portal_menu_items = [
-    {"title": "Requerimientos", "route": "/requerimientos-cliente", "role": "Customer"},
-    {"title": "Mis Entregables", "route": "/entregables-cliente", "role": "Customer"}
+    {"title": "Portal Cliente", "route": "/portal-cliente"},
+    {"title": "Requerimientos", "route": "/requerimientos-cliente"},
+    {"title": "Mis Entregables", "route": "/entregables-cliente"},
 ]
 
 has_website_permission = {

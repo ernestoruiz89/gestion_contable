@@ -58,6 +58,7 @@
         "comentarios_revision_tecnica",
         "section_cierre",
         "memo_cierre",
+        "informe_final_auditoria",
         "cerrado_por",
         "fecha_cierre"
     ],
@@ -379,6 +380,13 @@
             "label": "Memo Cierre"
         },
         {
+            "fieldname": "informe_final_auditoria",
+            "fieldtype": "Link",
+            "label": "Informe Final Auditoria",
+            "options": "Informe Final Auditoria",
+            "read_only": 1
+        },
+        {
             "fieldname": "cerrado_por",
             "fieldtype": "Link",
             "label": "Cerrado por",
@@ -407,6 +415,11 @@
         {
             "group": "Auditoria",
             "link_doctype": "Hallazgo Auditoria",
+            "link_fieldname": "expediente_auditoria"
+        },
+        {
+            "group": "Auditoria",
+            "link_doctype": "Informe Final Auditoria",
             "link_fieldname": "expediente_auditoria"
         },
         {
@@ -483,3 +496,6 @@
     "sort_order": "DESC",
     "track_changes": 1
 }
+
+
+

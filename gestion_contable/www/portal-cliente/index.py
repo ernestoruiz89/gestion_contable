@@ -1,4 +1,4 @@
-﻿import frappe
+import frappe
 from frappe import _
 
 from gestion_contable.gestion_contable.portal.cliente import get_portal_dashboard_context
@@ -12,6 +12,5 @@ def get_context(context):
     if frappe.session.user == "Guest":
         frappe.throw(_("Debes iniciar sesion para acceder al portal cliente."), frappe.PermissionError)
 
-    dashboard = get_portal_dashboard_context()
-    context.update(dashboard)
+    context.update(get_portal_dashboard_context())
     return context

@@ -1,0 +1,63 @@
+{
+    "actions": [],
+    "creation": "2026-03-08 00:10:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "concepto",
+        "subconcepto",
+        "orden",
+        "monto_actual",
+        "monto_comparativo",
+        "unidad_presentacion",
+        "comentario"
+    ],
+    "fields": [
+        {
+            "fieldname": "concepto",
+            "fieldtype": "Data",
+            "label": "Concepto",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "subconcepto",
+            "fieldtype": "Data",
+            "label": "Subconcepto"
+        },
+        {
+            "fieldname": "orden",
+            "fieldtype": "Int",
+            "label": "Orden",
+            "default": 0
+        },
+        {
+            "fieldname": "monto_actual",
+            "fieldtype": "Currency",
+            "label": "Monto Actual",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "monto_comparativo",
+            "fieldtype": "Currency",
+            "label": "Monto Comparativo"
+        },
+        {
+            "fieldname": "unidad_presentacion",
+            "fieldtype": "Data",
+            "label": "Unidad Presentacion"
+        },
+        {
+            "fieldname": "comentario",
+            "fieldtype": "Small Text",
+            "label": "Comentario"
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Cifra Nota Estado Financiero",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

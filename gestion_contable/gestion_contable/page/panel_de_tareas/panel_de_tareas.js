@@ -1,4 +1,4 @@
-﻿frappe.pages["panel-de-tareas"].on_page_load = function (wrapper) {
+frappe.pages["panel-de-tareas"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: "Panel de Tareas",
@@ -781,10 +781,10 @@ class PanelDeTareas {
 			if (estado === "!Completed") {
 				filters.status = ["!=", "Completed"];
 			} else {
-				filters.estado = estado;
+				filters.status = estado;
 			}
 		}
-		if (asignado) filters.asignado_a = asignado;
+		if (asignado) filters._assign = ["like", `%${asignado}%`];
 
 		return { filters, search, vencimiento };
 	}
@@ -797,11 +797,11 @@ class PanelDeTareas {
 
 	fetch_tasks(filters, search) {
 		const args = {
-			doctype: "Tarea Contable",
+			doctype: "Task",
 			fields: ["name", "subject", "cliente", "periodo", "tipo_de_tarea", "status", "exp_end_date", "_assign", "description"],
 			filters,
 			limit_page_length: 0,
-			order_by: "fecha_de_vencimiento asc",
+			order_by: "exp_end_date asc",
 		};
 
 		if (search) {
@@ -1070,8 +1070,7 @@ class PanelDeTareas {
 			? frappe.datetime.str_to_user(task.exp_end_date)
 			: "-";
 
-		const asignadoArray = task._assign ? JSON.parse(task._assign) : [];
-		const asignado = asignadoArray.length > 0 ? asignadoArray[0] : "Sin asignar";
+		const asignado = this.get_primary_assignee(task._assign) || "Sin asignar";
 		const titulo = frappe.utils.escape_html(task.subject || "Sin titulo");
 		const cliente = frappe.utils.escape_html(task.cliente || "-");
 		const periodo = frappe.utils.escape_html(task.periodo || "-");
@@ -1167,7 +1166,7 @@ class PanelDeTareas {
 				</div>
 				<div class="pt-modal-field">
 					<div class="pt-modal-label">Asignado a</div>
-					<div class="pt-modal-value">${frappe.utils.escape_html(task._assign ? JSON.parse(task._assign)[0] : "Sin asignar")}</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(this.get_primary_assignee(task._assign) || "Sin asignar")}</div>
 				</div>
 				<div class="pt-modal-field">
 						<div class="pt-modal-label">Notas</div>
@@ -1510,6 +1509,17 @@ class PanelDeTareas {
 			companyField.$input.on("change", () => dialog.set_value("periodo", ""));
 		}
 	}
+
+	get_primary_assignee(rawAssignments) {
+		if (!rawAssignments) return null;
+		if (Array.isArray(rawAssignments)) {
+			return rawAssignments[0] || null;
+		}
+		try {
+			const parsed = JSON.parse(rawAssignments);
+			return Array.isArray(parsed) && parsed.length ? parsed[0] : null;
+		} catch (error) {
+			return null;
+		}
+	}
 }
-
-

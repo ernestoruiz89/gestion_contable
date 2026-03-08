@@ -1,4 +1,4 @@
-import frappe
+﻿import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import getdate, now_datetime, nowdate
@@ -27,6 +27,7 @@ CONTENT_FIELDS = (
     "base_normativa",
     "estrategia_muestreo",
     "memorando_planeacion",
+    "informe_final_auditoria",
 )
 
 
@@ -165,6 +166,11 @@ class ExpedienteAuditoria(Document):
         if self.estado_expediente == "Archivada":
             if previous and previous.estado_expediente != "Cerrada":
                 frappe.throw(_("Solo puedes archivar un expediente previamente cerrado."), title=_("Archivado Invalido"))
+            if not self.informe_final_auditoria:
+                frappe.throw(_("Debes emitir el informe final de auditoria antes de archivar el expediente."), title=_("Informe Final Requerido"))
+            informe = frappe.db.get_value("Informe Final Auditoria", self.informe_final_auditoria, ["name", "estado_emision"], as_dict=True)
+            if not informe or informe.estado_emision != "Emitido":
+                frappe.throw(_("El informe final vinculado debe existir y estar emitido antes de archivar el expediente."), title=_("Informe Final Invalido"))
             ensure_manager(_("Solo Socio, Contador o System Manager pueden archivar expedientes de auditoria."))
             return
 
@@ -202,6 +208,14 @@ def cerrar_expediente_auditoria(expediente_name):
     expediente.estado_expediente = "Cerrada"
     expediente.save(ignore_permissions=True)
     return {"expediente": expediente.name, "estado_expediente": expediente.estado_expediente, "fecha_cierre": expediente.fecha_cierre}
+
+
+@frappe.whitelist()
+def generar_informe_final(expediente_name):
+    ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden generar el informe final de auditoria."))
+    from gestion_contable.gestion_contable.doctype.informe_final_auditoria.informe_final_auditoria import generar_informe_final_desde_expediente
+
+    return generar_informe_final_desde_expediente(expediente_name)
 
 
 def calcular_resumen_expediente(expediente_name=None):
@@ -286,3 +300,8 @@ def calcular_resumen_expediente(expediente_name=None):
         "hallazgos_abiertos": hallazgos_abiertos,
         "hallazgos_cerrados": hallazgos_cerrados,
     }
+
+
+
+
+

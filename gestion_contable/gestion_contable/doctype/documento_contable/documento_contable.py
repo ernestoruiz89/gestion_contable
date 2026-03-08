@@ -1,4 +1,5 @@
-﻿import hashlib
+import hashlib
+import json
 
 import frappe
 from frappe import _
@@ -50,6 +51,18 @@ EVIDENCIA_ORIGEN_DEFAULT = "Otro"
 EVIDENCIA_CONFIDENCIALIDAD_DEFAULT = "Confidencial"
 EVIDENCIA_RETENCION_DEFAULT = "Sin Definir"
 ENCARGOS_CERRADOS = ("Cerrado", "Cancelado")
+
+
+def get_primary_task_assignee(raw_assignments):
+    if not raw_assignments:
+        return None
+    if isinstance(raw_assignments, (list, tuple)):
+        return raw_assignments[0] if raw_assignments else None
+    try:
+        parsed = json.loads(raw_assignments)
+    except Exception:
+        return None
+    return parsed[0] if isinstance(parsed, list) and parsed else None
 
 
 class DocumentoContable(Document):
@@ -110,8 +123,10 @@ class DocumentoContable(Document):
 
     def resolver_preparado_por(self):
         tarea = self.obtener_datos_tarea(throw_if_missing=False)
-        if tarea and tarea.asignado_a:
-            return tarea.asignado_a
+        if tarea:
+            asignado_a = get_primary_task_assignee(tarea.get("_assign"))
+            if asignado_a:
+                return asignado_a
 
         entregable = self.obtener_datos_entregable(throw_if_missing=False)
         if entregable and entregable.responsable_interno:
@@ -198,9 +213,11 @@ class DocumentoContable(Document):
         tarea = frappe.db.get_value(
             "Task",
             self.task,
-            ["name", "encargo_contable", "cliente", "company", "periodo", "asignado_a"],
+            ["name", "encargo_contable", "cliente", "company", "periodo", "_assign"],
             as_dict=True,
         )
+        if tarea:
+            tarea.asignado_a = get_primary_task_assignee(tarea.get("_assign"))
         if not tarea and throw_if_missing:
             frappe.throw(
                 _("La tarea operativa <b>{0}</b> no existe.").format(self.task),

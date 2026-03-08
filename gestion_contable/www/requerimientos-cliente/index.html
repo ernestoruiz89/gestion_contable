@@ -1,0 +1,87 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div class="gc-portal-shell">
+    <nav class="gc-portal-nav">
+        {% for item in nav_items %}
+        <a class="{{ 'active' if item.active else '' }}" href="{{ item.route }}">{{ item.label }}</a>
+        {% endfor %}
+    </nav>
+
+    <section class="gc-portal-hero">
+        <div>
+            <h1>Requerimientos del Cliente</h1>
+            <p>{{ cliente.customer }}{% if cliente.company_default %} ? {{ cliente.company_default }}{% endif %}</p>
+        </div>
+        <div class="gc-portal-flags">
+            <span>Abiertos: {{ summary.requerimientos_abiertos }}</span>
+            <span>Entregables pendientes: {{ summary.entregables_pendientes }}</span>
+        </div>
+    </section>
+
+    <article class="gc-card">
+        <div class="gc-card-header">
+            <h2>Listado de Requerimientos</h2>
+            <a href="/portal-cliente">Volver al dashboard</a>
+        </div>
+        {% if requerimientos %}
+        <div class="gc-table-wrap">
+            <table class="gc-table">
+                <thead>
+                    <tr>
+                        <th>Requerimiento</th>
+                        <th>Compania</th>
+                        <th>Periodo</th>
+                        <th>Estado</th>
+                        <th>Envio</th>
+                        <th>Vencimiento</th>
+                        <th>Cumplimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in requerimientos %}
+                    <tr id="{{ row.name }}">
+                        <td>
+                            <strong>{{ row.nombre_del_requerimiento or row.name }}</strong>
+                            <div class="gc-subtle">{{ row.name }}</div>
+                        </td>
+                        <td>{{ row.company or "Sin definir" }}</td>
+                        <td>{{ row.periodo or "Sin periodo" }}</td>
+                        <td>{{ row.estado_requerimiento }}</td>
+                        <td>{{ row.fecha_envio or "Pendiente" }}</td>
+                        <td>{{ row.fecha_vencimiento or "Sin fecha" }}</td>
+                        <td>{{ row.porcentaje_cumplimiento or 0 }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="gc-empty">No hay requerimientos visibles.</p>
+        {% endif %}
+    </article>
+</div>
+
+<style>
+.gc-portal-shell { max-width: 1180px; margin: 0 auto; padding: 24px 0 40px; }
+.gc-portal-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.gc-portal-nav a { padding: 10px 14px; border: 1px solid #d7e0ea; border-radius: 999px; background: #fff; color: #1f2937; font-weight: 600; }
+.gc-portal-nav a.active { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+.gc-portal-hero { display: flex; justify-content: space-between; gap: 16px; align-items: start; margin-bottom: 20px; padding: 20px; border: 1px solid #d7e0ea; border-radius: 18px; background: linear-gradient(135deg, #f8fafc, #eef6ff 70%, #f6fffb); }
+.gc-portal-hero h1 { margin: 0 0 6px; font-size: 32px; }
+.gc-portal-hero p { margin: 0; color: #4b5563; }
+.gc-portal-flags { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #334155; }
+.gc-card { padding: 18px; border: 1px solid #d7e0ea; border-radius: 16px; background: #fff; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06); }
+.gc-card-header { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
+.gc-card-header h2 { margin: 0; font-size: 20px; }
+.gc-table-wrap { overflow-x: auto; }
+.gc-table { width: 100%; border-collapse: collapse; }
+.gc-table th, .gc-table td { padding: 12px 10px; border-top: 1px solid #eef2f7; text-align: left; font-size: 14px; vertical-align: top; }
+.gc-table thead th { border-top: 0; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+.gc-subtle { color: #64748b; font-size: 12px; margin-top: 4px; }
+.gc-empty { color: #64748b; margin: 0; }
+@media (max-width: 860px) {
+    .gc-portal-hero { flex-direction: column; }
+}
+</style>
+{% endblock %}

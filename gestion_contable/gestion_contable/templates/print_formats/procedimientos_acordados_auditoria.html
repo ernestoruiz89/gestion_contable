@@ -1,0 +1,18 @@
+<style>
+  .pa-wrap { font-family: Arial, sans-serif; color: #111827; }
+  .pa-wrap h3 { margin-top: 18px; text-transform: uppercase; font-size: 14px; }
+  .pa-note { padding: 10px 12px; border-left: 4px solid #0f766e; background: #f0fdfa; margin-bottom: 14px; }
+</style>
+<div class="pa-wrap">
+  <h1>{{ doc.titulo_informe or doc.nombre_del_informe }}</h1>
+  <div class="pa-note">Este informe presenta resultados de procedimientos acordados y no constituye un dictamen general de auditoria.</div>
+  <p><strong>Cliente:</strong> {{ doc.cliente or "-" }} | <strong>Periodo:</strong> {{ doc.periodo or "-" }}</p>
+  <h3>Resumen Ejecutivo</h3>
+  {{ doc.resumen_ejecutivo or "<p>Sin resumen.</p>" }}
+  <h3>Alcance del Trabajo</h3>
+  {{ doc.alcance_del_trabajo or "<p>Sin alcance.</p>" }}
+  <h3>Resultados</h3>
+  {{ doc.opinion_o_conclusion or "<p>Sin resultados.</p>" }}
+  <h3>Conclusion Final</h3>
+  {{ doc.conclusion_final or "<p>Sin conclusion.</p>" }}
+</div>

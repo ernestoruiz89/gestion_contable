@@ -1,11 +1,17 @@
-﻿{% extends "templates/web.html" %}
+{% extends "templates/web.html" %}
 
 {% block page_content %}
 <div class="gc-portal-shell">
+    <nav class="gc-portal-nav">
+        {% for item in nav_items %}
+        <a class="{{ 'active' if item.active else '' }}" href="{{ item.route }}">{{ item.label }}</a>
+        {% endfor %}
+    </nav>
+
     <section class="gc-portal-hero">
         <div>
             <h1>Portal Cliente</h1>
-            <p>{{ cliente.customer }}{% if cliente.company_default %} · {{ cliente.company_default }}{% endif %}</p>
+            <p>{{ cliente.customer }}{% if cliente.company_default %} ? {{ cliente.company_default }}{% endif %}</p>
         </div>
         <div class="gc-portal-flags">
             <span>Portal: {{ "Activo" if cliente.portal_habilitado else "Inactivo" }}</span>
@@ -22,14 +28,17 @@
 
     <section class="gc-portal-grid">
         <article class="gc-card">
-            <h2>Requerimientos</h2>
+            <div class="gc-card-header">
+                <h2>Requerimientos</h2>
+                <a href="/requerimientos-cliente">Ver todos</a>
+            </div>
             {% if requerimientos %}
                 <ul class="gc-list">
                     {% for row in requerimientos %}
                     <li>
                         <div>
                             <strong>{{ row.nombre_del_requerimiento or row.name }}</strong>
-                            <div>{{ row.periodo or "Sin periodo" }}{% if row.company %} · {{ row.company }}{% endif %}</div>
+                            <div>{{ row.periodo or "Sin periodo" }}{% if row.company %} ? {{ row.company }}{% endif %}</div>
                         </div>
                         <div class="gc-meta">
                             <span>{{ row.estado_requerimiento }}</span>
@@ -44,7 +53,10 @@
         </article>
 
         <article class="gc-card">
-            <h2>Entregables</h2>
+            <div class="gc-card-header">
+                <h2>Entregables</h2>
+                <a href="/entregables-cliente">Ver todos</a>
+            </div>
             {% if entregables %}
                 <ul class="gc-list">
                     {% for row in entregables %}
@@ -75,7 +87,7 @@
                     <li>
                         <div>
                             <strong>{{ row.titulo_del_documento }}</strong>
-                            <div>{{ row.tipo or "Documento" }}{% if row.periodo %} · {{ row.periodo }}{% endif %}</div>
+                            <div>{{ row.tipo or "Documento" }}{% if row.periodo %} ? {{ row.periodo }}{% endif %}</div>
                         </div>
                         <div class="gc-meta">
                             {% if row.archivo_adjunto %}
@@ -100,7 +112,7 @@
                     <li>
                         <div>
                             <strong>{{ row.subject or "Comunicacion" }}</strong>
-                            <div>{{ row.sender_full_name or "Despacho" }} · {{ row.creation }}</div>
+                            <div>{{ row.sender_full_name or "Despacho" }} ? {{ row.creation }}</div>
                         </div>
                         <div class="gc-meta">
                             <span>{{ row.reference_name }}</span>
@@ -117,6 +129,9 @@
 
 <style>
 .gc-portal-shell { max-width: 1180px; margin: 0 auto; padding: 24px 0 40px; }
+.gc-portal-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.gc-portal-nav a { padding: 10px 14px; border: 1px solid #d7e0ea; border-radius: 999px; background: #fff; color: #1f2937; font-weight: 600; }
+.gc-portal-nav a.active { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
 .gc-portal-hero { display: flex; justify-content: space-between; gap: 16px; align-items: start; margin-bottom: 20px; padding: 20px; border: 1px solid #d7e0ea; border-radius: 18px; background: linear-gradient(135deg, #f8fafc, #eef6ff 70%, #f6fffb); }
 .gc-portal-hero h1 { margin: 0 0 6px; font-size: 32px; }
 .gc-portal-hero p { margin: 0; color: #4b5563; }
@@ -129,6 +144,8 @@
 .gc-portal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
 .gc-card { padding: 18px; }
 .gc-card h2 { margin: 0 0 12px; font-size: 20px; }
+.gc-card-header { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
+.gc-card-header h2 { margin: 0; }
 .gc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .gc-list li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid #eef2f7; }
 .gc-list li:first-child { border-top: 0; padding-top: 0; }

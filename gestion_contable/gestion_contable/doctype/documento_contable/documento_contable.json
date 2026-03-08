@@ -9,7 +9,7 @@
         "company",
         "periodo",
         "encargo_contable",
-        "tarea_contable",
+        "task",
         "entregable_cliente",
         "column_break_1",
         "tipo",
@@ -69,11 +69,11 @@
             "options": "Encargo Contable"
         },
         {
-            "fieldname": "tarea_contable",
+            "fieldname": "task",
             "fieldtype": "Link",
             "in_list_view": 1,
-            "label": "Tarea Contable",
-            "options": "Tarea Contable"
+            "label": "Tarea",
+            "options": "Task"
         },
         {
             "fieldname": "entregable_cliente",
@@ -195,8 +195,8 @@
     "links": [
         {
             "group": "Trazabilidad",
-            "link_doctype": "Tarea Contable",
-            "link_fieldname": "tarea_contable"
+            "link_doctype": "Task",
+            "link_fieldname": "task"
         },
         {
             "group": "Trazabilidad",

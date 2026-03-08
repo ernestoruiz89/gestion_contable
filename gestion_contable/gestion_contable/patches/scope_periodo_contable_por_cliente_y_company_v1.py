@@ -1,4 +1,4 @@
-﻿import frappe
+import frappe
 
 from gestion_contable.gestion_contable.doctype.periodo_contable.periodo_contable import get_default_company
 
@@ -9,6 +9,13 @@ REFERENCE_TARGETS = (
         "fieldname": "periodo_referencia",
         "cliente_field": "cliente",
         "company_field": "company",
+    },
+    {
+        "doctype": "Task",
+        "fieldname": "periodo",
+        "cliente_field": "cliente",
+        "company_field": "company",
+        "encargo_field": "encargo_contable",
     },
     {
         "doctype": "Tarea Contable",

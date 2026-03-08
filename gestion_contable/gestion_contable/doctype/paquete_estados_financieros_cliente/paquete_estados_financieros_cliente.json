@@ -1,0 +1,425 @@
+{
+    "actions": [],
+    "creation": "2026-03-07 23:30:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "nombre_del_paquete",
+        "cliente",
+        "encargo_contable",
+        "expediente_auditoria",
+        "column_break_1",
+        "periodo_contable",
+        "fecha_corte",
+        "moneda_presentacion",
+        "section_identidad",
+        "razon_social_reportante",
+        "identificacion_fiscal_reportante",
+        "column_break_2",
+        "marco_contable",
+        "tipo_paquete",
+        "version",
+        "es_version_vigente",
+        "estado_preparacion",
+        "workflow_section",
+        "estado_aprobacion",
+        "fecha_envio_revision",
+        "workflow_column_break",
+        "revisado_por_supervisor",
+        "fecha_revision_supervisor",
+        "workflow_column_break_2",
+        "aprobado_por_socio",
+        "fecha_aprobacion_socio",
+        "workflow_comments_section",
+        "comentarios_supervisor",
+        "comentarios_socio",
+        "section_integracion",
+        "informe_final_auditoria",
+        "dictamen_de_auditoria",
+        "fecha_emision",
+        "column_break_3",
+        "total_estados",
+        "estados_aprobados",
+        "total_notas",
+        "notas_aprobadas",
+        "notas_requeridas_pendientes",
+        "total_ajustes",
+        "ajustes_registrados",
+        "ajustes_no_registrados",
+        "ajustes_materiales_no_registrados",
+        "monto_ajustes",
+        "section_versiones_documento_eeff",
+        "versiones_documento_eeff",
+        "section_observaciones",
+        "observaciones_generales"
+    ],
+    "fields": [
+        {
+            "fieldname": "nombre_del_paquete",
+            "fieldtype": "Data",
+            "label": "Nombre del Paquete",
+            "read_only": 1,
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "encargo_contable",
+            "fieldtype": "Link",
+            "label": "Encargo Contable",
+            "options": "Encargo Contable",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "expediente_auditoria",
+            "fieldtype": "Link",
+            "label": "Expediente Auditoria",
+            "options": "Expediente Auditoria"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "periodo_contable",
+            "fieldtype": "Link",
+            "label": "Periodo Contable",
+            "options": "Periodo Contable",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "fecha_corte",
+            "fieldtype": "Date",
+            "label": "Fecha Corte",
+            "reqd": 1
+        },
+        {
+            "fieldname": "moneda_presentacion",
+            "fieldtype": "Link",
+            "label": "Moneda Presentacion",
+            "options": "Currency"
+        },
+        {
+            "fieldname": "section_identidad",
+            "fieldtype": "Section Break",
+            "label": "Identidad y Clasificacion"
+        },
+        {
+            "fieldname": "razon_social_reportante",
+            "fieldtype": "Data",
+            "label": "Razon Social Reportante",
+            "read_only": 1
+        },
+        {
+            "fieldname": "identificacion_fiscal_reportante",
+            "fieldtype": "Data",
+            "label": "Identificacion Fiscal Reportante",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "marco_contable",
+            "fieldtype": "Select",
+            "label": "Marco Contable",
+            "options": "NIIF\nNIIF para PYMES\nBase Fiscal\nGerencial\nOtra",
+            "default": "NIIF para PYMES",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "tipo_paquete",
+            "fieldtype": "Select",
+            "label": "Tipo Paquete",
+            "options": "Preliminar\nPara Auditoria\nAuditado\nReexpresado\nComparativo",
+            "default": "Preliminar",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "version",
+            "fieldtype": "Int",
+            "label": "Version",
+            "default": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "es_version_vigente",
+            "fieldtype": "Check",
+            "label": "Es Version Vigente",
+            "default": 1
+        },
+        {
+            "fieldname": "estado_preparacion",
+            "fieldtype": "Select",
+            "label": "Estado Preparacion",
+            "options": "Borrador\nEn Preparacion\nEn Revision\nAprobado para Emision\nEmitido\nReemplazado",
+            "default": "Borrador",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "workflow_section",
+            "fieldtype": "Section Break",
+            "label": "Gobierno y Aprobacion"
+        },
+        {
+            "fieldname": "estado_aprobacion",
+            "fieldtype": "Select",
+            "label": "Estado de Aprobacion",
+            "options": "Borrador\nRevision Supervisor\nRevision Socio\nAprobado\nDevuelto",
+            "default": "Borrador",
+            "in_list_view": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_envio_revision",
+            "fieldtype": "Datetime",
+            "label": "Fecha Envio Revision",
+            "read_only": 1
+        },
+        {
+            "fieldname": "workflow_column_break",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "revisado_por_supervisor",
+            "fieldtype": "Link",
+            "label": "Revisado por Supervisor",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "fecha_revision_supervisor",
+            "fieldtype": "Datetime",
+            "label": "Fecha Revision Supervisor",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "workflow_column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "aprobado_por_socio",
+            "fieldtype": "Link",
+            "label": "Aprobado por Socio",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "fecha_aprobacion_socio",
+            "fieldtype": "Datetime",
+            "label": "Fecha Aprobacion Socio",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "workflow_comments_section",
+            "fieldtype": "Section Break",
+            "label": "Comentarios de Revision"
+        },
+        {
+            "fieldname": "comentarios_supervisor",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Supervisor",
+            "permlevel": 1
+        },
+        {
+            "fieldname": "comentarios_socio",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Socio",
+            "permlevel": 2
+        },
+        {
+            "fieldname": "section_integracion",
+            "fieldtype": "Section Break",
+            "label": "Integracion y Resumen"
+        },
+        {
+            "fieldname": "informe_final_auditoria",
+            "fieldtype": "Link",
+            "label": "Informe Final Auditoria",
+            "options": "Informe Final Auditoria"
+        },
+        {
+            "fieldname": "dictamen_de_auditoria",
+            "fieldtype": "Link",
+            "label": "Dictamen de Auditoria",
+            "options": "Informe Final Auditoria"
+        },
+        {
+            "fieldname": "fecha_emision",
+            "fieldtype": "Date",
+            "label": "Fecha Emision",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "total_estados",
+            "fieldtype": "Int",
+            "label": "Total Estados",
+            "read_only": 1
+        },
+        {
+            "fieldname": "estados_aprobados",
+            "fieldtype": "Int",
+            "label": "Estados Aprobados",
+            "read_only": 1
+        },
+        {
+            "fieldname": "total_notas",
+            "fieldtype": "Int",
+            "label": "Total Notas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "notas_aprobadas",
+            "fieldtype": "Int",
+            "label": "Notas Aprobadas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "notas_requeridas_pendientes",
+            "fieldtype": "Int",
+            "label": "Notas Requeridas Pendientes",
+            "read_only": 1
+        },
+        {
+            "fieldname": "total_ajustes",
+            "fieldtype": "Int",
+            "label": "Total Ajustes",
+            "read_only": 1
+        },
+        {
+            "fieldname": "ajustes_registrados",
+            "fieldtype": "Int",
+            "label": "Ajustes Registrados",
+            "read_only": 1
+        },
+        {
+            "fieldname": "ajustes_no_registrados",
+            "fieldtype": "Int",
+            "label": "Ajustes No Registrados",
+            "read_only": 1
+        },
+        {
+            "fieldname": "ajustes_materiales_no_registrados",
+            "fieldtype": "Int",
+            "label": "Ajustes Materiales No Registrados",
+            "read_only": 1
+        },
+        {
+            "fieldname": "monto_ajustes",
+            "fieldtype": "Currency",
+            "label": "Monto Ajustes",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_versiones_documento_eeff",
+            "fieldtype": "Section Break",
+            "label": "Versiones Documento EEFF"
+        },
+        {
+            "fieldname": "versiones_documento_eeff",
+            "fieldtype": "Table",
+            "label": "Versiones Documento EEFF",
+            "options": "Version Documento EEFF"
+        },
+        {
+            "fieldname": "section_observaciones",
+            "fieldtype": "Section Break",
+            "label": "Observaciones"
+        },
+        {
+            "fieldname": "observaciones_generales",
+            "fieldtype": "Text Editor",
+            "label": "Observaciones Generales"
+        }
+    ],
+    "links": [
+        {
+            "group": "Cliente",
+            "link_doctype": "Cliente Contable",
+            "link_fieldname": "cliente"
+        },
+        {
+            "group": "Auditoria",
+            "link_doctype": "Expediente Auditoria",
+            "link_fieldname": "expediente_auditoria"
+        },
+        {
+            "group": "Auditoria",
+            "link_doctype": "Informe Final Auditoria",
+            "link_fieldname": "dictamen_de_auditoria"
+        }
+    ],
+    "module": "Gestion Contable",
+    "name": "Paquete Estados Financieros Cliente",
+    "naming_rule": "By fieldname",
+    "autoname": "field:nombre_del_paquete",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 0,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 0,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

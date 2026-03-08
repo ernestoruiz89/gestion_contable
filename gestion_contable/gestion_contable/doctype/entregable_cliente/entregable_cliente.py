@@ -4,6 +4,7 @@ from frappe.model.document import Document
 from frappe.utils import getdate, nowdate
 
 from gestion_contable.gestion_contable.doctype.requerimiento_cliente.requerimiento_cliente import actualizar_seguimiento_requerimiento
+from gestion_contable.gestion_contable.portal.cliente import portal_user_has_doc_access
 from gestion_contable.gestion_contable.utils.governance import validate_governance
 from gestion_contable.gestion_contable.utils.security import ensure_manager, get_current_user, has_any_role, is_auxiliar
 
@@ -171,8 +172,4 @@ class EntregableCliente(Document):
         actualizar_seguimiento_requerimiento(self.requerimiento_cliente)
 
 def has_website_permission(doc, ptype, user, verbose=False):
-    if not user or user == "Guest":
-        return False
-    if frappe.get_all("Portal User", filters={"user": user, "parent": doc.cliente}):
-        return True
-    return False
+    return portal_user_has_doc_access(doc, user=user)

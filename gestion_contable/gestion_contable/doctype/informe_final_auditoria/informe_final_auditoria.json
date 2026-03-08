@@ -1,0 +1,469 @@
+{
+    "actions": [],
+    "creation": "2026-03-07 20:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "nombre_del_informe",
+        "expediente_auditoria",
+        "encargo_contable",
+        "cliente",
+        "column_break_1",
+        "periodo",
+        "company",
+        "fecha_informe",
+        "tipo_de_informe",
+        "formato_impresion_sugerido",
+        "es_informe_principal",
+        "estado_emision",
+        "workflow_section",
+        "estado_aprobacion",
+        "fecha_envio_revision",
+        "workflow_column_break",
+        "revisado_por_supervisor",
+        "fecha_revision_supervisor",
+        "workflow_column_break_2",
+        "aprobado_por_socio",
+        "fecha_aprobacion_socio",
+        "workflow_comments_section",
+        "comentarios_supervisor",
+        "comentarios_socio",
+        "section_emision",
+        "destinatario",
+        "tipo_opinion",
+        "firmado_por",
+        "cargo_firmante",
+        "revisado_por",
+        "notas_emision",
+        "section_contenido",
+        "titulo_informe",
+        "base_normativa",
+        "alcance_del_trabajo",
+        "resumen_ejecutivo",
+        "principales_hallazgos",
+        "recomendaciones_clave",
+        "section_dictamen",
+        "fundamento_opinion",
+        "section_modificacion_dictamen",
+        "asunto_que_origina_modificacion",
+        "fundamento_salvedad",
+        "efecto_generalizado",
+        "limitacion_alcance_material",
+        "section_parrafos_dictamen",
+        "parrafo_enfasis",
+        "parrafo_otros_asuntos",
+        "responsabilidades_administracion",
+        "responsabilidades_auditor",
+        "opinion_o_conclusion",
+        "conclusion_final",
+        "section_control",
+        "emitido_por",
+        "fecha_emision"
+    ],
+    "fields": [
+        {
+            "fieldname": "nombre_del_informe",
+            "fieldtype": "Data",
+            "label": "Nombre del Informe",
+            "reqd": 1,
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "expediente_auditoria",
+            "fieldtype": "Link",
+            "label": "Expediente Auditoria",
+            "options": "Expediente Auditoria",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "encargo_contable",
+            "fieldtype": "Link",
+            "label": "Encargo Contable",
+            "options": "Encargo Contable",
+            "read_only": 1
+        },
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "periodo",
+            "fieldtype": "Link",
+            "label": "Periodo",
+            "options": "Periodo Contable",
+            "read_only": 1
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company",
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_informe",
+            "fieldtype": "Date",
+            "label": "Fecha Informe",
+            "reqd": 1
+        },
+        {
+            "fieldname": "tipo_de_informe",
+            "fieldtype": "Select",
+            "label": "Tipo de Informe",
+            "options": "Informe Final General\nCarta a la Gerencia\nInforme de Hallazgos\nInforme de Control Interno\nProcedimientos Acordados\nDictamen de Auditoria",
+            "default": "Informe Final General",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "formato_impresion_sugerido",
+            "fieldtype": "Data",
+            "label": "Formato Impresion Sugerido",
+            "read_only": 1
+        },
+        {
+            "fieldname": "es_informe_principal",
+            "fieldtype": "Check",
+            "label": "Informe Principal del Expediente",
+            "default": 0
+        },
+        {
+            "fieldname": "estado_emision",
+            "fieldtype": "Select",
+            "label": "Estado Emision",
+            "options": "Borrador\nListo para Emitir\nEmitido\nReemplazado",
+            "default": "Borrador",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "workflow_section",
+            "fieldtype": "Section Break",
+            "label": "Gobierno y Aprobacion"
+        },
+        {
+            "fieldname": "estado_aprobacion",
+            "fieldtype": "Select",
+            "label": "Estado de Aprobacion",
+            "options": "Borrador\nRevision Supervisor\nRevision Socio\nAprobado\nDevuelto",
+            "default": "Borrador",
+            "in_list_view": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_envio_revision",
+            "fieldtype": "Datetime",
+            "label": "Fecha Envio Revision",
+            "read_only": 1
+        },
+        {
+            "fieldname": "workflow_column_break",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "revisado_por_supervisor",
+            "fieldtype": "Link",
+            "label": "Revisado por Supervisor",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "fecha_revision_supervisor",
+            "fieldtype": "Datetime",
+            "label": "Fecha Revision Supervisor",
+            "read_only": 1,
+            "permlevel": 1
+        },
+        {
+            "fieldname": "workflow_column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "aprobado_por_socio",
+            "fieldtype": "Link",
+            "label": "Aprobado por Socio",
+            "options": "User",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "fecha_aprobacion_socio",
+            "fieldtype": "Datetime",
+            "label": "Fecha Aprobacion Socio",
+            "read_only": 1,
+            "permlevel": 2
+        },
+        {
+            "fieldname": "workflow_comments_section",
+            "fieldtype": "Section Break",
+            "label": "Comentarios de Revision"
+        },
+        {
+            "fieldname": "comentarios_supervisor",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Supervisor",
+            "permlevel": 1
+        },
+        {
+            "fieldname": "comentarios_socio",
+            "fieldtype": "Small Text",
+            "label": "Comentarios Socio",
+            "permlevel": 2
+        },
+        {
+            "fieldname": "section_emision",
+            "fieldtype": "Section Break",
+            "label": "Emision"
+        },
+        {
+            "fieldname": "destinatario",
+            "fieldtype": "Data",
+            "label": "Destinatario"
+        },
+        {
+            "fieldname": "tipo_opinion",
+            "fieldtype": "Select",
+            "label": "Tipo Opinion",
+            "options": "Favorable\nConclusiones y Recomendaciones\nCon Salvedades\nAdversa\nAbstencion"
+        },
+        {
+            "fieldname": "firmado_por",
+            "fieldtype": "Link",
+            "label": "Firmado por",
+            "options": "User"
+        },
+        {
+            "fieldname": "cargo_firmante",
+            "fieldtype": "Data",
+            "label": "Cargo Firmante"
+        },
+        {
+            "fieldname": "revisado_por",
+            "fieldtype": "Link",
+            "label": "Revisado por",
+            "options": "User"
+        },
+        {
+            "fieldname": "notas_emision",
+            "fieldtype": "Small Text",
+            "label": "Notas Emision"
+        },
+        {
+            "fieldname": "section_contenido",
+            "fieldtype": "Section Break",
+            "label": "Contenido del Informe"
+        },
+        {
+            "fieldname": "titulo_informe",
+            "fieldtype": "Data",
+            "label": "Titulo Informe",
+            "reqd": 1
+        },
+        {
+            "fieldname": "base_normativa",
+            "fieldtype": "Data",
+            "label": "Base Normativa"
+        },
+        {
+            "fieldname": "alcance_del_trabajo",
+            "fieldtype": "Text Editor",
+            "label": "Alcance del Trabajo"
+        },
+        {
+            "fieldname": "resumen_ejecutivo",
+            "fieldtype": "Text Editor",
+            "label": "Resumen Ejecutivo"
+        },
+        {
+            "fieldname": "principales_hallazgos",
+            "fieldtype": "Text Editor",
+            "label": "Principales Hallazgos"
+        },
+        {
+            "fieldname": "recomendaciones_clave",
+            "fieldtype": "Text Editor",
+            "label": "Recomendaciones Clave"
+        },
+        {
+            "fieldname": "section_dictamen",
+            "fieldtype": "Section Break",
+            "label": "Bloque de Dictamen",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "fundamento_opinion",
+            "fieldtype": "Text Editor",
+            "label": "Fundamento de la Opinion",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "section_modificacion_dictamen",
+            "fieldtype": "Section Break",
+            "label": "Opinion Modificada",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "asunto_que_origina_modificacion",
+            "fieldtype": "Small Text",
+            "label": "Asunto que Origina la Modificacion",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "fundamento_salvedad",
+            "fieldtype": "Text Editor",
+            "label": "Fundamento de la Opinion Modificada",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "efecto_generalizado",
+            "fieldtype": "Check",
+            "label": "Efecto Generalizado",
+            "default": 0,
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "limitacion_alcance_material",
+            "fieldtype": "Check",
+            "label": "Limitacion al Alcance Material",
+            "default": 0,
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "section_parrafos_dictamen",
+            "fieldtype": "Section Break",
+            "label": "Parrafos Complementarios",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "parrafo_enfasis",
+            "fieldtype": "Text Editor",
+            "label": "Parrafo de Enfasis",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "parrafo_otros_asuntos",
+            "fieldtype": "Text Editor",
+            "label": "Parrafo de Otros Asuntos",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "responsabilidades_administracion",
+            "fieldtype": "Text Editor",
+            "label": "Responsabilidades de la Administracion",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "responsabilidades_auditor",
+            "fieldtype": "Text Editor",
+            "label": "Responsabilidades del Auditor",
+            "depends_on": "eval:doc.tipo_de_informe==\"Dictamen de Auditoria\""
+        },
+        {
+            "fieldname": "opinion_o_conclusion",
+            "fieldtype": "Text Editor",
+            "label": "Opinion o Conclusion"
+        },
+        {
+            "fieldname": "conclusion_final",
+            "fieldtype": "Text Editor",
+            "label": "Conclusion Final"
+        },
+        {
+            "fieldname": "section_control",
+            "fieldtype": "Section Break",
+            "label": "Control de Emision"
+        },
+        {
+            "fieldname": "emitido_por",
+            "fieldtype": "Link",
+            "label": "Emitido por",
+            "options": "User",
+            "read_only": 1
+        },
+        {
+            "fieldname": "fecha_emision",
+            "fieldtype": "Datetime",
+            "label": "Fecha Emision",
+            "read_only": 1
+        }
+    ],
+    "links": [
+        {
+            "group": "Auditoria",
+            "link_doctype": "Expediente Auditoria",
+            "link_fieldname": "expediente_auditoria"
+        },
+        {
+            "group": "Auditoria",
+            "link_doctype": "Encargo Contable",
+            "link_fieldname": "encargo_contable"
+        }
+    ],
+    "module": "Gestion Contable",
+    "name": "Informe Final Auditoria",
+    "naming_rule": "By fieldname",
+    "autoname": "field:nombre_del_informe",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 0,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 0,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

@@ -1,4 +1,4 @@
-﻿frappe.ui.form.on("Papel Trabajo Auditoria", {
+frappe.ui.form.on("Papel Trabajo Auditoria", {
     refresh(frm) {
         frm.set_query("riesgo_control_auditoria", () => ({
             filters: frm.doc.expediente_auditoria ? { expediente_auditoria: frm.doc.expediente_auditoria } : {},
@@ -8,7 +8,7 @@
             filters: frm.doc.encargo_contable ? { encargo_contable: frm.doc.encargo_contable } : {},
         }));
 
-        frm.set_query("tarea_contable", () => ({
+        frm.set_query("task", () => ({
             filters: frm.doc.encargo_contable ? { encargo_contable: frm.doc.encargo_contable } : {},
         }));
 

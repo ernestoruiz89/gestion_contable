@@ -1,0 +1,132 @@
+<style>
+  .efc-wrap { font-family: "Helvetica Neue", Arial, sans-serif; color: #0f172a; font-size: 11px; }
+  .efc-head { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 18px; }
+  .efc-head h1 { margin: 0; font-size: 22px; }
+  .efc-head p { margin: 4px 0 0; color: #475569; }
+  .efc-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  .efc-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; }
+  .efc-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .efc-table th, .efc-table td { border: 1px solid #dbe3ef; padding: 6px 8px; }
+  .efc-table th { background: #f8fafc; text-align: left; }
+  .efc-table td.num { text-align: right; white-space: nowrap; }
+  .efc-line-total { font-weight: 700; background: #f8fafc; }
+  .efc-line-subtotal { font-weight: 600; background: #fdfefe; }
+  .efc-note { margin-top: 18px; page-break-inside: avoid; }
+  .efc-note h3 { margin: 0 0 6px; font-size: 13px; }
+  .efc-note-meta { color: #475569; margin-bottom: 6px; }
+</style>
+{% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
+{% set referenced_numbers = [] %}
+{% for linea in doc.lineas %}
+  {% if linea.numero_nota_referencial and linea.numero_nota_referencial not in referenced_numbers %}
+    {% set _ = referenced_numbers.append(linea.numero_nota_referencial) %}
+  {% endif %}
+{% endfor %}
+{% set notas = frappe.get_all(
+  "Nota Estado Financiero",
+  filters={"paquete_estados_financieros_cliente": doc.paquete_estados_financieros_cliente},
+  fields=["name", "numero_nota", "titulo", "orden_presentacion", "estado_aprobacion", "total_referencias"],
+  order_by="orden_presentacion asc, creation asc",
+  limit_page_length=200
+) %}
+<div class="efc-wrap">
+  <div class="efc-head">
+    <h1>{{ paquete.razon_social_reportante or paquete.cliente }}</h1>
+    <p>{{ doc.titulo_formal or doc.tipo_estado }}</p>
+    {% if doc.subtitulo %}<p>{{ doc.subtitulo }}</p>{% endif %}
+  </div>
+
+  <table class="efc-meta">
+    <tr>
+      <td><strong>Cliente</strong><br>{{ paquete.cliente or "-" }}</td>
+      <td><strong>Paquete</strong><br>{{ paquete.name or "-" }}</td>
+      <td><strong>Periodo</strong><br>{{ paquete.periodo_contable or "-" }}</td>
+      <td><strong>Fecha Corte</strong><br>{{ doc.fecha_corte or paquete.fecha_corte or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Moneda</strong><br>{{ doc.moneda_presentacion or paquete.moneda_presentacion or "-" }}</td>
+      <td><strong>Fecha Comparativa</strong><br>{{ doc.fecha_comparativa or "-" }}</td>
+      <td><strong>Metodo Flujo</strong><br>{{ doc.metodo_flujo_efectivo or "-" }}</td>
+      <td><strong>Estado Aprobacion</strong><br>{{ doc.estado_aprobacion or "-" }}</td>
+    </tr>
+  </table>
+
+  <table class="efc-table">
+    <thead>
+      <tr>
+        <th>Descripcion</th>
+        <th>Monto Actual</th>
+        <th>Monto Comparativo</th>
+        <th>Nota</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for linea in doc.lineas %}
+        {% set row_class = "" %}
+        {% if linea.es_total %}
+          {% set row_class = "efc-line-total" %}
+        {% elif linea.es_subtotal %}
+          {% set row_class = "efc-line-subtotal" %}
+        {% endif %}
+        <tr class="{{ row_class }}">
+          <td style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px;">{{ linea.descripcion }}{% if linea.numero_nota_referencial %}<sup>{{ linea.numero_nota_referencial }}</sup>{% endif %}</td>
+          <td class="num">{{ frappe.format_value(linea.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+          <td class="num">{{ frappe.format_value(linea.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+          <td class="num">{{ linea.numero_nota_referencial or "-" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if doc.observaciones_preparacion %}
+    <div class="efc-note">
+      <h3>Observaciones de Preparacion</h3>
+      <div>{{ doc.observaciones_preparacion }}</div>
+    </div>
+  {% endif %}
+
+  {% if referenced_numbers %}
+    <div class="efc-note">
+      <h3>Notas Relacionadas</h3>
+      {% for nota in notas %}
+        {% if nota.numero_nota in referenced_numbers %}
+          {% set nota_doc = frappe.get_doc("Nota Estado Financiero", nota.name) %}
+          <div class="efc-note" style="margin-top: 12px;">
+            <h3>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h3>
+            <div class="efc-note-meta">Categoria: {{ nota_doc.categoria_nota or "-" }} | Estado: {{ nota_doc.estado_aprobacion or "-" }}</div>
+            {% if nota_doc.politica_contable %}
+              <div><strong>Politica contable</strong></div>
+              <div>{{ nota_doc.politica_contable }}</div>
+            {% endif %}
+            {% if nota_doc.contenido_narrativo %}
+              <div style="margin-top: 8px;"><strong>Contenido narrativo</strong></div>
+              <div>{{ nota_doc.contenido_narrativo }}</div>
+            {% endif %}
+            {% if nota_doc.cifras_nota %}
+              <table class="efc-table" style="margin-top: 8px;">
+                <thead>
+                  <tr>
+                    <th>Concepto</th>
+                    <th>Monto Actual</th>
+                    <th>Monto Comparativo</th>
+                    <th>Comentario</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for cifra in nota_doc.cifras_nota %}
+                    <tr>
+                      <td>{{ cifra.concepto }}{% if cifra.subconcepto %} - {{ cifra.subconcepto }}{% endif %}</td>
+                      <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+                      <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+                      <td>{{ cifra.comentario or "-" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

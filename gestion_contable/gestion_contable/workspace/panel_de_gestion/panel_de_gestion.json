@@ -1,6 +1,6 @@
 {
     "charts": [],
-    "content": "[{\"id\":\"hdr_gc\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Panel de Gestion Contable</span>\",\"col\":12}},{\"id\":\"card_ops\",\"type\":\"card\",\"data\":{\"card_name\":\"Operaciones\",\"col\":4}},{\"id\":\"card_com\",\"type\":\"card\",\"data\":{\"card_name\":\"Comercial\",\"col\":4}},{\"id\":\"card_panel\",\"type\":\"card\",\"data\":{\"card_name\":\"Panel\",\"col\":4}}]",
+    "content": "[{\"id\":\"hdr_gc\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Panel de Gestion Contable</span>\",\"col\":12}},{\"id\":\"card_ops\",\"type\":\"card\",\"data\":{\"card_name\":\"Operaciones\",\"col\":4}},{\"id\":\"card_com\",\"type\":\"card\",\"data\":{\"card_name\":\"Comercial\",\"col\":4}},{\"id\":\"card_panel\",\"type\":\"card\",\"data\":{\"card_name\":\"Panel\",\"col\":4}},{\"id\":\"card_fin\",\"type\":\"card\",\"data\":{\"card_name\":\"Estados Financieros\",\"col\":4}}]",
     "creation": "2024-03-04 14:00:00.000000",
     "custom_blocks": [],
     "docstatus": 0,
@@ -204,8 +204,57 @@
         {
             "hidden": 0,
             "is_query_report": 0,
+            "label": "Estados Financieros",
+            "link_count": 4,
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Card Break"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Paquetes EEFF Cliente",
+            "link_count": 0,
+            "link_to": "Paquete Estados Financieros Cliente",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Estados Financieros Cliente",
+            "link_count": 0,
+            "link_to": "Estado Financiero Cliente",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Notas EEFF Cliente",
+            "link_count": 0,
+            "link_to": "Nota Estado Financiero",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Ajustes EEFF Cliente",
+            "link_count": 0,
+            "link_to": "Ajuste Estados Financieros Cliente",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
             "label": "Panel",
-            "link_count": 6,
+            "link_count": 11,
             "link_type": "DocType",
             "onboard": 0,
             "type": "Card Break"
@@ -272,9 +321,59 @@
         },
         {
             "hidden": 0,
+            "is_query_report": 1,
+            "label": "Reporte Cartera",
+            "link_count": 0,
+            "link_to": "Cartera Gerencial por Encargo",
+            "link_type": "Report",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 1,
+            "label": "Reporte Auditoria",
+            "link_count": 0,
+            "link_to": "Estado Gerencial de Auditoria",
+            "link_type": "Report",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 1,
+            "label": "Reporte Requerimientos",
+            "link_count": 0,
+            "link_to": "Seguimiento Gerencial de Requerimientos",
+            "link_type": "Report",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 1,
+            "label": "Reporte Margen",
+            "link_count": 0,
+            "link_to": "Margen por Encargo y Servicio",
+            "link_type": "Report",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Salida a Produccion",
+            "link_count": 0,
+            "link_to": "salida-a-produccion",
+            "link_type": "Page",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
             "is_query_report": 0,
             "label": "Auditoria",
-            "link_count": 4,
+            "link_count": 5,
             "link_type": "DocType",
             "onboard": 0,
             "type": "Card Break"
@@ -315,6 +414,16 @@
             "label": "Hallazgos Auditoria",
             "link_count": 0,
             "link_to": "Hallazgo Auditoria",
+            "link_type": "DocType",
+            "onboard": 0,
+            "type": "Link"
+        },
+        {
+            "hidden": 0,
+            "is_query_report": 0,
+            "label": "Informes Finales Auditoria",
+            "link_count": 0,
+            "link_to": "Informe Final Auditoria",
             "link_type": "DocType",
             "onboard": 0,
             "type": "Link"

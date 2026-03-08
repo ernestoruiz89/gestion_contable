@@ -1,0 +1,80 @@
+{
+    "actions": [],
+    "creation": "2026-03-08 00:35:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "estado_financiero_cliente",
+        "tipo_estado",
+        "numero_linea",
+        "codigo_rubro",
+        "descripcion_linea_estado",
+        "linea_estado_name",
+        "tipo_referencia",
+        "obligatoria"
+    ],
+    "fields": [
+        {
+            "fieldname": "estado_financiero_cliente",
+            "fieldtype": "Link",
+            "label": "Estado Financiero Cliente",
+            "options": "Estado Financiero Cliente",
+            "in_list_view": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "tipo_estado",
+            "fieldtype": "Data",
+            "label": "Tipo Estado",
+            "read_only": 1
+        },
+        {
+            "fieldname": "numero_linea",
+            "fieldtype": "Int",
+            "label": "Numero Linea",
+            "read_only": 1
+        },
+        {
+            "fieldname": "codigo_rubro",
+            "fieldtype": "Data",
+            "label": "Codigo Rubro",
+            "read_only": 1
+        },
+        {
+            "fieldname": "descripcion_linea_estado",
+            "fieldtype": "Data",
+            "label": "Descripcion Linea Estado",
+            "in_list_view": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "linea_estado_name",
+            "fieldtype": "Data",
+            "label": "Linea Estado Name",
+            "hidden": 1,
+            "read_only": 1
+        },
+        {
+            "fieldname": "tipo_referencia",
+            "fieldtype": "Select",
+            "label": "Tipo Referencia",
+            "options": "Principal\nComplementaria",
+            "default": "Principal",
+            "read_only": 1
+        },
+        {
+            "fieldname": "obligatoria",
+            "fieldtype": "Check",
+            "label": "Obligatoria",
+            "default": 1,
+            "read_only": 1
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Referencia Nota Estado Financiero",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

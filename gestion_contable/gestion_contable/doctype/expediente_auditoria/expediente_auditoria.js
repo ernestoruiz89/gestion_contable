@@ -1,4 +1,4 @@
-frappe.ui.form.on("Expediente Auditoria", {
+﻿frappe.ui.form.on("Expediente Auditoria", {
     refresh(frm) {
         frm.set_query("encargo_contable", () => ({
             filters: { tipo_de_servicio: "Auditoria" },
@@ -56,5 +56,21 @@ frappe.ui.form.on("Expediente Auditoria", {
                 });
             }, __("Auditoria"));
         }
+        if (frm.doc.estado_expediente === "Cerrada" || frm.doc.estado_expediente === "Archivada") {
+            frm.add_custom_button(__("Generar Informe Final"), () => {
+                frappe.call({
+                    method: "gestion_contable.gestion_contable.doctype.expediente_auditoria.expediente_auditoria.generar_informe_final",
+                    args: { expediente_name: frm.doc.name },
+                    freeze: true,
+                    freeze_message: __("Generando informe final..."),
+                    callback: (r) => {
+                        if (!r.exc && r.message && r.message.name) {
+                            frappe.set_route("Form", "Informe Final Auditoria", r.message.name);
+                        }
+                    },
+                });
+            }, __("Auditoria"));
+        }
     },
 });
+

@@ -345,23 +345,23 @@ class ResumenAsignados {
                 frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-pendientes').on('click', () => {
-                frappe.route_options = { asignado_a: user.name, estado: 'Pendiente' };
+                frappe.route_options = { asignado_a: user.name, estado: 'Open' };
                 frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-proceso').on('click', () => {
-                frappe.route_options = { asignado_a: user.name, estado: 'En Proceso' };
+                frappe.route_options = { asignado_a: user.name, estado: 'Working' };
                 frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-revision').on('click', () => {
-                frappe.route_options = { asignado_a: user.name, estado: 'En Revisión' };
+                frappe.route_options = { asignado_a: user.name, estado: 'Pending Review' };
                 frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-completadas').on('click', () => {
-                frappe.route_options = { asignado_a: user.name, estado: 'Completada' };
+                frappe.route_options = { asignado_a: user.name, estado: 'Completed' };
                 frappe.set_route('panel-de-tareas');
             });
             row.find('.ra-stat-atrasadas').on('click', () => {
-                frappe.route_options = { asignado_a: user.name, vencimiento: 'Vencidas' };
+                frappe.route_options = { asignado_a: user.name, vencimiento: 'vencidas' };
                 frappe.set_route('panel-de-tareas');
             });
 

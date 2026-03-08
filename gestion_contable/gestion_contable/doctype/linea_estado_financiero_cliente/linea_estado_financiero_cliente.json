@@ -1,0 +1,135 @@
+{
+    "actions": [],
+    "creation": "2026-03-07 23:30:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "codigo_rubro",
+        "descripcion",
+        "nivel",
+        "orden",
+        "naturaleza",
+        "es_total",
+        "es_subtotal",
+        "es_resultado_final",
+        "es_efectivo_inicial",
+        "es_variacion_neta_efectivo",
+        "es_efectivo_final",
+        "monto_actual",
+        "monto_comparativo",
+        "signo_presentacion",
+        "numero_nota_referencial",
+        "requiere_nota",
+        "comentario_preparacion"
+    ],
+    "fields": [
+        {
+            "fieldname": "codigo_rubro",
+            "fieldtype": "Data",
+            "label": "Codigo Rubro",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Data",
+            "label": "Descripcion",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "nivel",
+            "fieldtype": "Int",
+            "label": "Nivel",
+            "default": 1
+        },
+        {
+            "fieldname": "orden",
+            "fieldtype": "Int",
+            "label": "Orden",
+            "default": 0
+        },
+        {
+            "fieldname": "naturaleza",
+            "fieldtype": "Select",
+            "label": "Naturaleza",
+            "options": "Activo\nPasivo\nPatrimonio\nIngreso\nGasto\nOtro"
+        },
+        {
+            "fieldname": "es_total",
+            "fieldtype": "Check",
+            "label": "Es Total",
+            "default": 0
+        },
+        {
+            "fieldname": "es_subtotal",
+            "fieldtype": "Check",
+            "label": "Es Subtotal",
+            "default": 0
+        },
+        {
+            "fieldname": "es_resultado_final",
+            "fieldtype": "Check",
+            "label": "Es Resultado Final",
+            "default": 0
+        },
+        {
+            "fieldname": "es_efectivo_inicial",
+            "fieldtype": "Check",
+            "label": "Es Efectivo Inicial",
+            "default": 0
+        },
+        {
+            "fieldname": "es_variacion_neta_efectivo",
+            "fieldtype": "Check",
+            "label": "Es Variacion Neta Efectivo",
+            "default": 0
+        },
+        {
+            "fieldname": "es_efectivo_final",
+            "fieldtype": "Check",
+            "label": "Es Efectivo Final",
+            "default": 0
+        },
+        {
+            "fieldname": "monto_actual",
+            "fieldtype": "Currency",
+            "label": "Monto Actual",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "monto_comparativo",
+            "fieldtype": "Currency",
+            "label": "Monto Comparativo"
+        },
+        {
+            "fieldname": "signo_presentacion",
+            "fieldtype": "Select",
+            "label": "Signo Presentacion",
+            "options": "Normal\nInverso",
+            "default": "Normal"
+        },
+        {
+            "fieldname": "numero_nota_referencial",
+            "fieldtype": "Data",
+            "label": "Numero Nota Referencial"
+        },
+        {
+            "fieldname": "requiere_nota",
+            "fieldtype": "Check",
+            "label": "Requiere Nota",
+            "default": 0
+        },
+        {
+            "fieldname": "comentario_preparacion",
+            "fieldtype": "Small Text",
+            "label": "Comentario Preparacion"
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Linea Estado Financiero Cliente",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

@@ -53,5 +53,157 @@
         "name": "Sales Invoice-tipo_de_servicio",
         "options": "Contabilidad\nAuditoria\nTrabajo Especial\nConsultoria",
         "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "cliente",
+        "fieldtype": "Link",
+        "insert_after": "project",
+        "in_list_view": 1,
+        "label": "Cliente",
+        "name": "Task-cliente",
+        "options": "Cliente Contable"
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "company",
+        "fieldtype": "Link",
+        "insert_after": "cliente",
+        "label": "Compania",
+        "name": "Task-company",
+        "options": "Company"
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "encargo_contable",
+        "fieldtype": "Link",
+        "insert_after": "company",
+        "label": "Encargo Contable",
+        "name": "Task-encargo_contable",
+        "options": "Encargo Contable"
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "periodo",
+        "fieldtype": "Link",
+        "insert_after": "encargo_contable",
+        "in_list_view": 1,
+        "label": "Periodo",
+        "name": "Task-periodo",
+        "options": "Periodo Contable"
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "tipo_de_tarea",
+        "fieldtype": "Select",
+        "insert_after": "periodo",
+        "label": "Tipo de Tarea",
+        "name": "Task-tipo_de_tarea",
+        "options": "Impuestos\nN\u00f3mina\nCierre Contable\nAuditor\u00eda\nConciliaci\u00f3n Bancaria\nDeclaraci\u00f3n DGI\nEstados Financieros\nFacturaci\u00f3n\nAtenci\u00f3n a Requerimiento\nTr\u00e1mite DGI\nConsultor\u00eda\nOtro"
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "estado_aprobacion",
+        "fieldtype": "Select",
+        "insert_after": "tipo_de_tarea",
+        "in_list_view": 1,
+        "label": "Estado de Aprobacion",
+        "name": "Task-estado_aprobacion",
+        "options": "Borrador\nRevision Supervisor\nRevision Socio\nAprobado\nDevuelto",
+        "default": "Borrador",
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "fecha_envio_revision",
+        "fieldtype": "Datetime",
+        "insert_after": "estado_aprobacion",
+        "label": "Fecha Envio Revision",
+        "name": "Task-fecha_envio_revision",
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "revisado_por_supervisor",
+        "fieldtype": "Link",
+        "insert_after": "fecha_envio_revision",
+        "label": "Revisado por Supervisor",
+        "name": "Task-revisado_por_supervisor",
+        "options": "User",
+        "permlevel": 1,
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "fecha_revision_supervisor",
+        "fieldtype": "Datetime",
+        "insert_after": "revisado_por_supervisor",
+        "label": "Fecha Revision Supervisor",
+        "name": "Task-fecha_revision_supervisor",
+        "permlevel": 1,
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "aprobado_por_socio",
+        "fieldtype": "Link",
+        "insert_after": "fecha_revision_supervisor",
+        "label": "Aprobado por Socio",
+        "name": "Task-aprobado_por_socio",
+        "options": "User",
+        "permlevel": 2,
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "fecha_aprobacion_socio",
+        "fieldtype": "Datetime",
+        "insert_after": "aprobado_por_socio",
+        "label": "Fecha Aprobacion Socio",
+        "name": "Task-fecha_aprobacion_socio",
+        "permlevel": 2,
+        "read_only": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "comentarios_supervisor",
+        "fieldtype": "Small Text",
+        "insert_after": "fecha_aprobacion_socio",
+        "label": "Comentarios Supervisor",
+        "name": "Task-comentarios_supervisor",
+        "permlevel": 1
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "comentarios_socio",
+        "fieldtype": "Small Text",
+        "insert_after": "comentarios_supervisor",
+        "label": "Comentarios Socio",
+        "name": "Task-comentarios_socio",
+        "permlevel": 2
+    },
+    {
+        "doctype": "Custom Field",
+        "dt": "Task",
+        "fieldname": "old_tarea_id",
+        "fieldtype": "Data",
+        "hidden": 1,
+        "insert_after": "comentarios_socio",
+        "label": "Old Tarea ID",
+        "name": "Task-old_tarea_id",
+        "read_only": 1
     }
 ]

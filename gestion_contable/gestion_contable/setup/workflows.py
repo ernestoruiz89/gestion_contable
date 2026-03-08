@@ -47,8 +47,9 @@ WORKFLOW_STATE_STYLES = {
 }
 WORKFLOW_DEFINITIONS = (
     {
-        "workflow_name": "GC - Aprobacion Tarea Contable",
-        "document_type": "Tarea Contable",
+        "workflow_name": "GC - Aprobacion Task Operativa",
+        "legacy_workflow_names": ("GC - Aprobacion Tarea Contable",),
+        "document_type": "Task",
         "draft_edit_roles": DRAFT_EDIT_ROLES_WITH_AUX,
     },
     {
@@ -87,6 +88,11 @@ WORKFLOW_DEFINITIONS = (
         "draft_edit_roles": DRAFT_EDIT_ROLES_INTERNAL,
     },
     {
+        "workflow_name": "GC - Aprobacion Informe Final Auditoria",
+        "document_type": "Informe Final Auditoria",
+        "draft_edit_roles": DRAFT_EDIT_ROLES_INTERNAL,
+    },
+    {
         "workflow_name": "GC - Aprobacion Riesgo Control Auditoria",
         "document_type": "Riesgo Control Auditoria",
         "draft_edit_roles": DRAFT_EDIT_ROLES_INTERNAL,
@@ -99,6 +105,26 @@ WORKFLOW_DEFINITIONS = (
     {
         "workflow_name": "GC - Aprobacion Hallazgo Auditoria",
         "document_type": "Hallazgo Auditoria",
+        "draft_edit_roles": DRAFT_EDIT_ROLES_INTERNAL,
+    },
+    {
+        "workflow_name": "GC - Aprobacion Paquete Estados Financieros Cliente",
+        "document_type": "Paquete Estados Financieros Cliente",
+        "draft_edit_roles": DRAFT_EDIT_ROLES_INTERNAL,
+    },
+    {
+        "workflow_name": "GC - Aprobacion Estado Financiero Cliente",
+        "document_type": "Estado Financiero Cliente",
+        "draft_edit_roles": DRAFT_EDIT_ROLES_INTERNAL,
+    },
+    {
+        "workflow_name": "GC - Aprobacion Ajuste Estados Financieros Cliente",
+        "document_type": "Ajuste Estados Financieros Cliente",
+        "draft_edit_roles": DRAFT_EDIT_ROLES_INTERNAL,
+    },
+    {
+        "workflow_name": "GC - Aprobacion Nota Estado Financiero",
+        "document_type": "Nota Estado Financiero",
         "draft_edit_roles": DRAFT_EDIT_ROLES_INTERNAL,
     },
 )
@@ -163,6 +189,11 @@ def _sync_workflow(definition):
 def _get_or_new_workflow(definition):
     expected_name = definition["workflow_name"]
     existing_name = frappe.db.exists("Workflow", expected_name)
+    if not existing_name:
+        for legacy_name in definition.get("legacy_workflow_names", ()):
+            existing_name = frappe.db.exists("Workflow", legacy_name)
+            if existing_name:
+                break
     if not existing_name:
         existing = frappe.get_all(
             "Workflow",

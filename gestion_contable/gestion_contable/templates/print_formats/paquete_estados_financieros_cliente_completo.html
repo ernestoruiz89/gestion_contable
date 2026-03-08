@@ -1,0 +1,167 @@
+<style>
+  .pefc-wrap { font-family: "Helvetica Neue", Arial, sans-serif; color: #0f172a; font-size: 11px; }
+  .pefc-head { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 18px; }
+  .pefc-head h1 { margin: 0; font-size: 22px; }
+  .pefc-head p { margin: 4px 0 0; color: #475569; }
+  .pefc-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  .pefc-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; }
+  .pefc-section { margin: 0 0 20px; }
+  .pefc-section h2 { margin: 0 0 8px; font-size: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+  .pefc-section h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .pefc-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .pefc-table th, .pefc-table td { border: 1px solid #dbe3ef; padding: 6px 8px; }
+  .pefc-table th { background: #f8fafc; text-align: left; }
+  .pefc-table td.num { text-align: right; white-space: nowrap; }
+  .pefc-line-total { font-weight: 700; background: #f8fafc; }
+  .pefc-line-subtotal { font-weight: 600; background: #fdfefe; }
+  .pefc-note { margin-top: 18px; page-break-inside: avoid; }
+  .pefc-note h4 { margin: 0 0 6px; font-size: 13px; }
+  .pefc-note-meta { color: #475569; margin-bottom: 6px; }
+  .pefc-ref-list { margin: 6px 0 0 16px; padding: 0; }
+  .pefc-ref-list li { margin-bottom: 4px; }
+</style>
+{% set estados = frappe.get_all(
+  "Estado Financiero Cliente",
+  filters={"paquete_estados_financieros_cliente": doc.name},
+  fields=["name", "tipo_estado", "titulo_formal", "subtitulo", "orden_presentacion", "fecha_comparativa"],
+  order_by="orden_presentacion asc, creation asc",
+  limit_page_length=100
+) %}
+{% set notas = frappe.get_all(
+  "Nota Estado Financiero",
+  filters={"paquete_estados_financieros_cliente": doc.name},
+  fields=["name", "numero_nota", "titulo", "orden_presentacion", "estado_aprobacion", "total_referencias"],
+  order_by="orden_presentacion asc, creation asc",
+  limit_page_length=200
+) %}
+<div class="pefc-wrap">
+  <div class="pefc-head">
+    <h1>{{ doc.razon_social_reportante or doc.cliente }}</h1>
+    <p>Paquete de Estados Financieros del Cliente</p>
+  </div>
+
+  <table class="pefc-meta">
+    <tr>
+      <td><strong>Cliente</strong><br>{{ doc.cliente or "-" }}</td>
+      <td><strong>Periodo</strong><br>{{ doc.periodo_contable or "-" }}</td>
+      <td><strong>Fecha de Corte</strong><br>{{ doc.fecha_corte or "-" }}</td>
+      <td><strong>Fecha de Emision</strong><br>{{ doc.fecha_emision or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Marco Contable</strong><br>{{ doc.marco_contable or "-" }}</td>
+      <td><strong>Tipo de Paquete</strong><br>{{ doc.tipo_paquete or "-" }}</td>
+      <td><strong>Version</strong><br>{{ doc.version or "-" }}</td>
+      <td><strong>Moneda</strong><br>{{ doc.moneda_presentacion or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Expediente Auditoria</strong><br>{{ doc.expediente_auditoria or "-" }}</td>
+      <td><strong>Informe Final</strong><br>{{ doc.informe_final_auditoria or "-" }}</td>
+      <td><strong>Dictamen</strong><br>{{ doc.dictamen_de_auditoria or "-" }}</td>
+      <td><strong>Estado Preparacion</strong><br>{{ doc.estado_preparacion or "-" }}</td>
+    </tr>
+  </table>
+
+  <div class="pefc-section">
+    <h2>Resumen</h2>
+    <table class="pefc-meta">
+      <tr>
+        <td><strong>Estados</strong><br>{{ doc.total_estados or 0 }}</td>
+        <td><strong>Estados Aprobados</strong><br>{{ doc.estados_aprobados or 0 }}</td>
+        <td><strong>Notas</strong><br>{{ doc.total_notas or 0 }}</td>
+        <td><strong>Notas Aprobadas</strong><br>{{ doc.notas_aprobadas or 0 }}</td>
+      </tr>
+      <tr>
+        <td><strong>Notas Pendientes</strong><br>{{ doc.notas_requeridas_pendientes or 0 }}</td>
+        <td><strong>Ajustes</strong><br>{{ doc.total_ajustes or 0 }}</td>
+        <td><strong>Ajustes No Registrados</strong><br>{{ doc.ajustes_no_registrados or 0 }}</td>
+        <td><strong>Monto Ajustes</strong><br>{{ frappe.format_value(doc.monto_ajustes or 0, {"fieldtype": "Currency"}) }}</td>
+      </tr>
+    </table>
+  </div>
+
+  {% for estado in estados %}
+    {% set estado_doc = frappe.get_doc("Estado Financiero Cliente", estado.name) %}
+    <div class="pefc-section">
+      <h2>{{ estado_doc.titulo_formal or estado_doc.tipo_estado }}</h2>
+      {% if estado_doc.subtitulo %}<p>{{ estado_doc.subtitulo }}</p>{% endif %}
+      <table class="pefc-table">
+        <thead>
+          <tr>
+            <th>Descripcion</th>
+            <th>Monto Actual</th>
+            <th>Monto Comparativo</th>
+            <th>Nota</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for linea in estado_doc.lineas %}
+            {% set row_class = "" %}
+            {% if linea.es_total %}
+              {% set row_class = "pefc-line-total" %}
+            {% elif linea.es_subtotal %}
+              {% set row_class = "pefc-line-subtotal" %}
+            {% endif %}
+            <tr class="{{ row_class }}">
+              <td style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px;">{{ linea.descripcion }}{% if linea.numero_nota_referencial %}<sup>{{ linea.numero_nota_referencial }}</sup>{% endif %}</td>
+              <td class="num">{{ frappe.format_value(linea.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+              <td class="num">{{ frappe.format_value(linea.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+              <td class="num">{{ linea.numero_nota_referencial or "-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endfor %}
+
+  <div class="pefc-section">
+    <h2>Notas a los Estados Financieros</h2>
+    {% for nota in notas %}
+      {% set nota_doc = frappe.get_doc("Nota Estado Financiero", nota.name) %}
+      <div class="pefc-note">
+        <h4>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h4>
+        <div class="pefc-note-meta">
+          Categoria: {{ nota_doc.categoria_nota or "-" }} | Estado: {{ nota_doc.estado_aprobacion or "-" }} | Referencias: {{ nota_doc.total_referencias or 0 }}
+        </div>
+        {% if nota_doc.referencias_cruzadas %}
+          <ul class="pefc-ref-list">
+            {% for ref in nota_doc.referencias_cruzadas %}
+              <li>{{ ref.tipo_estado or "Estado" }} - {{ ref.descripcion_linea_estado or "Linea" }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% if nota_doc.politica_contable %}
+          <div><strong>Politica contable</strong></div>
+          <div>{{ nota_doc.politica_contable }}</div>
+        {% endif %}
+        {% if nota_doc.contenido_narrativo %}
+          <div style="margin-top: 8px;"><strong>Contenido narrativo</strong></div>
+          <div>{{ nota_doc.contenido_narrativo }}</div>
+        {% endif %}
+        {% if nota_doc.cifras_nota %}
+          <table class="pefc-table" style="margin-top: 8px;">
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Monto Actual</th>
+                <th>Monto Comparativo</th>
+                <th>Comentario</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cifra in nota_doc.cifras_nota %}
+                <tr>
+                  <td>{{ cifra.concepto }}{% if cifra.subconcepto %} - {{ cifra.subconcepto }}{% endif %}</td>
+                  <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+                  <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+                  <td>{{ cifra.comentario or "-" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+    {% else %}
+      <p>No hay notas registradas para este paquete.</p>
+    {% endfor %}
+  </div>
+</div>

@@ -1,0 +1,79 @@
+{
+    "actions": [],
+    "creation": "2026-03-07 23:30:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "estado_financiero_cliente",
+        "codigo_rubro",
+        "descripcion_linea",
+        "monto_previo",
+        "monto_ajuste",
+        "monto_ajustado",
+        "afecta_resultado",
+        "afecta_patrimonio",
+        "numero_nota_referencial"
+    ],
+    "fields": [
+        {
+            "fieldname": "estado_financiero_cliente",
+            "fieldtype": "Link",
+            "label": "Estado Financiero",
+            "options": "Estado Financiero Cliente"
+        },
+        {
+            "fieldname": "codigo_rubro",
+            "fieldtype": "Data",
+            "label": "Codigo Rubro",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "descripcion_linea",
+            "fieldtype": "Data",
+            "label": "Descripcion Linea",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "monto_previo",
+            "fieldtype": "Currency",
+            "label": "Monto Previo"
+        },
+        {
+            "fieldname": "monto_ajuste",
+            "fieldtype": "Currency",
+            "label": "Monto Ajuste",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "monto_ajustado",
+            "fieldtype": "Currency",
+            "label": "Monto Ajustado",
+            "read_only": 1
+        },
+        {
+            "fieldname": "afecta_resultado",
+            "fieldtype": "Check",
+            "label": "Afecta Resultado",
+            "default": 0
+        },
+        {
+            "fieldname": "afecta_patrimonio",
+            "fieldtype": "Check",
+            "label": "Afecta Patrimonio",
+            "default": 0
+        },
+        {
+            "fieldname": "numero_nota_referencial",
+            "fieldtype": "Data",
+            "label": "Numero Nota Referencial"
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Linea Ajuste Estado Financiero Cliente",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

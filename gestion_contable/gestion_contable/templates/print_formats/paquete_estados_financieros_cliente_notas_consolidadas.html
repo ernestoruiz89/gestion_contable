@@ -1,0 +1,121 @@
+<style>
+  .pefn-wrap { font-family: "Helvetica Neue", Arial, sans-serif; color: #0f172a; font-size: 11px; }
+  .pefn-head { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 18px; }
+  .pefn-head h1 { margin: 0; font-size: 22px; }
+  .pefn-head p { margin: 4px 0 0; color: #475569; }
+  .pefn-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  .pefn-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; }
+  .pefn-section { margin: 0 0 20px; }
+  .pefn-section h2 { margin: 0 0 8px; font-size: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+  .pefn-note { margin-top: 18px; page-break-inside: avoid; }
+  .pefn-note h3 { margin: 0 0 6px; font-size: 14px; }
+  .pefn-note-meta { color: #475569; margin-bottom: 6px; }
+  .pefn-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .pefn-table th, .pefn-table td { border: 1px solid #dbe3ef; padding: 6px 8px; }
+  .pefn-table th { background: #f8fafc; text-align: left; }
+  .pefn-table td.num { text-align: right; white-space: nowrap; }
+  .pefn-ref-list { margin: 6px 0 0 16px; padding: 0; }
+  .pefn-ref-list li { margin-bottom: 4px; }
+</style>
+{% set notas = frappe.get_all(
+  "Nota Estado Financiero",
+  filters={"paquete_estados_financieros_cliente": doc.name},
+  fields=["name", "numero_nota", "titulo", "categoria_nota", "orden_presentacion", "estado_aprobacion", "total_referencias"],
+  order_by="orden_presentacion asc, creation asc",
+  limit_page_length=300
+) %}
+<div class="pefn-wrap">
+  <div class="pefn-head">
+    <h1>{{ doc.razon_social_reportante or doc.cliente }}</h1>
+    <p>Notas a los Estados Financieros del Cliente</p>
+  </div>
+
+  <table class="pefn-meta">
+    <tr>
+      <td><strong>Cliente</strong><br>{{ doc.cliente or "-" }}</td>
+      <td><strong>Periodo</strong><br>{{ doc.periodo_contable or "-" }}</td>
+      <td><strong>Fecha de Corte</strong><br>{{ doc.fecha_corte or "-" }}</td>
+      <td><strong>Version</strong><br>{{ doc.version or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Marco Contable</strong><br>{{ doc.marco_contable or "-" }}</td>
+      <td><strong>Tipo de Paquete</strong><br>{{ doc.tipo_paquete or "-" }}</td>
+      <td><strong>Estado Preparacion</strong><br>{{ doc.estado_preparacion or "-" }}</td>
+      <td><strong>Total Notas</strong><br>{{ doc.total_notas or 0 }}</td>
+    </tr>
+  </table>
+
+  <div class="pefn-section">
+    <h2>Resumen de Notas</h2>
+    <table class="pefn-meta">
+      <tr>
+        <td><strong>Notas Registradas</strong><br>{{ doc.total_notas or 0 }}</td>
+        <td><strong>Notas Aprobadas</strong><br>{{ doc.notas_aprobadas or 0 }}</td>
+        <td><strong>Notas Pendientes</strong><br>{{ doc.notas_requeridas_pendientes or 0 }}</td>
+        <td><strong>Paquete</strong><br>{{ doc.name }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="pefn-section">
+    <h2>Notas a los Estados Financieros</h2>
+    {% for nota in notas %}
+      {% set nota_doc = frappe.get_doc("Nota Estado Financiero", nota.name) %}
+      <div class="pefn-note">
+        <h3>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h3>
+        <div class="pefn-note-meta">
+          Categoria: {{ nota_doc.categoria_nota or "-" }} | Estado: {{ nota_doc.estado_aprobacion or "-" }} | Referencias: {{ nota_doc.total_referencias or 0 }}
+        </div>
+        {% if nota_doc.referencias_cruzadas %}
+          <ul class="pefn-ref-list">
+            {% for ref in nota_doc.referencias_cruzadas %}
+              <li>
+                {{ ref.tipo_estado or "Estado" }}
+                {% if ref.codigo_rubro %} | {{ ref.codigo_rubro }}{% endif %}
+                {% if ref.descripcion_linea_estado %} | {{ ref.descripcion_linea_estado }}{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% if nota_doc.politica_contable %}
+          <div style="margin-top: 8px;"><strong>Politica contable</strong></div>
+          <div>{{ nota_doc.politica_contable | safe }}</div>
+        {% endif %}
+        {% if nota_doc.contenido_narrativo %}
+          <div style="margin-top: 8px;"><strong>Contenido narrativo</strong></div>
+          <div>{{ nota_doc.contenido_narrativo | safe }}</div>
+        {% endif %}
+        {% if nota_doc.cifras_nota %}
+          <table class="pefn-table">
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Subconcepto</th>
+                <th>Monto Actual</th>
+                <th>Monto Comparativo</th>
+                <th>Comentario</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cifra in nota_doc.cifras_nota %}
+                <tr>
+                  <td>{{ cifra.concepto or "-" }}</td>
+                  <td>{{ cifra.subconcepto or "-" }}</td>
+                  <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+                  <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+                  <td>{{ cifra.comentario or "-" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+        {% if nota_doc.observaciones_preparacion %}
+          <div style="margin-top: 8px;"><strong>Observaciones de preparacion</strong></div>
+          <div>{{ nota_doc.observaciones_preparacion }}</div>
+        {% endif %}
+      </div>
+    {% else %}
+      <p>No hay notas registradas para este paquete.</p>
+    {% endfor %}
+  </div>
+</div>
