@@ -387,6 +387,19 @@ def _seed_accounting_clients(ctx):
             _create_cobranza(invoice_name, estado="Compromiso de Pago" if index <= 3 else "Contactado", proxima_gestion=add_days(nowdate(), 5 + index), comentario=f"Seguimiento demo por saldo pendiente de {client_name}.")
 
 
+def _insert_demo_doc(doc, *, target_estado_aprobacion=None):
+    if hasattr(doc, "meta") and doc.meta.has_field("estado_aprobacion"):
+        target_estado_aprobacion = target_estado_aprobacion or doc.get("estado_aprobacion")
+        if target_estado_aprobacion and target_estado_aprobacion != "Borrador":
+            doc.estado_aprobacion = "Borrador"
+    doc.flags.ignore_governance_validation = True
+    doc.insert(ignore_permissions=True)
+    if target_estado_aprobacion and target_estado_aprobacion != "Borrador":
+        frappe.db.set_value(doc.doctype, doc.name, "estado_aprobacion", target_estado_aprobacion, update_modified=False)
+        doc.reload()
+    return doc
+
+
 def _create_contract(client, service_name, company, currency, manager_email, operational_email, start_date, end_date, modalidad, tarifa_hora, honorario_fijo, periodicidad, tag):
     contract_name = f"{DEMO_PREFIX} Contrato {tag}"
     if frappe.db.exists("Contrato Comercial", contract_name):
@@ -409,8 +422,18 @@ def _create_contract(client, service_name, company, currency, manager_email, ope
             "alcances": [{"servicio_contable": service_name, "descripcion": f"Alcance demo {tag}", "activa": 1, "periodicidad": periodicidad, "modalidad_tarifa": modalidad, "tarifa_hora": tarifa_hora, "honorario_fijo": honorario_fijo, "horas_incluidas": 0, "fecha_inicio": start_date, "fecha_fin": end_date}],
         }
     )
-    doc.flags.ignore_governance_validation = True
-    doc.insert(ignore_permissions=True)
+    target_estado = doc.estado_aprobacion
+    _insert_demo_doc(doc, target_estado_aprobacion=target_estado)
+    doc.reload()
+    doc.sincronizar_estado_comercial()
+    frappe.db.set_value(
+        "Contrato Comercial",
+        doc.name,
+        {"estado_aprobacion": target_estado, "estado_comercial": doc.estado_comercial},
+        update_modified=False,
+    )
+    doc.reload()
+    doc.sincronizar_tarifas_desde_alcances()
     return doc.name
 
 
@@ -440,8 +463,7 @@ def _create_encargo(cliente, contract_name, service_name, periodo_name, company,
             "nombre_del_encargo": f"{DEMO_PREFIX} Encargo {tag}",
         }
     )
-    doc.flags.ignore_governance_validation = True
-    doc.insert(ignore_permissions=True)
+    _insert_demo_doc(doc, target_estado_aprobacion=doc.estado_aprobacion)
     return doc.name
 
 
@@ -693,78 +715,83 @@ def _create_expediente(encargo_name, socio_email, supervisor_email, estado_exped
     if existing:
         return existing
     doc = frappe.get_doc({"doctype": "Expediente Auditoria", "encargo_contable": encargo_name, "socio_a_cargo": socio_email, "supervisor_a_cargo": supervisor_email, "base_normativa": "NIA", "estado_expediente": estado_expediente, "objetivo_auditoria": "Emitir conclusion sobre la razonabilidad de los EEFF del cliente.", "alcance_auditoria": "Revision integral de saldos, revelaciones y controles relevantes.", "materialidad_monetaria": 25000, "enfoque_auditoria": "Enfoque combinado de controles y sustantivo.", "estrategia_muestreo": "Muestreo dirigido por riesgo.", "memorando_planeacion": f"{DEMO_PREFIX} Planeacion inicial del expediente."})
-    doc.flags.ignore_governance_validation = True
-    doc.insert(ignore_permissions=True)
+    _insert_demo_doc(doc)
     return doc.name
 
 
 def _create_riesgo(expediente_name, area, riesgo, control, estado, riesgo_inherente, riesgo_residual):
     doc = frappe.get_doc({"doctype": "Riesgo Control Auditoria", "expediente_auditoria": expediente_name, "area_auditoria": area, "proceso": area, "afirmacion": "Existencia", "riesgo": riesgo, "control_clave": control, "tipo_control": "Detectivo", "frecuencia_control": "Mensual", "riesgo_inherente": riesgo_inherente, "riesgo_residual": riesgo_residual, "respuesta_auditoria": "Mixto", "procedimiento_planificado": "Pruebas de detalle y conciliacion.", "estado_evaluacion": estado, "estado_aprobacion": "Aprobado"})
-    doc.flags.ignore_governance_validation = True
-    doc.insert(ignore_permissions=True)
+    _insert_demo_doc(doc, target_estado_aprobacion=doc.estado_aprobacion)
     return doc.name
 
 
 def _update_riesgo_validado(riesgo_name, papel_name):
-    riesgo = frappe.get_doc("Riesgo Control Auditoria", riesgo_name)
-    riesgo.flags.ignore_governance_validation = True
-    riesgo.estado_evaluacion = "Validado"
-    riesgo.papel_trabajo_principal = papel_name
-    riesgo.estado_aprobacion = "Aprobado"
-    riesgo.save(ignore_permissions=True)
+    frappe.db.set_value(
+        "Riesgo Control Auditoria",
+        riesgo_name,
+        {
+            "estado_evaluacion": "Validado",
+            "papel_trabajo_principal": papel_name,
+            "estado_aprobacion": "Aprobado",
+        },
+        update_modified=False,
+    )
 
 
 def _create_papel(expediente_name, riesgo_name, task_name, documento_name, tipo_papel, titulo, estado_papel, prepared_by, reviewed_by, conclusion):
     documento = frappe.get_doc("Documento Contable", documento_name)
     evidence_file = documento.evidencias_documentales[0].archivo_file if documento.evidencias_documentales else None
     doc = frappe.get_doc({"doctype": "Papel Trabajo Auditoria", "expediente_auditoria": expediente_name, "tipo_papel": tipo_papel, "titulo": titulo, "riesgo_control_auditoria": riesgo_name, "documento_contable": documento_name, "evidencia_documental_file": evidence_file, "task": task_name, "objetivo_prueba": "Documentar evidencia y conclusion de auditoria.", "procedimiento_ejecutado": "Revision de soporte, conciliacion y validacion de consistencia.", "resultado": "Sin diferencias materiales pendientes." if estado_papel in ("Aprobado", "Cerrado") else "Procedimiento en curso.", "conclusion": conclusion, "preparado_por": prepared_by, "revisado_por": reviewed_by, "estado_papel": estado_papel, "estado_aprobacion": "Aprobado"})
-    doc.flags.ignore_governance_validation = True
-    doc.insert(ignore_permissions=True)
+    _insert_demo_doc(doc, target_estado_aprobacion=doc.estado_aprobacion)
     return doc.name
 
 
 def _create_hallazgo(expediente_name, riesgo_name, titulo, severidad, estado, condicion, respuesta, papel_name=None):
     doc = frappe.get_doc({"doctype": "Hallazgo Auditoria", "expediente_auditoria": expediente_name, "riesgo_control_auditoria": riesgo_name, "papel_trabajo_auditoria": papel_name, "titulo_hallazgo": titulo, "severidad": severidad, "estado_hallazgo": estado, "criterio": "Politicas contables, NIA y manuales internos del cliente.", "condicion": condicion, "causa": "Proceso de cierre con evidencia limitada.", "efecto": "Puede afectar revelacion o presentacion.", "recomendacion": "Ajustar la presentacion y fortalecer el control del cierre.", "respuesta_administracion": respuesta, "responsable_plan_accion": "Gerencia Financiera", "fecha_compromiso": add_days(nowdate(), 10), "estado_aprobacion": "Aprobado"})
-    doc.flags.ignore_governance_validation = True
-    doc.insert(ignore_permissions=True)
+    _insert_demo_doc(doc, target_estado_aprobacion=doc.estado_aprobacion)
     return doc.name
 
 
 def _close_expediente(expediente_name):
-    expediente = frappe.get_doc("Expediente Auditoria", expediente_name)
-    expediente.flags.ignore_governance_validation = True
-    expediente.estado_aprobacion = "Aprobado"
-    expediente.resultado_revision_tecnica = "Aprobado"
-    expediente.comentarios_revision_tecnica = "Revision tecnica completada en seed demo."
-    expediente.estado_expediente = "Cerrada"
-    expediente.memo_cierre = f"{DEMO_PREFIX} Memo de cierre con evidencia suficiente y documentacion final revisada."
-    expediente.save(ignore_permissions=True)
+    frappe.db.set_value(
+        "Expediente Auditoria",
+        expediente_name,
+        {
+            "estado_aprobacion": "Aprobado",
+            "resultado_revision_tecnica": "Aprobado",
+            "comentarios_revision_tecnica": "Revision tecnica completada en seed demo.",
+            "estado_expediente": "Cerrada",
+            "memo_cierre": f"{DEMO_PREFIX} Memo de cierre con evidencia suficiente y documentacion final revisada.",
+            "cerrado_por": frappe.session.user,
+            "fecha_cierre": now_datetime(),
+        },
+        update_modified=False,
+    )
 
 
 def _archive_expediente(expediente_name, report_name):
-    expediente = frappe.get_doc("Expediente Auditoria", expediente_name)
-    expediente.flags.ignore_governance_validation = True
-    expediente.informe_final_auditoria = report_name
-    expediente.estado_expediente = "Archivada"
-    expediente.save(ignore_permissions=True)
+    frappe.db.set_value(
+        "Expediente Auditoria",
+        expediente_name,
+        {"informe_final_auditoria": report_name, "estado_expediente": "Archivada"},
+        update_modified=False,
+    )
 
 
 def _create_and_emit_audit_reports(expediente_name, opinion):
     general_name = generar_informe_final_desde_expediente(expediente_name, TIPO_INFORME_FINAL_GENERAL, 1)["name"]
     dictamen_name = generar_informe_final_desde_expediente(expediente_name, TIPO_DICTAMEN_AUDITORIA, 0)["name"]
-    general = frappe.get_doc("Informe Final Auditoria", general_name)
-    general.flags.ignore_governance_validation = True
-    general.estado_aprobacion = "Aprobado"
-    general.estado_emision = "Emitido"
-    general.save(ignore_permissions=True)
-    dictamen = frappe.get_doc("Informe Final Auditoria", dictamen_name)
-    dictamen.flags.ignore_governance_validation = True
-    dictamen.tipo_opinion = opinion
+    frappe.db.set_value(
+        "Informe Final Auditoria",
+        general_name,
+        {"estado_aprobacion": "Aprobado", "estado_emision": "Emitido"},
+        update_modified=False,
+    )
+    updates = {"tipo_opinion": opinion, "estado_aprobacion": "Aprobado"}
     if opinion != "Favorable":
-        dictamen.asunto_que_origina_modificacion = "Persisten diferencias materiales no corregidas en cuentas del periodo."
-        dictamen.fundamento_salvedad = "La administracion decidio no registrar un ajuste material recomendado por la firma."
-    dictamen.estado_aprobacion = "Aprobado"
-    dictamen.save(ignore_permissions=True)
+        updates["asunto_que_origina_modificacion"] = "Persisten diferencias materiales no corregidas en cuentas del periodo."
+        updates["fundamento_salvedad"] = "La administracion decidio no registrar un ajuste material recomendado por la firma."
+    frappe.db.set_value("Informe Final Auditoria", dictamen_name, updates, update_modified=False)
     emitir_informe_final_auditoria(dictamen_name)
     return general_name, dictamen_name
 
@@ -772,8 +799,7 @@ def _create_and_emit_audit_reports(expediente_name, opinion):
 def _seed_eeff_package(ctx, client_code, encargo_name, expediente_name, period_name, audited, opinion, general_report=None, dictamen_name=None, review_requirement=None, review_deliverable=None):
     client_name = ctx["clients"][client_code]["name"]
     package = frappe.get_doc({"doctype": "Paquete Estados Financieros Cliente", "cliente": client_name, "encargo_contable": encargo_name, "expediente_auditoria": expediente_name, "periodo_contable": period_name, "fecha_corte": add_days(add_months(ctx["month_starts"][1], 1), -1), "marco_contable": "NIIF para PYMES", "tipo_paquete": "Auditado" if audited else "Para Auditoria", "version": 1, "es_version_vigente": 1, "estado_preparacion": "Aprobado para Emision" if audited else "En Revision", "estado_aprobacion": "Aprobado" if audited else "Borrador", "informe_final_auditoria": general_report, "dictamen_de_auditoria": dictamen_name, "observaciones_generales": f"{DEMO_PREFIX} Paquete EEFF {client_code}."})
-    package.flags.ignore_governance_validation = True
-    package.insert(ignore_permissions=True)
+    _insert_demo_doc(package, target_estado_aprobacion=package.estado_aprobacion)
     _create_financial_state(package.name, "Estado de Situacion Financiera", [{"codigo_rubro": "ACT-01", "descripcion": "Efectivo y bancos", "nivel": 2, "naturaleza": "Activo", "monto_actual": 120000, "monto_comparativo": 110000, "requiere_nota": 1, "numero_nota_referencial": "1"}, {"codigo_rubro": "ACT-02", "descripcion": "Cuentas por cobrar", "nivel": 2, "naturaleza": "Activo", "monto_actual": 80000, "monto_comparativo": 76000, "requiere_nota": 1, "numero_nota_referencial": "2"}, {"codigo_rubro": "ACT-03", "descripcion": "Propiedad planta y equipo", "nivel": 2, "naturaleza": "Activo", "monto_actual": 300000, "monto_comparativo": 295000, "requiere_nota": 1, "numero_nota_referencial": "3"}, {"codigo_rubro": "ACT-T", "descripcion": "Total activo", "nivel": 1, "naturaleza": "Activo", "es_total": 1, "monto_actual": 500000, "monto_comparativo": 481000}, {"codigo_rubro": "PAS-01", "descripcion": "Pasivos corrientes", "nivel": 2, "naturaleza": "Pasivo", "monto_actual": 140000, "monto_comparativo": 130000, "requiere_nota": 1, "numero_nota_referencial": "4"}, {"codigo_rubro": "PAS-02", "descripcion": "Obligaciones a largo plazo", "nivel": 2, "naturaleza": "Pasivo", "monto_actual": 60000, "monto_comparativo": 64000, "requiere_nota": 1, "numero_nota_referencial": "5"}, {"codigo_rubro": "PAS-T", "descripcion": "Total pasivo", "nivel": 1, "naturaleza": "Pasivo", "es_total": 1, "monto_actual": 200000, "monto_comparativo": 194000}, {"codigo_rubro": "PAT-01", "descripcion": "Capital social", "nivel": 2, "naturaleza": "Patrimonio", "monto_actual": 250000, "monto_comparativo": 250000, "requiere_nota": 1, "numero_nota_referencial": "6"}, {"codigo_rubro": "PAT-02", "descripcion": "Resultados acumulados", "nivel": 2, "naturaleza": "Patrimonio", "monto_actual": 50000, "monto_comparativo": 37000, "requiere_nota": 1, "numero_nota_referencial": "7"}, {"codigo_rubro": "PAT-T", "descripcion": "Total patrimonio", "nivel": 1, "naturaleza": "Patrimonio", "es_total": 1, "monto_actual": 300000, "monto_comparativo": 287000}], approved=audited)
     _create_financial_state(package.name, "Estado de Resultados", [{"codigo_rubro": "ING-T", "descripcion": "Total ingresos", "nivel": 1, "naturaleza": "Ingreso", "es_total": 1, "monto_actual": 420000, "monto_comparativo": 390000, "requiere_nota": 1, "numero_nota_referencial": "8"}, {"codigo_rubro": "GAS-T", "descripcion": "Total gastos", "nivel": 1, "naturaleza": "Gasto", "es_total": 1, "monto_actual": 355000, "monto_comparativo": 339000, "requiere_nota": 1, "numero_nota_referencial": "9"}, {"codigo_rubro": "RES-N", "descripcion": "Utilidad neta", "nivel": 1, "es_resultado_final": 1, "monto_actual": 65000, "monto_comparativo": 51000}], approved=audited)
     _create_financial_state(package.name, "Estado de Cambios en el Patrimonio", [{"codigo_rubro": "PAT-INI", "descripcion": "Patrimonio inicial", "nivel": 1, "monto_actual": 287000, "monto_comparativo": 260000}, {"codigo_rubro": "PAT-RES", "descripcion": "Resultado del periodo", "nivel": 1, "monto_actual": 65000, "monto_comparativo": 51000, "requiere_nota": 1, "numero_nota_referencial": "7"}, {"codigo_rubro": "PAT-FIN", "descripcion": "Patrimonio final", "nivel": 1, "monto_actual": 300000, "monto_comparativo": 287000, "es_total": 1}], approved=audited)
@@ -791,23 +817,20 @@ def _seed_eeff_package(ctx, client_code, encargo_name, expediente_name, period_n
 
 def _create_financial_state(package_name, state_type, lines, approved):
     doc = frappe.get_doc({"doctype": "Estado Financiero Cliente", "paquete_estados_financieros_cliente": package_name, "tipo_estado": state_type, "estado_aprobacion": "Aprobado" if approved else "Borrador", "lineas": lines})
-    doc.flags.ignore_governance_validation = True
-    doc.insert(ignore_permissions=True)
+    _insert_demo_doc(doc, target_estado_aprobacion=doc.estado_aprobacion)
     return doc.name
 
 
 def _create_note(package_name, number, title, category, approved):
     doc = frappe.get_doc({"doctype": "Nota Estado Financiero", "paquete_estados_financieros_cliente": package_name, "numero_nota": number, "titulo": title, "categoria_nota": category, "orden_presentacion": cint(number), "estado_aprobacion": "Aprobado" if approved else "Borrador", "politica_contable": f"Politica contable demo para {title.lower()}.", "contenido_narrativo": f"{DEMO_PREFIX} Nota {number}: detalle narrativo de {title.lower()}.", "cifras_nota": [{"concepto": title, "monto_actual": 1000 + (cint(number) * 100), "monto_comparativo": 900 + (cint(number) * 80)}]})
-    doc.flags.ignore_governance_validation = True
-    doc.insert(ignore_permissions=True)
+    _insert_demo_doc(doc, target_estado_aprobacion=doc.estado_aprobacion)
     return doc.name
 
 
 def _create_adjustment(package_name, expediente_name, encargo_name, client_name, period_name, material, registrado):
     state_name = frappe.db.get_value("Estado Financiero Cliente", {"paquete_estados_financieros_cliente": package_name, "tipo_estado": "Estado de Situacion Financiera"}, "name")
     doc = frappe.get_doc({"doctype": "Ajuste Estados Financieros Cliente", "paquete_estados_financieros_cliente": package_name, "estado_financiero_cliente": state_name, "fecha_ajuste": nowdate(), "tipo_ajuste": "Auditoria", "origen_ajuste": "Auditoria", "estado_ajuste": "Registrado" if registrado else "No Registrado", "material": 1 if material else 0, "generalizado": 0, "impacta_dictamen": 1 if material and not registrado else 0, "impacta_informe_final": 1, "aceptado_por_cliente": 1 if registrado else 0, "registrado_en_version_final": 1 if registrado else 0, "descripcion": f"{DEMO_PREFIX} Ajuste de auditoria para {client_name}.", "justificacion": "Regularizacion de presentacion y revelacion.", "estado_aprobacion": "Aprobado", "lineas_ajuste": [{"estado_financiero_cliente": state_name, "codigo_rubro": "ACT-02", "descripcion_linea": "Cuentas por cobrar", "monto_previo": 80000, "monto_ajuste": -500 if registrado else -25000, "afecta_resultado": 1, "numero_nota_referencial": "2"}]})
-    doc.flags.ignore_governance_validation = True
-    doc.insert(ignore_permissions=True)
+    _insert_demo_doc(doc, target_estado_aprobacion=doc.estado_aprobacion)
     return doc.name
 
 
