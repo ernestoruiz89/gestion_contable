@@ -67,6 +67,22 @@ CLIENT_DEFINITIONS = [
     {"code": "A03", "customer": f"{DEMO_PREFIX} Revision Industrial SA", "tax_id": "J0310001010010", "segment": "auditoria_proceso"},
 ]
 
+SPANISH_MONTHS = {
+    1: "Enero",
+    2: "Febrero",
+    3: "Marzo",
+    4: "Abril",
+    5: "Mayo",
+    6: "Junio",
+    7: "Julio",
+    8: "Agosto",
+    9: "Septiembre",
+    10: "Octubre",
+    11: "Noviembre",
+    12: "Diciembre",
+}
+
+
 SERVICE_CATALOG = {
     "Contabilidad": {"service_name": f"{DEMO_PREFIX} - Contabilidad Mensual", "hours_item": "GC-DEMO-HRS-CONT", "fixed_item": "GC-DEMO-FIX-CONT", "tarifa_hora": 35, "honorario_fijo": 850, "costo_interno_hora": 14},
     "Auditoria": {"service_name": f"{DEMO_PREFIX} - Auditoria Financiera", "hours_item": "GC-DEMO-HRS-AUD", "fixed_item": "GC-DEMO-FIX-AUD", "tarifa_hora": 55, "honorario_fijo": 5200, "costo_interno_hora": 22},
@@ -881,11 +897,19 @@ def _ensure_user(email, first_name, last_name, roles, user_type, new_password):
     return email
 
 
+def _month_name_es(month_number):
+    month_name = SPANISH_MONTHS.get(int(month_number or 0))
+    if not month_name:
+        frappe.throw(_("Mes invalido para data demo: {0}").format(month_number), title=_("Mes Invalido"))
+    return month_name
+
+
 def _ensure_period(cliente, company, month_start):
-    existing = frappe.db.get_value("Periodo Contable", {"cliente": cliente, "company": company, "mes": month_start.month, "anio": month_start.year}, "name")
+    month_name = _month_name_es(month_start.month)
+    existing = frappe.db.get_value("Periodo Contable", {"cliente": cliente, "company": company, "mes": month_name, "anio": month_start.year}, "name")
     if existing:
         return existing
-    doc = frappe.get_doc({"doctype": "Periodo Contable", "cliente": cliente, "company": company, "mes": month_start.month, "anio": month_start.year, "estado": "Abierto"})
+    doc = frappe.get_doc({"doctype": "Periodo Contable", "cliente": cliente, "company": company, "mes": month_name, "anio": month_start.year, "estado": "Abierto"})
     doc.insert(ignore_permissions=True)
     return doc.name
 
