@@ -15,6 +15,7 @@ frappe.pages["creador-de-notas-eeff"].on_page_show = function () {
 
     editor.apply_route_options();
     const hasRouteOptions = !!Object.keys(editor.state.route_options || {}).length;
+    editor.ensure_filter_bar_visible();
     if (hasRouteOptions || !editor.bootstrapped) {
         editor.load_bootstrap();
     }
@@ -43,6 +44,7 @@ class CreadorNotasEEFF {
     init() {
         this.setup_styles();
         this.render_shell();
+        this.ensure_filter_bar_visible();
         this.bind_events();
         this.page.set_primary_action(__("Guardar Nota"), () => this.save_current_note(), "save");
         this.page.set_secondary_action(__("Nueva Nota"), () => this.open_create_note_dialog());
@@ -118,6 +120,14 @@ class CreadorNotasEEFF {
 
         this.$noteList = this.wrapper.find('[data-role="note-list"]');
         this.$editor = this.wrapper.find('[data-role="editor"]');
+    }
+
+    ensure_filter_bar_visible() {
+        const $pageForm = $(this.page.wrapper).find('.page-form');
+        if ($pageForm.length) {
+            $pageForm.removeClass('hide hidden d-none').show();
+            $pageForm.css({ display: 'flex', flexWrap: 'wrap', gap: '8px' });
+        }
     }
 
     bind_events() {
