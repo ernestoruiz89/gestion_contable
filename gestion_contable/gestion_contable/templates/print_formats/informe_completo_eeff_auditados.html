@@ -34,6 +34,7 @@
   .icea-row-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
   .icea-row-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
   .icea-row-comment td { font-style: italic; color: #334155; }
+  .icea-table-compact th, .icea-table-compact td { font-size: 10pt; padding: 3px 6px; }
 </style>
 {% set dictamen = frappe.get_doc("Informe Final Auditoria", doc.dictamen_de_auditoria) if doc.dictamen_de_auditoria and frappe.db.exists("Informe Final Auditoria", doc.dictamen_de_auditoria) else None %}
 {% set estados = frappe.get_all(
@@ -145,7 +146,7 @@
       <div class="icea-section">
         <h3>{{ estado_doc.titulo_formal or estado_doc.tipo_estado }}</h3>
         {% if estado_doc.subtitulo %}<p>{{ estado_doc.subtitulo }}</p>{% endif %}
-        <table class="icea-table">
+        <table class="icea-table{% if section.columnas|length > 5 %} icea-table-compact{% endif %}">
           <thead>
             <tr>
               <th>Descripcion</th>

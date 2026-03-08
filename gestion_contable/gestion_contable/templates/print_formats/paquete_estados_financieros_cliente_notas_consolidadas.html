@@ -20,6 +20,7 @@
   .pefn-row-subtotal td { border-top: 1px solid #0f172a; border-bottom: 1px solid #0f172a; }
   .pefn-row-total td { border-top: 1px solid #0f172a; border-bottom: 3px double #0f172a; }
   .pefn-row-comment td { font-style: italic; color: #334155; }
+  .pefn-table-compact th, .pefn-table-compact td { font-size: 10pt; padding: 3px 6px; }
 </style>
 {% set notas = frappe.get_all(
   "Nota Estado Financiero",
@@ -91,7 +92,7 @@
           <div>{{ nota_doc.contenido_narrativo | safe }}</div>
         {% endif %}
         {% if nota_doc.cifras_nota %}
-          <table class="pefn-table">
+          <table class="pefn-table{% if section.columnas|length > 5 %} pefn-table-compact{% endif %}">
             <thead>
               <tr>
                 <th>Concepto</th>
