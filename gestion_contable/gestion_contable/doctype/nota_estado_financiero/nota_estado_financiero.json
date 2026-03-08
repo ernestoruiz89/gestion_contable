@@ -286,13 +286,7 @@
             "label": "Observaciones Preparacion"
         }
     ],
-    "links": [
-        {
-            "group": "Estados Financieros",
-            "link_doctype": "Paquete Estados Financieros Cliente",
-            "link_fieldname": "paquete_estados_financieros_cliente"
-        }
-    ],
+    "links": [],
     "module": "Gestion Contable",
     "name": "Nota Estado Financiero",
     "naming_rule": "By fieldname",
