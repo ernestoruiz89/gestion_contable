@@ -81,19 +81,21 @@ class CreadorNotasEEFF {
             [data-theme="dark"] .cne-sidebar, [data-theme="dark"] .cne-card, [data-theme="dark"] .cne-rowhead { background: var(--card-bg); border-color: var(--border-color); }
             [data-theme="dark"] .cne-sidebar-head, [data-theme="dark"] .cne-card-head, [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-structure-table td, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-matrix-table td, [data-theme="dark"] .cne-note-item { border-color: var(--border-color); }
             [data-theme="dark"] .cne-field input, [data-theme="dark"] .cne-field select, [data-theme="dark"] .cne-field textarea, [data-theme="dark"] .cne-structure-table input, [data-theme="dark"] .cne-structure-table select, [data-theme="dark"] .cne-matrix-table input { background: var(--control-bg); color: var(--text-color); border-color: var(--border-color); }
-            [data-theme="dark"] .cne-sidebar-head h3, [data-theme="dark"] .cne-card-head h3, [data-theme="dark"] .cne-note-item strong { color: var(--text-color); }
+            [data-theme="dark"] .cne-sidebar-head h3, [data-theme="dark"] .cne-card-head h3, [data-theme="dark"] .cne-note-item strong, [data-theme="dark"] .cne-rowhead strong { color: var(--text-color); }
             [data-theme="dark"] .cne-sidebar-head p, [data-theme="dark"] .cne-card-head p, [data-theme="dark"] .cne-note-item span, [data-theme="dark"] .cne-field label, [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-code, [data-theme="dark"] .cne-help { color: var(--text-muted); }
             [data-theme="dark"] .cne-btn, [data-theme="dark"] .cne-section-tab { background: var(--control-bg); color: var(--text-color); border-color: var(--border-color); }
             [data-theme="dark"] .cne-section-tab.active { background: var(--text-color); color: var(--card-bg); }
+            [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-matrix-input.computed, [data-theme="dark"] .cne-help code { background: var(--control-bg); text-shadow: none; }
+            [data-theme="dark"] .cne-empty { background: transparent; border-color: var(--border-color); color: var(--text-muted); }
             [data-theme="dark"] .cne-matrix-cell { border-color: var(--border-color); background: var(--control-bg); }
-            [data-theme="dark"] .cne-matrix-cell .cne-matrix-format-btn { border-left-color: var(--border-color); background: var(--card-bg); color: var(--text-color); }
+            [data-theme="dark"] .cne-matrix-cell .cne-matrix-format-btn { border-right-color: var(--border-color); background: var(--card-bg); color: var(--text-color); }
             [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-menu { background: var(--card-bg); border-color: var(--border-color); }
             [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-item { color: var(--text-color); }
             [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-item:hover { background: var(--control-bg); }
             .cne-matrix-cell{display:flex;align-items:stretch;border:1px solid #cbd5e1;border-radius:8px;background:#fff;}
-            .cne-matrix-cell input.cne-matrix-input{border:none!important;border-radius:8px 0 0 8px!important;flex:1;min-width:0!important;outline:none;background:transparent!important}
+            .cne-matrix-cell input.cne-matrix-input{border:none!important;border-radius:0 8px 8px 0!important;flex:1;min-width:0!important;outline:none;background:transparent!important}
             .cne-matrix-cell .cne-matrix-format-dropdown { display: flex; align-items: stretch; }
-            .cne-matrix-cell .cne-matrix-format-btn{border:none;border-left:1px solid #cbd5e1;background:#f8fafc;padding:0;color:#475569;font-size:12px;cursor:pointer;outline:none;text-align:center;font-weight:700;width:32px;border-radius:0 8px 8px 0;}
+            .cne-matrix-cell .cne-matrix-format-btn{border:none;border-right:1px solid #cbd5e1;background:#f8fafc;padding:0;color:#475569;font-size:12px;cursor:pointer;outline:none;text-align:center;font-weight:700;width:32px;border-radius:8px 0 0 8px;}
             .cne-matrix-cell .cne-matrix-format-btn:hover{background:#e2e8f0}
             .cne-matrix-cell .dropdown-toggle::after{display:none!important}
             .cne-matrix-cell.computed{background:#f8fafc;border-style:dashed}
@@ -662,18 +664,18 @@ class CreadorNotasEEFF {
             const format = cell.format || column.tipo_dato || "Moneda";
             return `<td>
                 <div class="cne-matrix-cell ${cell.is_computed && !cell.is_manual ? 'computed' : ''}">
-                    <input class="cne-matrix-input" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}" value="${this.escape(value)}">
                     <div class="dropdown cne-matrix-format-dropdown">
                         <button class="cne-matrix-format-btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Formato">
                             ${format === 'Numero' ? '#' : format === 'Moneda' ? '$' : format === 'Porcentaje' ? '%' : 'T'}
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right">
+                        <div class="dropdown-menu">
                             <a class="dropdown-item cne-format-option" href="#" data-format="Numero" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}"># Número</a>
                             <a class="dropdown-item cne-format-option" href="#" data-format="Moneda" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">$ Moneda</a>
                             <a class="dropdown-item cne-format-option" href="#" data-format="Porcentaje" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">% Porcentaje</a>
                             <a class="dropdown-item cne-format-option" href="#" data-format="Texto" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">T Texto</a>
                         </div>
                     </div>
+                    <input class="cne-matrix-input" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}" value="${this.escape(value)}">
                 </div>
             </td>`;
         }).join("")}
