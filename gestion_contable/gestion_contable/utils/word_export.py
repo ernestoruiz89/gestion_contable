@@ -399,34 +399,40 @@ def _add_structured_note_table(document, section):
 
 
 def _add_delivery_section(document, package, dictamen):
-    document.add_paragraph("Constancia de Entrega", style="Heading 1")
-    paragraph = document.add_paragraph(
-        "Se deja constancia de la entrega formal del presente informe completo de estados financieros auditados, incluyendo dictamen, estados financieros y notas, para revision del cliente."
-    )
-    _set_paragraph_runs_font(paragraph)
+    document.add_paragraph("Carta de Remision", style="Heading 1")
 
-    table = document.add_table(rows=2, cols=2)
-    _fill_label_value_cell(table.rows[0].cells[0], "Documento", package.name)
-    _fill_label_value_cell(table.rows[0].cells[1], "Fecha de entrega", cstr(package.fecha_emision or "-"))
-    _fill_label_value_cell(table.rows[1].cells[0], "Destinatario", dictamen.destinatario or "-")
-    _fill_label_value_cell(table.rows[1].cells[1], "Dictamen", package.dictamen_de_auditoria or "-")
-    _style_meta_table(table)
+    fecha = document.add_paragraph(cstr(package.fecha_emision or "-"))
+    _set_paragraph_runs_font(fecha)
 
-    sign_table = document.add_table(rows=2, cols=3)
-    labels = [
-        dictamen.firmado_por or "____________________________",
-        dictamen.revisado_por or "____________________________",
-        dictamen.destinatario or "____________________________",
+    destinatario = document.add_paragraph()
+    destinatario.add_run(cstr(dictamen.destinatario or package.razon_social_reportante or package.cliente or "-")).bold = True
+    _set_paragraph_runs_font(destinatario)
+
+    saludo = document.add_paragraph("Estimados senores:")
+    _set_paragraph_runs_font(saludo)
+
+    cuerpo = [
+        "Por medio de la presente remitimos el Informe Completo de EEFF Auditados correspondiente al periodo indicado, integrado por el dictamen de auditoria independiente, los estados financieros y sus notas explicativas.",
+        f"El documento se entrega para su revision formal y para los fines que estimen convenientes. Identificacion del paquete: {package.name}.",
+        "Agradeceremos canalizar cualquier observacion o comentario a traves de los medios previamente acordados con la firma.",
     ]
-    roles = [
-        dictamen.cargo_firmante or "Responsable de emision",
-        "Revisor interno",
-        "Recibido por el cliente",
-    ]
-    for index in range(3):
-        sign_table.rows[0].cells[index].text = "\n\n\n"
-        sign_table.rows[1].cells[index].text = f"{labels[index]}\n{roles[index]}"
-    _style_meta_table(sign_table)
+    for bloque in cuerpo:
+        paragraph = document.add_paragraph(bloque)
+        _set_paragraph_runs_font(paragraph)
+
+    despedida = document.add_paragraph("Atentamente,")
+    _set_paragraph_runs_font(despedida)
+
+    firmante = document.add_paragraph()
+    firmante.add_run(dictamen.firmado_por or "____________________________").bold = True
+    if dictamen.cargo_firmante:
+        firmante.add_run(f"\n{dictamen.cargo_firmante}")
+    _set_paragraph_runs_font(firmante)
+
+    referencia = document.add_paragraph()
+    referencia.add_run("Referencia: ").bold = True
+    referencia.add_run(f"Paquete {package.name} | Dictamen {package.dictamen_de_auditoria or '-'}")
+    _set_paragraph_runs_font(referencia)
 
 
 def _fill_label_value_cell(cell, label, value):
