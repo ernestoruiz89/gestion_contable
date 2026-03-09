@@ -8,6 +8,7 @@
         "seccion_id",
         "codigo_fila",
         "codigo_columna",
+        "es_manual",
         "valor_texto",
         "valor_numero",
         "formato_numero",
@@ -36,6 +37,12 @@
             "in_list_view": 1
         },
         {
+            "default": "0",
+            "fieldname": "es_manual",
+            "fieldtype": "Check",
+            "label": "Es Manual"
+        },
+        {
             "fieldname": "valor_texto",
             "fieldtype": "Small Text",
             "label": "Valor Texto"
@@ -49,7 +56,7 @@
             "fieldname": "formato_numero",
             "fieldtype": "Select",
             "label": "Formato Numero",
-            "options": "Numero\nMoneda\nPorcentaje",
+            "options": "Numero\nMoneda\nPorcentaje\nTexto",
             "default": "Numero"
         },
         {

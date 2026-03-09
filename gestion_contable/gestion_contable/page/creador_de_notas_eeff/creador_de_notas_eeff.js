@@ -1068,24 +1068,27 @@ class CreadorNotasEEFF {
             if (raw === "") return;
             const colDefs = this.get_columns(section.seccion_id);
             const type = colDefs.find(c => c.codigo_columna === columnCode)?.tipo_dato || "Moneda";
-            cell = { seccion_id: section.seccion_id, codigo_fila: rowCode, codigo_columna: columnCode, formato_numero: type === "Moneda" ? "Moneda" : type === "Porcentaje" ? "Porcentaje" : type === "Texto" ? "Texto" : "Numero" };
+            cell = { seccion_id: section.seccion_id, codigo_fila: rowCode, codigo_columna: columnCode, formato_numero: type === "Moneda" ? "Moneda" : type === "Porcentaje" ? "Porcentaje" : type === "Texto" ? "Texto" : "Numero", es_manual: 0 };
             doc.celdas_tabulares.push(cell);
         }
 
         if (raw === "") {
             cell.valor_texto = "";
             cell.valor_numero = null;
+            cell.es_manual = 0;
         } else if (cell.formato_numero === "Texto") {
             cell.valor_texto = raw;
             cell.valor_numero = null;
+            cell.es_manual = 1;
         } else {
             cell.valor_numero = this.as_float(raw);
             cell.valor_texto = "";
+            cell.es_manual = 1;
         }
 
         const colDef = this.get_columns(section.seccion_id).find(c => c.codigo_columna === columnCode);
         const defaultFmt = colDef?.tipo_dato || "Moneda";
-        if (cell.valor_numero === null && (cell.valor_texto || "") === "" && cell.formato_numero === defaultFmt) {
+        if (cell.es_manual === 0 && cell.formato_numero === defaultFmt) {
             const finalIdx = doc.celdas_tabulares.indexOf(cell);
             if (finalIdx >= 0) doc.celdas_tabulares.splice(finalIdx, 1);
         }
@@ -1105,14 +1108,14 @@ class CreadorNotasEEFF {
 
         let cell = index >= 0 ? doc.celdas_tabulares[index] : null;
         if (!cell) {
-            cell = { seccion_id: section.seccion_id, codigo_fila: rowCode, codigo_columna: columnCode, valor_texto: "", valor_numero: null, formato_numero: format };
+            cell = { seccion_id: section.seccion_id, codigo_fila: rowCode, codigo_columna: columnCode, valor_texto: "", valor_numero: null, formato_numero: format, es_manual: 0 };
             doc.celdas_tabulares.push(cell);
         } else {
             cell.formato_numero = format;
-            if (format === "Texto" && cell.valor_numero !== null) {
+            if (format === "Texto" && cell.valor_numero !== null && cell.es_manual) {
                 cell.valor_texto = String(cell.valor_numero);
                 cell.valor_numero = null;
-            } else if (format !== "Texto" && cell.valor_texto) {
+            } else if (format !== "Texto" && cell.valor_texto && cell.es_manual) {
                 cell.valor_numero = this.as_float(cell.valor_texto);
                 cell.valor_texto = "";
             }
@@ -1136,9 +1139,8 @@ class CreadorNotasEEFF {
             if (explicit.has(key)) {
                 const cell = explicit.get(key);
                 formatFromExplicit = cell.formato_numero;
-                const hasValue = (cell.valor_numero !== null && cell.valor_numero !== undefined) || (cell.valor_texto !== null && cell.valor_texto !== "");
-                if (hasValue) {
-                    // Safe logic to grab number or text
+
+                if (cell.es_manual === 1 || cell.es_manual === "1") {
                     const val = cell.valor_numero !== null ? cell.valor_numero : (cell.valor_texto || "");
                     const result = { value: val, is_manual: true, is_computed: false, format: formatFromExplicit };
                     cache.set(key, result);
