@@ -261,16 +261,13 @@ class NotaEstadoFinanciero(Document):
             if key in seen:
                 frappe.throw(_("La celda para fila <b>{0}</b> y columna <b>{1}</b> esta duplicada.").format(row.codigo_fila, row.codigo_columna), title=_("Celda Duplicada"))
             seen.add(key)
-            if row.valor_texto in (None, "") and row.valor_numero in (None, ""):
-                frappe.throw(_("Cada celda tabular debe tener valor texto o valor numero."), title=_("Celda Vacia"))
 
         for section in self.secciones_estructuradas or []:
             if section.tipo_seccion in ("Tabla", "Texto y Tabla"):
                 has_columns = any(col.seccion_id == section.seccion_id for col in self.columnas_tabulares or [])
                 has_rows = any(fila.seccion_id == section.seccion_id for fila in self.filas_tabulares or [])
-                has_cells = any(celda.seccion_id == section.seccion_id for celda in self.celdas_tabulares or [])
-                if not (has_columns and has_rows and has_cells):
-                    frappe.throw(_("La seccion <b>{0}</b> requiere columnas, filas y celdas para su tabla estructurada.").format(section.titulo_seccion), title=_("Tabla Incompleta"))
+                if not (has_columns and has_rows):
+                    frappe.throw(_("La seccion <b>{0}</b> requiere al menos una fila y una columna para su tabla estructurada.").format(section.titulo_seccion), title=_("Tabla Incompleta"))
 
         self.validar_formulas_tabulares()
 
