@@ -81,6 +81,112 @@ frappe.ui.form.on("Paquete Estados Financieros Cliente", {
             }, __("Impresion"));
         }
 
+        frm.add_custom_button(__("Duplicar Paquete"), () => {
+            const dialog = new frappe.ui.Dialog({
+                title: __("Duplicar Paquete de Estados Financieros"),
+                fields: [
+                    {
+                        fieldtype: "HTML",
+                        fieldname: "cliente_info",
+                        options: `<div><strong>${__("Cliente")}:<\/strong> ${frappe.utils.escape_html(frm.doc.cliente || "")}</div><div><strong>${__("Paquete origen")}:<\/strong> ${frappe.utils.escape_html(frm.doc.name || "")}</div>`,
+                    },
+                    {
+                        fieldtype: "Link",
+                        fieldname: "periodo_contable",
+                        label: __("Periodo Contable"),
+                        options: "Periodo Contable",
+                        reqd: 1,
+                        get_query: () => ({ filters: { cliente: frm.doc.cliente } }),
+                    },
+                    {
+                        fieldtype: "Date",
+                        fieldname: "fecha_corte",
+                        label: __("Fecha Corte"),
+                        reqd: 1,
+                        default: frm.doc.fecha_corte,
+                    },
+                    {
+                        fieldtype: "Select",
+                        fieldname: "tipo_paquete",
+                        label: __("Tipo Paquete"),
+                        options: "Preliminar
+Para Auditoria
+Auditado
+Reexpresado
+Comparativo",
+                        default: frm.doc.tipo_paquete,
+                    },
+                    {
+                        fieldtype: "Select",
+                        fieldname: "marco_contable",
+                        label: __("Marco Contable"),
+                        options: "NIIF
+NIIF para PYMES
+Base Fiscal
+Gerencial
+Otra",
+                        default: frm.doc.marco_contable,
+                    },
+                    {
+                        fieldtype: "Int",
+                        fieldname: "version",
+                        label: __("Version"),
+                        reqd: 1,
+                        default: 1,
+                    },
+                    {
+                        fieldtype: "Check",
+                        fieldname: "es_version_vigente",
+                        label: __("Marcar como Version Vigente"),
+                        default: 0,
+                    },
+                    {
+                        fieldtype: "Link",
+                        fieldname: "encargo_contable",
+                        label: __("Encargo Contable"),
+                        options: "Encargo Contable",
+                        default: frm.doc.encargo_contable,
+                    },
+                    {
+                        fieldtype: "Link",
+                        fieldname: "expediente_auditoria",
+                        label: __("Expediente Auditoria"),
+                        options: "Expediente Auditoria",
+                    },
+                    {
+                        fieldtype: "Small Text",
+                        fieldname: "observaciones_generales",
+                        label: __("Observaciones Generales"),
+                        default: frm.doc.observaciones_generales,
+                    },
+                ],
+                primary_action_label: __("Duplicar"),
+                primary_action(values) {
+                    frappe.call({
+                        method: "gestion_contable.gestion_contable.doctype.paquete_estados_financieros_cliente.paquete_estados_financieros_cliente.duplicar_paquete_estados_financieros",
+                        args: {
+                            package_name: frm.doc.name,
+                            ...values,
+                        },
+                        freeze: true,
+                        freeze_message: __("Duplicando paquete de estados financieros..."),
+                        callback: (r) => {
+                            if (!r.message || !r.message.name) {
+                                return;
+                            }
+                            frappe.show_alert({
+                                message: __("Paquete duplicado. Estados: {0}, Notas: {1}", [r.message.copied_states || 0, r.message.copied_notes || 0]),
+                                indicator: "green",
+                            });
+                            dialog.hide();
+                            frappe.set_route("Form", "Paquete Estados Financieros Cliente", r.message.name);
+                        },
+                    });
+                },
+            });
+            dialog.show();
+        }, __("Estados Financieros"));
+
         frm.add_custom_button(__("Refrescar Resumen"), () => {
             frappe.call({
                 method: "gestion_contable.gestion_contable.doctype.paquete_estados_financieros_cliente.paquete_estados_financieros_cliente.refrescar_resumen_paquete_estados_financieros",

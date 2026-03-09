@@ -208,7 +208,7 @@ limit_page_length=300
               {% for grupo in section.grupos_columnas %}
               {% if grupo.standalone %}
               {% set columna = grupo.columns[0] %}
-              <th rowspan="2" style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}
+              <th rowspan="2" style="text-align: {{ (columna.alineacion or 'Left').lower() }};">{{ columna.etiqueta }}
               </th>
               {% else %}
               <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
@@ -219,7 +219,7 @@ limit_page_length=300
               {% for grupo in section.grupos_columnas %}
               {% if not grupo.standalone %}
               {% for columna in grupo.columns %}
-              <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+              <th style="text-align: {{ (columna.alineacion or 'Left').lower() }};">{{ columna.etiqueta }}</th>
               {% endfor %}
               {% endif %}
               {% endfor %}
@@ -228,17 +228,17 @@ limit_page_length=300
             <tr>
               <th>Concepto</th>
               {% for columna in section.columnas %}
-              <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+              <th style="text-align: {{ (columna.alineacion or 'Left').lower() }};">{{ columna.etiqueta }}</th>
               {% endfor %}
             </tr>
             {% endif %}
           </thead>
           <tbody>
             {% for fila in section.filas %}
-            <tr class="pefn-row-{{ (fila.tipo_fila or " Detalle").lower().replace(" ", " -") }}">
+            <tr class="pefn-row-{{ (fila.tipo_fila or 'Detalle').lower().replace(" ", '-') }}">
               <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
               {% for celda in fila.celdas %}
-              <td style="text-align: {{ (section.columnas[loop.index0].alineacion or " Left").lower() }};">
+              <td style="text-align: {{ (section.columnas[loop.index0].alineacion or 'Left').lower() }};">
                 {% if celda.valor_texto %}
                 {{ celda.valor_texto }}
                 {% elif celda.valor_numero is not none %}

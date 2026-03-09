@@ -435,6 +435,126 @@ def sincronizar_version_documento_eeff_con_intercambio_cliente(
     )
 
 
+def _reset_governance_fields(doc):
+    for fieldname, value in (
+        ("estado_aprobacion", "Borrador"),
+        ("fecha_envio_revision", None),
+        ("revisado_por_supervisor", None),
+        ("fecha_revision_supervisor", None),
+        ("aprobado_por_socio", None),
+        ("fecha_aprobacion_socio", None),
+        ("comentarios_supervisor", None),
+        ("comentarios_socio", None),
+    ):
+        if hasattr(doc, fieldname):
+            setattr(doc, fieldname, value)
+
+
+def _copy_package_state(source_state_name, target_package_name):
+    source_state = frappe.get_doc("Estado Financiero Cliente", source_state_name)
+    target_state = frappe.copy_doc(source_state, ignore_no_copy=False)
+    target_state.name = None
+    target_state.nombre_del_estado = None
+    target_state.paquete_estados_financieros_cliente = target_package_name
+    _reset_governance_fields(target_state)
+    target_state.insert(ignore_permissions=True)
+    return target_state.name
+
+
+def _copy_package_note(source_note_name, target_package_name):
+    source_note = frappe.get_doc("Nota Estado Financiero", source_note_name)
+    target_note = frappe.copy_doc(source_note, ignore_no_copy=False)
+    target_note.name = None
+    target_note.nombre_de_la_nota = None
+    target_note.paquete_estados_financieros_cliente = target_package_name
+    target_note.referencias_cruzadas = []
+    target_note.total_referencias = 0
+    _reset_governance_fields(target_note)
+    target_note.insert(ignore_permissions=True)
+    return target_note.name
+
+
+@frappe.whitelist()
+def duplicar_paquete_estados_financieros(
+    package_name,
+    periodo_contable,
+    fecha_corte,
+    tipo_paquete=None,
+    marco_contable=None,
+    version=1,
+    es_version_vigente=0,
+    encargo_contable=None,
+    expediente_auditoria=None,
+    observaciones_generales=None,
+):
+    ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden duplicar paquetes de estados financieros del cliente."))
+    if not frappe.db.exists("Paquete Estados Financieros Cliente", package_name):
+        frappe.throw(_("El paquete indicado no existe."), title=_("Paquete Invalido"))
+    if not periodo_contable:
+        frappe.throw(_("Debes indicar el periodo contable del nuevo paquete."), title=_("Periodo Requerido"))
+    if not fecha_corte:
+        frappe.throw(_("Debes indicar la fecha de corte del nuevo paquete."), title=_("Fecha Requerida"))
+
+    source_package = frappe.get_doc("Paquete Estados Financieros Cliente", package_name)
+    target_package = frappe.copy_doc(source_package, ignore_no_copy=False)
+    target_package.name = None
+    target_package.nombre_del_paquete = None
+    target_package.periodo_contable = periodo_contable
+    target_package.fecha_corte = fecha_corte
+    target_package.tipo_paquete = tipo_paquete or source_package.tipo_paquete
+    target_package.marco_contable = marco_contable or source_package.marco_contable
+    target_package.version = cint(version or 1)
+    target_package.es_version_vigente = cint(es_version_vigente or 0)
+    target_package.encargo_contable = encargo_contable or None
+    target_package.expediente_auditoria = expediente_auditoria or None
+    target_package.observaciones_generales = observaciones_generales if observaciones_generales is not None else source_package.observaciones_generales
+    target_package.estado_preparacion = "Borrador"
+    target_package.informe_final_auditoria = None
+    target_package.dictamen_de_auditoria = None
+    target_package.fecha_emision = None
+    target_package.versiones_documento_eeff = []
+    for summary_field in (
+        "total_estados",
+        "estados_aprobados",
+        "total_notas",
+        "notas_aprobadas",
+        "notas_requeridas_pendientes",
+        "total_ajustes",
+        "ajustes_registrados",
+        "ajustes_no_registrados",
+        "ajustes_materiales_no_registrados",
+        "monto_ajustes",
+    ):
+        if hasattr(target_package, summary_field):
+            setattr(target_package, summary_field, 0)
+    _reset_governance_fields(target_package)
+    target_package.insert(ignore_permissions=True)
+
+    state_names = frappe.get_all(
+        "Estado Financiero Cliente",
+        filters={"paquete_estados_financieros_cliente": source_package.name},
+        pluck="name",
+        order_by="orden_presentacion asc, creation asc",
+    )
+    note_names = frappe.get_all(
+        "Nota Estado Financiero",
+        filters={"paquete_estados_financieros_cliente": source_package.name},
+        pluck="name",
+        order_by="orden_presentacion asc, creation asc",
+    )
+
+    copied_states = [_copy_package_state(state_name, target_package.name) for state_name in state_names]
+    copied_notes = [_copy_package_note(note_name, target_package.name) for note_name in note_names]
+
+    sync_package_summary(target_package.name)
+
+    return {
+        "name": target_package.name,
+        "copied_states": len(copied_states),
+        "copied_notes": len(copied_notes),
+    }
+
+
 @frappe.whitelist()
 def refrescar_resumen_paquete_estados_financieros(package_name):
     ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden recalcular paquetes de estados financieros del cliente."))

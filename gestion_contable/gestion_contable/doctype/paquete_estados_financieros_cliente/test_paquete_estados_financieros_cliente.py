@@ -1,6 +1,7 @@
 import frappe
 
 from gestion_contable.gestion_contable.doctype.paquete_estados_financieros_cliente.paquete_estados_financieros_cliente import (
+    duplicar_paquete_estados_financieros,
     emitir_paquete_estados_financieros,
 )
 from gestion_contable.gestion_contable.tests.base import GestionContableIntegrationTestCase
@@ -81,3 +82,71 @@ class TestPaqueteEstadosFinancierosCliente(GestionContableIntegrationTestCase):
             }
         )
         self.assertRaises(frappe.ValidationError, another.insert, ignore_permissions=True)
+
+    def _crear_nota(self, paquete_name, numero_nota="1"):
+        payload = {
+            "doctype": "Nota Estado Financiero",
+            "paquete_estados_financieros_cliente": paquete_name,
+            "numero_nota": numero_nota,
+            "titulo": f"Nota {numero_nota}",
+            "contenido_narrativo": "Contenido de prueba",
+            "cifras_nota": [
+                {
+                    "concepto": "Saldo",
+                    "monto_actual": 100,
+                    "monto_comparativo": 90,
+                }
+            ],
+        }
+        doc = frappe.get_doc(payload).insert(ignore_permissions=True)
+        self.track_doc("Nota Estado Financiero", doc.name)
+        return doc
+
+    def test_duplicar_paquete_copia_estados_y_notas_en_borrador(self):
+        paquete = self._crear_paquete(estado_preparacion="Emitido", estado_aprobacion="Aprobado")
+        estado = self._crear_estado(paquete.name, "Estado de Situacion Financiera")
+        nota = self._crear_nota(paquete.name, numero_nota="1")
+        frappe.db.set_value("Paquete Estados Financieros Cliente", paquete.name, {
+            "dictamen_de_auditoria": "DICTAMEN-DEMO",
+            "informe_final_auditoria": "INFORME-DEMO",
+            "fecha_emision": "2026-08-31",
+        }, update_modified=False)
+
+        nuevo_periodo = self.create_periodo(self.cliente.name, mes="Septiembre")
+        duplicated = duplicar_paquete_estados_financieros(
+            paquete.name,
+            nuevo_periodo.name,
+            "2026-09-30",
+            version=1,
+            es_version_vigente=0,
+        )
+
+        duplicated_package = frappe.get_doc("Paquete Estados Financieros Cliente", duplicated["name"])
+        self.track_doc("Paquete Estados Financieros Cliente", duplicated_package.name)
+
+        duplicated_states = frappe.get_all(
+            "Estado Financiero Cliente",
+            filters={"paquete_estados_financieros_cliente": duplicated_package.name},
+            pluck="name",
+        )
+        duplicated_notes = frappe.get_all(
+            "Nota Estado Financiero",
+            filters={"paquete_estados_financieros_cliente": duplicated_package.name},
+            pluck="name",
+        )
+        for name in duplicated_states:
+            self.track_doc("Estado Financiero Cliente", name)
+        for name in duplicated_notes:
+            self.track_doc("Nota Estado Financiero", name)
+
+        self.assertEqual(duplicated_package.estado_preparacion, "Borrador")
+        self.assertEqual(duplicated_package.estado_aprobacion, "Borrador")
+        self.assertEqual(duplicated_package.periodo_contable, nuevo_periodo.name)
+        self.assertFalse(duplicated_package.dictamen_de_auditoria)
+        self.assertFalse(duplicated_package.informe_final_auditoria)
+        self.assertEqual(len(duplicated_states), 1)
+        self.assertEqual(len(duplicated_notes), 1)
+        self.assertEqual(frappe.db.get_value("Estado Financiero Cliente", duplicated_states[0], "estado_aprobacion"), "Borrador")
+        self.assertEqual(frappe.db.get_value("Nota Estado Financiero", duplicated_notes[0], "estado_aprobacion"), "Borrador")
+        self.assertEqual(duplicated["copied_states"], 1)
+        self.assertEqual(duplicated["copied_notes"], 1)
