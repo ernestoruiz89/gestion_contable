@@ -1,42 +1,152 @@
 <style>
-  .pefc-wrap, .pefc-wrap * { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important; color: #000000 !important; font-size: 12pt; line-height: 1.25; }
-  .pefc-head { border-bottom: 2px solid #000000; padding-bottom: 10px; margin-bottom: 18px; }
-  .pefc-head h1 { margin: 0; font-size: 18pt; }
-  .pefc-head p { margin: 4px 0 0; color: #000000; font-size: 11pt; }
-  .pefc-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
-  .pefc-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; font-size: 11pt; }
-  .pefc-section { margin: 0 0 20px; }
-  .pefc-section h2 { margin: 0 0 8px; font-size: 14pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
-  .pefc-section h3 { margin: 0 0 8px; font-size: 13pt; text-transform: uppercase; letter-spacing: 0.3px; }
-  .pefc-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .pefc-table th, .pefc-table td { border: none; padding: 4px 8px; vertical-align: middle; }
-  .pefc-table th { background: transparent; text-align: left; font-weight: 700; }
-  .pefc-table td.num { text-align: right; white-space: nowrap; }
-  .pefc-line-total td, .pefc-line-subtotal td { font-weight: 700; }
-  .pefc-line-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
-  .pefc-line-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
-  .pefc-note { margin-top: 18px; page-break-inside: avoid; }
-  .pefc-note h4 { margin: 0 0 6px; font-size: 13pt; }
-  .pefc-row-subtotal td, .pefc-row-total td { font-weight: 700; }
-  .pefc-row-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
-  .pefc-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
-  .pefc-row-comment td { font-style: italic; color: #000000; }
-  .pefc-table-compact th, .pefc-table-compact td { font-size: 10pt; padding: 3px 6px; }
-  .pefc-note-comment { margin-top: 4px; }
+  .pefc-wrap,
+  .pefc-wrap * {
+    font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important;
+    color: #000000 !important;
+    font-size: 12pt;
+    line-height: 1.25;
+  }
+
+  .pefc-head {
+    border-bottom: 2px solid #000000;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+  }
+
+  .pefc-head h1 {
+    margin: 0;
+    font-size: 18pt;
+  }
+
+  .pefc-head p {
+    margin: 4px 0 0;
+    color: #000000;
+    font-size: 11pt;
+  }
+
+  .pefc-meta {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+  }
+
+  .pefc-meta td {
+    border: 1px solid #dbe3ef;
+    padding: 6px 8px;
+    vertical-align: top;
+    font-size: 11pt;
+  }
+
+  .pefc-section {
+    margin: 0 0 20px;
+  }
+
+  .pefc-section h2 {
+    margin: 0 0 8px;
+    font-size: 14pt;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 4px;
+  }
+
+  .pefc-section h3 {
+    margin: 0 0 8px;
+    font-size: 13pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .pefc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+
+  .pefc-table th,
+  .pefc-table td {
+    border: none;
+    padding: 4px 8px;
+    vertical-align: middle;
+  }
+
+  .pefc-table th {
+    background: transparent;
+    text-align: left;
+    font-weight: 700;
+  }
+
+  .pefc-table td.num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .pefc-line-total td,
+  .pefc-line-subtotal td {
+    font-weight: 700;
+  }
+
+  .pefc-line-subtotal td {
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+  }
+
+  .pefc-line-total td {
+    border-top: 1px solid #000000;
+    border-bottom: 3px double #000000;
+  }
+
+  .pefc-note {
+    margin-top: 18px;
+    page-break-inside: avoid;
+  }
+
+  .pefc-note h4 {
+    margin: 0 0 6px;
+    font-size: 13pt;
+  }
+
+  .pefc-row-subtotal td,
+  .pefc-row-total td {
+    font-weight: 700;
+  }
+
+  .pefc-row-subtotal td {
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+  }
+
+  .pefc-row-total td {
+    border-top: 1px solid #000000;
+    border-bottom: 3px double #000000;
+  }
+
+  .pefc-row-comment td {
+    font-style: italic;
+    color: #000000;
+  }
+
+  .pefc-table-compact th,
+  .pefc-table-compact td {
+    font-size: 10pt;
+    padding: 3px 6px;
+  }
+
+  .pefc-note-comment {
+    margin-top: 4px;
+  }
 </style>
 {% set estados = frappe.get_all(
-  "Estado Financiero Cliente",
-  filters={"paquete_estados_financieros_cliente": doc.name},
-  fields=["name", "tipo_estado", "titulo_formal", "subtitulo", "orden_presentacion", "fecha_comparativa"],
-  order_by="orden_presentacion asc, creation asc",
-  limit_page_length=100
+"Estado Financiero Cliente",
+filters={"paquete_estados_financieros_cliente": doc.name},
+fields=["name", "tipo_estado", "titulo_formal", "subtitulo", "orden_presentacion", "fecha_comparativa"],
+order_by="orden_presentacion asc, creation asc",
+limit_page_length=100
 ) %}
 {% set notas = frappe.get_all(
-  "Nota Estado Financiero",
-  filters={"paquete_estados_financieros_cliente": doc.name},
-  fields=["name", "numero_nota", "titulo", "orden_presentacion", "estado_aprobacion", "total_referencias"],
-  order_by="orden_presentacion asc, creation asc",
-  limit_page_length=200
+"Nota Estado Financiero",
+filters={"paquete_estados_financieros_cliente": doc.name},
+fields=["name", "numero_nota", "titulo", "orden_presentacion", "estado_aprobacion", "total_referencias"],
+order_by="orden_presentacion asc, creation asc",
+limit_page_length=200
 ) %}
 <div class="pefc-wrap">
   <div class="pefc-head">
@@ -78,163 +188,167 @@
         <td><strong>Notas Pendientes</strong><br>{{ doc.notas_requeridas_pendientes or 0 }}</td>
         <td><strong>Ajustes</strong><br>{{ doc.total_ajustes or 0 }}</td>
         <td><strong>Ajustes No Registrados</strong><br>{{ doc.ajustes_no_registrados or 0 }}</td>
-        <td><strong>Monto Ajustes</strong><br>{{ frappe.format_value(doc.monto_ajustes or 0, {"fieldtype": "Currency"}) }}</td>
+        <td><strong>Monto Ajustes</strong><br>{{ frappe.format_value(doc.monto_ajustes or 0, {"fieldtype": "Currency"})
+          }}</td>
       </tr>
     </table>
   </div>
 
   {% for estado in estados %}
-    {% set estado_doc = frappe.get_doc("Estado Financiero Cliente", estado.name) %}
-    <div class="pefc-section">
-      <h2>{{ estado_doc.titulo_formal or estado_doc.tipo_estado }}</h2>
-      {% if estado_doc.subtitulo %}<p>{{ estado_doc.subtitulo }}</p>{% endif %}
-      <table class="pefc-table">
-        <thead>
-          <tr>
-            <th>Descripcion</th>
-            <th>Monto Actual</th>
-            <th>Monto Comparativo</th>
-            <th>Nota</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for linea in estado_doc.lineas %}
-            {% set row_class = "" %}
-            {% if linea.es_total %}
-              {% set row_class = "pefc-line-total" %}
-            {% elif linea.es_subtotal %}
-              {% set row_class = "pefc-line-subtotal" %}
-            {% endif %}
-            <tr class="{{ row_class }}">
-              <td style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px;">{{ linea.descripcion }}</td>
-              <td class="num">{{ frappe.format_value(linea.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
-              <td class="num">{{ frappe.format_value(linea.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
-              <td class="num">{{ linea.numero_nota_referencial or "-" }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  {% set estado_doc = frappe.get_doc("Estado Financiero Cliente", estado.name) %}
+  <div class="pefc-section">
+    <h2>{{ estado_doc.titulo_formal or estado_doc.tipo_estado }}</h2>
+    {% if estado_doc.subtitulo %}<p>{{ estado_doc.subtitulo }}</p>{% endif %}
+    <table class="pefc-table">
+      <thead>
+        <tr>
+          <th>Descripcion</th>
+          <th>Monto Actual</th>
+          <th>Monto Comparativo</th>
+          <th>Nota</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for linea in estado_doc.lineas %}
+        {% set row_class = "" %}
+        {% if linea.es_total %}
+        {% set row_class = "pefc-line-total" %}
+        {% elif linea.es_subtotal %}
+        {% set row_class = "pefc-line-subtotal" %}
+        {% endif %}
+        <tr class="{{ row_class }}">
+          <td style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px;">{{ linea.descripcion }}</td>
+          <td class="num">{{ frappe.format_value(linea.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+          <td class="num">{{ frappe.format_value(linea.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+          <td class="num">{{ linea.numero_nota_referencial or "-" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% endfor %}
 
   <div class="pefc-section">
     <h2>Notas a los Estados Financieros</h2>
     {% for nota in notas %}
-      {% set nota_doc = frappe.get_doc("Nota Estado Financiero", nota.name) %}
-      {% set structured_sections = nota_doc.get_structured_sections() %}
-      <div class="pefc-note">
-        <h4>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h4>
-        {% if nota_doc.contenido_narrativo %}
-          <div style="margin-top: 8px;">{{ nota_doc.contenido_narrativo | safe }}</div>
-        {% endif %}
-        {% if nota_doc.cifras_nota %}
-          <table class="pefc-table" style="margin-top: 8px;">
-            <thead>
-              <tr>
-                <th>Concepto</th>
-                <th>Monto Actual</th>
-                <th>Monto Comparativo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% set ns = namespace(total_actual=0, total_comparativo=0) %}
-              {% for cifra in nota_doc.cifras_nota %}
-                {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
-                {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
-                <tr>
-                  <td>
-                    <div><strong>{{ cifra.concepto or "-" }}</strong></div>
-                    {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
-                    {% if cifra.comentario %}<div class="pefc-note-comment">{{ cifra.comentario }}</div>{% endif %}
-                  </td>
-                  <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
-                  <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
-                </tr>
-              {% endfor %}
-              <tr class="pefc-row-total">
-                <td>Total</td>
-                <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
-                <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        {% endif %}
-        {% if structured_sections %}
-          {% for section in structured_sections %}
-            <div style="margin-top: 10px;">
-              <div style="font-weight: 700; margin-bottom: 6px;">{{ section.titulo_seccion }}</div>
-              {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
-                <table class="pefc-table{% if section.columnas|length > 5 %} pefc-table-compact{% endif %}">
-                  <thead>
-                    {% if section.tiene_grupos_columnas %}
-                      <tr>
-                        <th rowspan="2">Concepto</th>
-                        {% for grupo in section.grupos_columnas %}
-                          {% if grupo.standalone %}
-                            {% set columna = grupo.columns[0] %}
-                            <th rowspan="2" style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                          {% else %}
-                            <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
-                          {% endif %}
-                        {% endfor %}
-                      </tr>
-                      <tr>
-                        {% for grupo in section.grupos_columnas %}
-                          {% if not grupo.standalone %}
-                            {% for columna in grupo.columns %}
-                              <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                            {% endfor %}
-                          {% endif %}
-                        {% endfor %}
-                      </tr>
-                    {% else %}
-                      <tr>
-                        <th>Concepto</th>
-                        {% for columna in section.columnas %}
-                          <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                        {% endfor %}
-                      </tr>
-                    {% endif %}
-                  </thead>
-                  <tbody>
-                    {% for fila in section.filas %}
-                      <tr class="pefc-row-{{ (fila.tipo_fila or "Detalle").lower().replace(" ", "-") }}">
-                        <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
-                        {% for celda in fila.celdas %}
-                          <td style="text-align: {{ (section.columnas[loop.index0].alineacion or "Left").lower() }};">
-                            {% if celda.valor_texto %}
-                              {{ celda.valor_texto }}
-                            {% elif celda.valor_numero is not none %}
-                              {% if celda.formato_numero == "Porcentaje" %}
-                                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Percent"}) }}
-                              {% else %}
-                                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Currency"}) }}
-                              {% endif %}
-                            {% else %}
-                              -
-                            {% endif %}
-                          </td>
-                        {% endfor %}
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              {% endif %}
-              {% if section.contenido_narrativo %}
-                <div style="margin-top: 8px;">{{ section.contenido_narrativo | safe }}</div>
-              {% endif %}
-            </div>
+    {% set nota_doc = frappe.get_doc("Nota Estado Financiero", nota.name) %}
+    {% set structured_sections = nota_doc.get_structured_sections() %}
+    <div class="pefc-note">
+      <h4>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h4>
+      {% if nota_doc.contenido_narrativo %}
+      <div style="margin-top: 8px;">{{ nota_doc.contenido_narrativo | safe }}</div>
+      {% endif %}
+      {% if nota_doc.cifras_nota %}
+      <table class="pefc-table" style="margin-top: 8px;">
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th>Monto Actual</th>
+            <th>Monto Comparativo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set ns = namespace(total_actual=0, total_comparativo=0) %}
+          {% for cifra in nota_doc.cifras_nota %}
+          {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
+          {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
+          <tr>
+            <td>
+              <div><strong>{{ cifra.concepto or "-" }}</strong></div>
+              {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
+              {% if cifra.comentario %}<div class="pefc-note-comment">{{ cifra.comentario }}</div>{% endif %}
+            </td>
+            <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+            <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+          </tr>
           {% endfor %}
+          <tr class="pefc-row-total">
+            <td>Total</td>
+            <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
+            <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
+          </tr>
+        </tbody>
+      </table>
+      {% endif %}
+      {% if structured_sections %}
+      {% for section in structured_sections %}
+      <div style="margin-top: 10px;">
+        <div style="font-weight: 700; margin-bottom: 6px;">{{ section.titulo_seccion }}</div>
+        {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
+        <table class="pefc-table{% if section.columnas|length > 5 %} pefc-table-compact{% endif %}">
+          <thead>
+            {% if section.tiene_grupos_columnas %}
+            <tr>
+              <th rowspan="2">Concepto</th>
+              {% for grupo in section.grupos_columnas %}
+              {% if grupo.standalone %}
+              {% set columna = grupo.columns[0] %}
+              <th rowspan="2" style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}
+              </th>
+              {% else %}
+              <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
+              {% endif %}
+              {% endfor %}
+            </tr>
+            <tr>
+              {% for grupo in section.grupos_columnas %}
+              {% if not grupo.standalone %}
+              {% for columna in grupo.columns %}
+              <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+              {% endfor %}
+              {% endif %}
+              {% endfor %}
+            </tr>
+            {% else %}
+            <tr>
+              <th>Concepto</th>
+              {% for columna in section.columnas %}
+              <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+              {% endfor %}
+            </tr>
+            {% endif %}
+          </thead>
+          <tbody>
+            {% for fila in section.filas %}
+            <tr class="pefc-row-{{ (fila.tipo_fila or " Detalle").lower().replace(" ", " -") }}">
+              <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
+              {% for celda in fila.celdas %}
+              <td style="text-align: {{ (section.columnas[loop.index0].alineacion or " Left").lower() }};">
+                {% if celda.valor_texto %}
+                {{ celda.valor_texto }}
+                {% elif celda.valor_numero is not none %}
+                {% if celda.formato_numero == "Porcentaje" %}
+                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Percent"}) }}
+                {% elif celda.formato_numero == "Numero" %}
+                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Float"}) }}
+                {% else %}
+                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Currency"}) }}
+                {% endif %}
+                {% else %}
+                -
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
         {% endif %}
-        {% if nota_doc.observaciones_preparacion %}
-          <div style="margin-top: 10px;">
-            <strong>Observaciones</strong>
-            <div>{{ nota_doc.observaciones_preparacion }}</div>
-          </div>
+        {% if section.contenido_narrativo %}
+        <div style="margin-top: 8px;">{{ section.contenido_narrativo | safe }}</div>
         {% endif %}
       </div>
+      {% endfor %}
+      {% endif %}
+      {% if nota_doc.observaciones_preparacion %}
+      <div style="margin-top: 10px;">
+        <strong>Observaciones</strong>
+        <div>{{ nota_doc.observaciones_preparacion }}</div>
+      </div>
+      {% endif %}
+    </div>
     {% else %}
-      <p>No hay notas registradas para este paquete.</p>
+    <p>No hay notas registradas para este paquete.</p>
     {% endfor %}
   </div>
 </div>

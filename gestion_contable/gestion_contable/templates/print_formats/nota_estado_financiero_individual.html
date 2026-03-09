@@ -111,6 +111,8 @@
                       {% elif celda.valor_numero is not none %}
                         {% if celda.formato_numero == "Porcentaje" %}
                           {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Percent"}) }}
+                        {% elif celda.formato_numero == "Numero" %}
+                          {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Float"}) }}
                         {% else %}
                           {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Currency"}) }}
                         {% endif %}

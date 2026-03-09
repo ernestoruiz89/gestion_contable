@@ -1,54 +1,233 @@
 <style>
-  .icea-wrap, .icea-wrap * { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important; color: #000000 !important; font-size: 12pt; line-height: 1.25; }
-  .icea-cover { border: 2px solid #000000; padding: 36px 32px; margin-bottom: 28px; page-break-after: always; min-height: 920px; position: relative; }
-  .icea-cover-kicker { font-size: 11pt; letter-spacing: 1.8px; text-transform: uppercase; color: #000000; margin-bottom: 38px; }
-  .icea-cover h1 { margin: 0 0 10px; font-size: 24pt; line-height: 1.2; }
-  .icea-cover h2 { margin: 0 0 18px; font-size: 16pt; font-weight: 500; color: #000000; }
-  .icea-cover-summary { font-size: 12pt; line-height: 1.7; color: #000000; max-width: 680px; margin-bottom: 24px; }
-  .icea-cover-badge { display: inline-block; padding: 6px 12px; border: 1px solid #94a3b8; font-size: 10pt; text-transform: uppercase; letter-spacing: 0.6px; color: #000000; margin-bottom: 22px; }
-  .icea-cover-footer { position: absolute; left: 32px; right: 32px; bottom: 36px; font-size: 11pt; color: #000000; }
-  .icea-meta { width: 100%; border-collapse: collapse; margin: 16px 0 0; }
-  .icea-meta td { border: 1px solid #dbe3ef; padding: 8px 10px; vertical-align: top; font-size: 11pt; }
-  .icea-section { margin: 0 0 22px; }
-  .icea-section h2 { margin: 0 0 8px; font-size: 15pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
-  .icea-section h3 { margin: 0 0 8px; font-size: 13pt; text-transform: uppercase; }
-  .icea-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .icea-table th, .icea-table td { border: none; padding: 4px 8px; vertical-align: middle; }
-  .icea-table th { background: transparent; text-align: left; font-weight: 700; }
-  .icea-table td.num { text-align: right; white-space: nowrap; }
-  .icea-line-total td, .icea-line-subtotal td { font-weight: 700; }
-  .icea-line-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
-  .icea-line-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
-  .icea-note { margin-top: 18px; page-break-inside: avoid; }
-  .icea-note h4 { margin: 0 0 6px; font-size: 13pt; }
-  .icea-small { font-size: 11pt; color: #000000; }
-  .icea-sign { margin-top: 42px; }
-  .icea-delivery { margin-top: 30px; page-break-before: always; }
-  .icea-delivery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 34px; }
-  .icea-sign-box { min-height: 94px; display: flex; align-items: flex-end; }
-  .icea-sign-line { border-top: 1px solid #000000; width: 100%; padding-top: 8px; font-size: 11pt; }
-  .icea-sign-line strong { display: block; margin-bottom: 4px; }
-  .icea-row-subtotal td, .icea-row-total td { font-weight: 700; }
-  .icea-row-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
-  .icea-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
-  .icea-row-comment td { font-style: italic; color: #000000; }
-  .icea-table-compact th, .icea-table-compact td { font-size: 10pt; padding: 3px 6px; }
-  .icea-note-comment { margin-top: 4px; }
+  .icea-wrap,
+  .icea-wrap * {
+    font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important;
+    color: #000000 !important;
+    font-size: 12pt;
+    line-height: 1.25;
+  }
+
+  .icea-cover {
+    border: 2px solid #000000;
+    padding: 36px 32px;
+    margin-bottom: 28px;
+    page-break-after: always;
+    min-height: 920px;
+    position: relative;
+  }
+
+  .icea-cover-kicker {
+    font-size: 11pt;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: #000000;
+    margin-bottom: 38px;
+  }
+
+  .icea-cover h1 {
+    margin: 0 0 10px;
+    font-size: 24pt;
+    line-height: 1.2;
+  }
+
+  .icea-cover h2 {
+    margin: 0 0 18px;
+    font-size: 16pt;
+    font-weight: 500;
+    color: #000000;
+  }
+
+  .icea-cover-summary {
+    font-size: 12pt;
+    line-height: 1.7;
+    color: #000000;
+    max-width: 680px;
+    margin-bottom: 24px;
+  }
+
+  .icea-cover-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px solid #94a3b8;
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #000000;
+    margin-bottom: 22px;
+  }
+
+  .icea-cover-footer {
+    position: absolute;
+    left: 32px;
+    right: 32px;
+    bottom: 36px;
+    font-size: 11pt;
+    color: #000000;
+  }
+
+  .icea-meta {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 0;
+  }
+
+  .icea-meta td {
+    border: 1px solid #dbe3ef;
+    padding: 8px 10px;
+    vertical-align: top;
+    font-size: 11pt;
+  }
+
+  .icea-section {
+    margin: 0 0 22px;
+  }
+
+  .icea-section h2 {
+    margin: 0 0 8px;
+    font-size: 15pt;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 4px;
+  }
+
+  .icea-section h3 {
+    margin: 0 0 8px;
+    font-size: 13pt;
+    text-transform: uppercase;
+  }
+
+  .icea-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+
+  .icea-table th,
+  .icea-table td {
+    border: none;
+    padding: 4px 8px;
+    vertical-align: middle;
+  }
+
+  .icea-table th {
+    background: transparent;
+    text-align: left;
+    font-weight: 700;
+  }
+
+  .icea-table td.num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .icea-line-total td,
+  .icea-line-subtotal td {
+    font-weight: 700;
+  }
+
+  .icea-line-subtotal td {
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+  }
+
+  .icea-line-total td {
+    border-top: 1px solid #000000;
+    border-bottom: 3px double #000000;
+  }
+
+  .icea-note {
+    margin-top: 18px;
+    page-break-inside: avoid;
+  }
+
+  .icea-note h4 {
+    margin: 0 0 6px;
+    font-size: 13pt;
+  }
+
+  .icea-small {
+    font-size: 11pt;
+    color: #000000;
+  }
+
+  .icea-sign {
+    margin-top: 42px;
+  }
+
+  .icea-delivery {
+    margin-top: 30px;
+    page-break-before: always;
+  }
+
+  .icea-delivery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-top: 34px;
+  }
+
+  .icea-sign-box {
+    min-height: 94px;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .icea-sign-line {
+    border-top: 1px solid #000000;
+    width: 100%;
+    padding-top: 8px;
+    font-size: 11pt;
+  }
+
+  .icea-sign-line strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .icea-row-subtotal td,
+  .icea-row-total td {
+    font-weight: 700;
+  }
+
+  .icea-row-subtotal td {
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+  }
+
+  .icea-row-total td {
+    border-top: 1px solid #000000;
+    border-bottom: 3px double #000000;
+  }
+
+  .icea-row-comment td {
+    font-style: italic;
+    color: #000000;
+  }
+
+  .icea-table-compact th,
+  .icea-table-compact td {
+    font-size: 10pt;
+    padding: 3px 6px;
+  }
+
+  .icea-note-comment {
+    margin-top: 4px;
+  }
 </style>
-{% set dictamen = frappe.get_doc("Informe Final Auditoria", doc.dictamen_de_auditoria) if doc.dictamen_de_auditoria and frappe.db.exists("Informe Final Auditoria", doc.dictamen_de_auditoria) else None %}
+{% set dictamen = frappe.get_doc("Informe Final Auditoria", doc.dictamen_de_auditoria) if doc.dictamen_de_auditoria and
+frappe.db.exists("Informe Final Auditoria", doc.dictamen_de_auditoria) else None %}
 {% set estados = frappe.get_all(
-  "Estado Financiero Cliente",
-  filters={"paquete_estados_financieros_cliente": doc.name},
-  fields=["name", "tipo_estado", "titulo_formal", "subtitulo", "orden_presentacion", "fecha_comparativa"],
-  order_by="orden_presentacion asc, creation asc",
-  limit_page_length=100
+"Estado Financiero Cliente",
+filters={"paquete_estados_financieros_cliente": doc.name},
+fields=["name", "tipo_estado", "titulo_formal", "subtitulo", "orden_presentacion", "fecha_comparativa"],
+order_by="orden_presentacion asc, creation asc",
+limit_page_length=100
 ) %}
 {% set notas = frappe.get_all(
-  "Nota Estado Financiero",
-  filters={"paquete_estados_financieros_cliente": doc.name},
-  fields=["name", "numero_nota", "titulo", "orden_presentacion", "estado_aprobacion", "total_referencias"],
-  order_by="orden_presentacion asc, creation asc",
-  limit_page_length=300
+"Nota Estado Financiero",
+filters={"paquete_estados_financieros_cliente": doc.name},
+fields=["name", "numero_nota", "titulo", "orden_presentacion", "estado_aprobacion", "total_referencias"],
+order_by="orden_presentacion asc, creation asc",
+limit_page_length=300
 ) %}
 <div class="icea-wrap">
   <div class="icea-cover">
@@ -57,7 +236,8 @@
     <h1>{{ doc.razon_social_reportante or doc.cliente }}</h1>
     <h2>Informe Completo de EEFF Auditados</h2>
     <div class="icea-cover-summary">
-      Se presenta el juego completo de estados financieros auditados del periodo indicado, junto con el dictamen de auditoria independiente y las notas a los estados financieros, para fines de emision y entrega formal al cliente.
+      Se presenta el juego completo de estados financieros auditados del periodo indicado, junto con el dictamen de
+      auditoria independiente y las notas a los estados financieros, para fines de emision y entrega formal al cliente.
     </div>
     <table class="icea-meta">
       <tr>
@@ -83,9 +263,10 @@
     </table>
     <div class="icea-cover-footer">
       {% if dictamen and dictamen.firmado_por %}
-        Emitido bajo la responsabilidad de <strong>{{ dictamen.firmado_por }}</strong>{% if dictamen.cargo_firmante %}, {{ dictamen.cargo_firmante }}{% endif %}.
+      Emitido bajo la responsabilidad de <strong>{{ dictamen.firmado_por }}</strong>{% if dictamen.cargo_firmante %}, {{
+      dictamen.cargo_firmante }}{% endif %}.
       {% else %}
-        Emitido para entrega formal al cliente conforme al flujo de auditoria del despacho.
+      Emitido para entrega formal al cliente conforme al flujo de auditoria del despacho.
       {% endif %}
     </div>
   </div>
@@ -93,215 +274,242 @@
   <div class="icea-section">
     <h2>Dictamen de Auditoria</h2>
     {% if dictamen %}
-      {% set opinion_standard = "NIA 700" if dictamen.tipo_opinion == "Favorable" else "NIA 705" %}
-      <div class="icea-small">
-        {{ dictamen.tipo_opinion or "Opinion" }} | Destinatario: {{ dictamen.destinatario or "-" }} | Fecha: {{ dictamen.fecha_informe or "-" }}
-      </div>
-      <div class="icea-small" style="margin-top: 4px; margin-bottom: 12px;">
-        Base normativa: {{ dictamen.base_normativa or opinion_standard }}
-        {% if dictamen.tipo_opinion in ["Con Salvedades", "Adversa", "Abstencion"] %}
-          | Efecto generalizado: {{ "Si" if dictamen.efecto_generalizado else "No" }}
-          | Limitacion material al alcance: {{ "Si" if dictamen.limitacion_alcance_material else "No" }}
-        {% endif %}
-      </div>
-
-      <div class="icea-section"><h3>Opinion del Auditor ({{ opinion_standard }})</h3>{{ dictamen.opinion_o_conclusion or "<p>Sin opinion.</p>" }}</div>
-      <div class="icea-section"><h3>Fundamento de la Opinion ({{ opinion_standard }})</h3>{{ dictamen.fundamento_opinion or "<p>Sin fundamento.</p>" }}</div>
-
+    {% set opinion_standard = "NIA 700" if dictamen.tipo_opinion == "Favorable" else "NIA 705" %}
+    <div class="icea-small">
+      {{ dictamen.tipo_opinion or "Opinion" }} | Destinatario: {{ dictamen.destinatario or "-" }} | Fecha: {{
+      dictamen.fecha_informe or "-" }}
+    </div>
+    <div class="icea-small" style="margin-top: 4px; margin-bottom: 12px;">
+      Base normativa: {{ dictamen.base_normativa or opinion_standard }}
       {% if dictamen.tipo_opinion in ["Con Salvedades", "Adversa", "Abstencion"] %}
-        <div class="icea-section"><h3>Asunto que Origina la Modificacion (NIA 705)</h3>{{ dictamen.asunto_que_origina_modificacion or "<p>No documentado.</p>" }}</div>
-        <div class="icea-section">
-          <h3>
-            {% if dictamen.tipo_opinion == "Abstencion" %}
-              Fundamento de la Abstencion (NIA 705)
-            {% else %}
-              Fundamento de la Opinion Modificada (NIA 705)
-            {% endif %}
-          </h3>
-          {{ dictamen.fundamento_salvedad or "<p>No documentado.</p>" }}
-        </div>
+      | Efecto generalizado: {{ "Si" if dictamen.efecto_generalizado else "No" }}
+      | Limitacion material al alcance: {{ "Si" if dictamen.limitacion_alcance_material else "No" }}
       {% endif %}
+    </div>
 
-      {% if dictamen.parrafo_enfasis %}
-        <div class="icea-section"><h3>Parrafo de Enfasis (NIA 706)</h3>{{ dictamen.parrafo_enfasis }}</div>
-      {% endif %}
-      {% if dictamen.parrafo_otros_asuntos %}
-        <div class="icea-section"><h3>Parrafo de Otros Asuntos (NIA 706)</h3>{{ dictamen.parrafo_otros_asuntos }}</div>
-      {% endif %}
+    <div class="icea-section">
+      <h3>Opinion del Auditor ({{ opinion_standard }})</h3>{{ dictamen.opinion_o_conclusion or "<p>Sin opinion.</p>" }}
+    </div>
+    <div class="icea-section">
+      <h3>Fundamento de la Opinion ({{ opinion_standard }})</h3>{{ dictamen.fundamento_opinion or "<p>Sin fundamento.
+      </p>" }}
+    </div>
 
-      <div class="icea-section"><h3>Responsabilidades de la Administracion</h3>{{ dictamen.responsabilidades_administracion or "<p>Sin contenido.</p>" }}</div>
-      <div class="icea-section"><h3>Responsabilidades del Auditor</h3>{{ dictamen.responsabilidades_auditor or "<p>Sin contenido.</p>" }}</div>
-      <div class="icea-section"><h3>Conclusion Final</h3>{{ dictamen.conclusion_final or "<p>Sin conclusion.</p>" }}</div>
-      <div class="icea-sign"><strong>{{ dictamen.firmado_por or "-" }}</strong><br>{{ dictamen.cargo_firmante or "Firmante" }}</div>
+    {% if dictamen.tipo_opinion in ["Con Salvedades", "Adversa", "Abstencion"] %}
+    <div class="icea-section">
+      <h3>Asunto que Origina la Modificacion (NIA 705)</h3>{{ dictamen.asunto_que_origina_modificacion or "<p>No
+        documentado.</p>" }}
+    </div>
+    <div class="icea-section">
+      <h3>
+        {% if dictamen.tipo_opinion == "Abstencion" %}
+        Fundamento de la Abstencion (NIA 705)
+        {% else %}
+        Fundamento de la Opinion Modificada (NIA 705)
+        {% endif %}
+      </h3>
+      {{ dictamen.fundamento_salvedad or "<p>No documentado.</p>" }}
+    </div>
+    {% endif %}
+
+    {% if dictamen.parrafo_enfasis %}
+    <div class="icea-section">
+      <h3>Parrafo de Enfasis (NIA 706)</h3>{{ dictamen.parrafo_enfasis }}
+    </div>
+    {% endif %}
+    {% if dictamen.parrafo_otros_asuntos %}
+    <div class="icea-section">
+      <h3>Parrafo de Otros Asuntos (NIA 706)</h3>{{ dictamen.parrafo_otros_asuntos }}
+    </div>
+    {% endif %}
+
+    <div class="icea-section">
+      <h3>Responsabilidades de la Administracion</h3>{{ dictamen.responsabilidades_administracion or "<p>Sin contenido.
+      </p>" }}
+    </div>
+    <div class="icea-section">
+      <h3>Responsabilidades del Auditor</h3>{{ dictamen.responsabilidades_auditor or "<p>Sin contenido.</p>" }}
+    </div>
+    <div class="icea-section">
+      <h3>Conclusion Final</h3>{{ dictamen.conclusion_final or "<p>Sin conclusion.</p>" }}
+    </div>
+    <div class="icea-sign"><strong>{{ dictamen.firmado_por or "-" }}</strong><br>{{ dictamen.cargo_firmante or
+      "Firmante" }}</div>
     {% else %}
-      <p>No hay dictamen de auditoria vinculado a este paquete.</p>
+    <p>No hay dictamen de auditoria vinculado a este paquete.</p>
     {% endif %}
   </div>
 
   <div class="icea-section" style="page-break-before: always;">
     <h2>Estados Financieros</h2>
     {% for estado in estados %}
-      {% set estado_doc = frappe.get_doc("Estado Financiero Cliente", estado.name) %}
-      <div class="icea-section">
-        <h3>{{ estado_doc.titulo_formal or estado_doc.tipo_estado }}</h3>
-        {% if estado_doc.subtitulo %}<p>{{ estado_doc.subtitulo }}</p>{% endif %}
-        <table class="icea-table">
-          <thead>
-            <tr>
-              <th>Descripcion</th>
-              <th>Monto Actual</th>
-              <th>Monto Comparativo</th>
-              <th>Nota</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for linea in estado_doc.lineas %}
-              {% set row_class = "" %}
-              {% if linea.es_total %}
-                {% set row_class = "icea-line-total" %}
-              {% elif linea.es_subtotal %}
-                {% set row_class = "icea-line-subtotal" %}
-              {% endif %}
-              <tr class="{{ row_class }}">
-                <td style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px;">{{ linea.descripcion }}</td>
-                <td class="num">{{ frappe.format_value(linea.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
-                <td class="num">{{ frappe.format_value(linea.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
-                <td class="num">{{ linea.numero_nota_referencial or "-" }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+    {% set estado_doc = frappe.get_doc("Estado Financiero Cliente", estado.name) %}
+    <div class="icea-section">
+      <h3>{{ estado_doc.titulo_formal or estado_doc.tipo_estado }}</h3>
+      {% if estado_doc.subtitulo %}<p>{{ estado_doc.subtitulo }}</p>{% endif %}
+      <table class="icea-table">
+        <thead>
+          <tr>
+            <th>Descripcion</th>
+            <th>Monto Actual</th>
+            <th>Monto Comparativo</th>
+            <th>Nota</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for linea in estado_doc.lineas %}
+          {% set row_class = "" %}
+          {% if linea.es_total %}
+          {% set row_class = "icea-line-total" %}
+          {% elif linea.es_subtotal %}
+          {% set row_class = "icea-line-subtotal" %}
+          {% endif %}
+          <tr class="{{ row_class }}">
+            <td style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px;">{{ linea.descripcion }}</td>
+            <td class="num">{{ frappe.format_value(linea.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+            <td class="num">{{ frappe.format_value(linea.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+            <td class="num">{{ linea.numero_nota_referencial or "-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
     {% else %}
-      <p>No hay estados financieros registrados para este paquete.</p>
+    <p>No hay estados financieros registrados para este paquete.</p>
     {% endfor %}
   </div>
 
   <div class="icea-section" style="page-break-before: always;">
     <h2>Notas a los Estados Financieros</h2>
     {% for nota in notas %}
-      {% set nota_doc = frappe.get_doc("Nota Estado Financiero", nota.name) %}
-      {% set structured_sections = nota_doc.get_structured_sections() %}
-      <div class="icea-note">
-        <h4>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h4>
-        {% if nota_doc.contenido_narrativo %}
-          <div style="margin-top: 8px;">{{ nota_doc.contenido_narrativo | safe }}</div>
-        {% endif %}
-        {% if nota_doc.cifras_nota %}
-          <table class="icea-table">
-            <thead>
-              <tr>
-                <th>Concepto</th>
-                <th>Monto Actual</th>
-                <th>Monto Comparativo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% set ns = namespace(total_actual=0, total_comparativo=0) %}
-              {% for cifra in nota_doc.cifras_nota %}
-                {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
-                {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
-                <tr>
-                  <td>
-                    <div><strong>{{ cifra.concepto or "-" }}</strong></div>
-                    {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
-                    {% if cifra.comentario %}<div class="icea-note-comment">{{ cifra.comentario }}</div>{% endif %}
-                  </td>
-                  <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
-                  <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
-                </tr>
-              {% endfor %}
-              <tr class="icea-row-total">
-                <td>Total</td>
-                <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
-                <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        {% endif %}
-        {% if structured_sections %}
-          {% for section in structured_sections %}
-            <div style="margin-top: 10px;">
-              <div style="font-weight: 700; margin-bottom: 6px;">{{ section.titulo_seccion }}</div>
-              {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
-                <table class="icea-table{% if section.columnas|length > 5 %} icea-table-compact{% endif %}">
-                  <thead>
-                    {% if section.tiene_grupos_columnas %}
-                      <tr>
-                        <th rowspan="2">Concepto</th>
-                        {% for grupo in section.grupos_columnas %}
-                          {% if grupo.standalone %}
-                            {% set columna = grupo.columns[0] %}
-                            <th rowspan="2" style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                          {% else %}
-                            <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
-                          {% endif %}
-                        {% endfor %}
-                      </tr>
-                      <tr>
-                        {% for grupo in section.grupos_columnas %}
-                          {% if not grupo.standalone %}
-                            {% for columna in grupo.columns %}
-                              <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                            {% endfor %}
-                          {% endif %}
-                        {% endfor %}
-                      </tr>
-                    {% else %}
-                      <tr>
-                        <th>Concepto</th>
-                        {% for columna in section.columnas %}
-                          <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                        {% endfor %}
-                      </tr>
-                    {% endif %}
-                  </thead>
-                  <tbody>
-                    {% for fila in section.filas %}
-                      <tr class="icea-row-{{ (fila.tipo_fila or "Detalle").lower().replace(" ", "-") }}">
-                        <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
-                        {% for celda in fila.celdas %}
-                          <td style="text-align: {{ (section.columnas[loop.index0].alineacion or "Left").lower() }};">
-                            {% if celda.valor_texto %}
-                              {{ celda.valor_texto }}
-                            {% elif celda.valor_numero is not none %}
-                              {% if celda.formato_numero == "Porcentaje" %}
-                                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Percent"}) }}
-                              {% else %}
-                                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Currency"}) }}
-                              {% endif %}
-                            {% else %}
-                              -
-                            {% endif %}
-                          </td>
-                        {% endfor %}
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              {% endif %}
-              {% if section.contenido_narrativo %}
-                <div style="margin-top: 8px;">{{ section.contenido_narrativo | safe }}</div>
-              {% endif %}
-            </div>
+    {% set nota_doc = frappe.get_doc("Nota Estado Financiero", nota.name) %}
+    {% set structured_sections = nota_doc.get_structured_sections() %}
+    <div class="icea-note">
+      <h4>Nota {{ nota_doc.numero_nota }}. {{ nota_doc.titulo or "Sin titulo" }}</h4>
+      {% if nota_doc.contenido_narrativo %}
+      <div style="margin-top: 8px;">{{ nota_doc.contenido_narrativo | safe }}</div>
+      {% endif %}
+      {% if nota_doc.cifras_nota %}
+      <table class="icea-table">
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th>Monto Actual</th>
+            <th>Monto Comparativo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set ns = namespace(total_actual=0, total_comparativo=0) %}
+          {% for cifra in nota_doc.cifras_nota %}
+          {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
+          {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
+          <tr>
+            <td>
+              <div><strong>{{ cifra.concepto or "-" }}</strong></div>
+              {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
+              {% if cifra.comentario %}<div class="icea-note-comment">{{ cifra.comentario }}</div>{% endif %}
+            </td>
+            <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+            <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+          </tr>
           {% endfor %}
+          <tr class="icea-row-total">
+            <td>Total</td>
+            <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
+            <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
+          </tr>
+        </tbody>
+      </table>
+      {% endif %}
+      {% if structured_sections %}
+      {% for section in structured_sections %}
+      <div style="margin-top: 10px;">
+        <div style="font-weight: 700; margin-bottom: 6px;">{{ section.titulo_seccion }}</div>
+        {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
+        <table class="icea-table{% if section.columnas|length > 5 %} icea-table-compact{% endif %}">
+          <thead>
+            {% if section.tiene_grupos_columnas %}
+            <tr>
+              <th rowspan="2">Concepto</th>
+              {% for grupo in section.grupos_columnas %}
+              {% if grupo.standalone %}
+              {% set columna = grupo.columns[0] %}
+              <th rowspan="2" style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}
+              </th>
+              {% else %}
+              <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
+              {% endif %}
+              {% endfor %}
+            </tr>
+            <tr>
+              {% for grupo in section.grupos_columnas %}
+              {% if not grupo.standalone %}
+              {% for columna in grupo.columns %}
+              <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+              {% endfor %}
+              {% endif %}
+              {% endfor %}
+            </tr>
+            {% else %}
+            <tr>
+              <th>Concepto</th>
+              {% for columna in section.columnas %}
+              <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+              {% endfor %}
+            </tr>
+            {% endif %}
+          </thead>
+          <tbody>
+            {% for fila in section.filas %}
+            <tr class="icea-row-{{ (fila.tipo_fila or " Detalle").lower().replace(" ", " -") }}">
+              <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
+              {% for celda in fila.celdas %}
+              <td style="text-align: {{ (section.columnas[loop.index0].alineacion or " Left").lower() }};">
+                {% if celda.valor_texto %}
+                {{ celda.valor_texto }}
+                {% elif celda.valor_numero is not none %}
+                {% if celda.formato_numero == "Porcentaje" %}
+                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Percent"}) }}
+                {% elif celda.formato_numero == "Numero" %}
+                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Float"}) }}
+                {% else %}
+                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Currency"}) }}
+                {% endif %}
+                {% else %}
+                -
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
         {% endif %}
-        {% if nota_doc.observaciones_preparacion %}
-          <div style="margin-top: 10px;">
-            <strong>Observaciones</strong>
-            <div>{{ nota_doc.observaciones_preparacion }}</div>
-          </div>
+        {% if section.contenido_narrativo %}
+        <div style="margin-top: 8px;">{{ section.contenido_narrativo | safe }}</div>
         {% endif %}
       </div>
+      {% endfor %}
+      {% endif %}
+      {% if nota_doc.observaciones_preparacion %}
+      <div style="margin-top: 10px;">
+        <strong>Observaciones</strong>
+        <div>{{ nota_doc.observaciones_preparacion }}</div>
+      </div>
+      {% endif %}
+    </div>
     {% else %}
-      <p>No hay notas registradas para este paquete.</p>
+    <p>No hay notas registradas para este paquete.</p>
     {% endfor %}
   </div>
 
   <div class="icea-delivery">
     <h2>Constancia de Entrega</h2>
     <p>
-      Se deja constancia de que el presente <strong>Informe Completo de EEFF Auditados</strong>, correspondiente al cliente <strong>{{ doc.razon_social_reportante or doc.cliente }}</strong> y al periodo <strong>{{ doc.periodo_contable or "-" }}</strong>, se emite para entrega formal al destinatario indicado, junto con el dictamen de auditoria independiente y el juego completo de estados financieros y notas.
+      Se deja constancia de que el presente <strong>Informe Completo de EEFF Auditados</strong>, correspondiente al
+      cliente <strong>{{ doc.razon_social_reportante or doc.cliente }}</strong> y al periodo <strong>{{
+        doc.periodo_contable or "-" }}</strong>, se emite para entrega formal al destinatario indicado, junto con el
+      dictamen de auditoria independiente y el juego completo de estados financieros y notas.
     </p>
     <table class="icea-meta">
       <tr>
@@ -313,19 +521,22 @@
     <div class="icea-delivery-grid">
       <div class="icea-sign-box">
         <div class="icea-sign-line">
-          <strong>{{ dictamen.firmado_por if dictamen and dictamen.firmado_por else "____________________________" }}</strong>
+          <strong>{{ dictamen.firmado_por if dictamen and dictamen.firmado_por else "____________________________"
+            }}</strong>
           {{ dictamen.cargo_firmante if dictamen and dictamen.cargo_firmante else "Socio o responsable de emision" }}
         </div>
       </div>
       <div class="icea-sign-box">
         <div class="icea-sign-line">
-          <strong>{{ dictamen.revisado_por if dictamen and dictamen.revisado_por else "____________________________" }}</strong>
+          <strong>{{ dictamen.revisado_por if dictamen and dictamen.revisado_por else "____________________________"
+            }}</strong>
           {{ "Revisor interno" if dictamen and dictamen.revisado_por else "Revisor interno / control de calidad" }}
         </div>
       </div>
       <div class="icea-sign-box">
         <div class="icea-sign-line">
-          <strong>{{ dictamen.destinatario if dictamen and dictamen.destinatario else "____________________________" }}</strong>
+          <strong>{{ dictamen.destinatario if dictamen and dictamen.destinatario else "____________________________"
+            }}</strong>
           Recibido por el cliente
         </div>
       </div>
