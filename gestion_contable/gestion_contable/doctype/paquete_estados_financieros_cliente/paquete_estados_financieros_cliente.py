@@ -16,6 +16,7 @@ from gestion_contable.gestion_contable.utils.governance import ESTADO_APROBACION
 from gestion_contable.gestion_contable.utils.security import ensure_manager, ensure_supervisor
 from gestion_contable.gestion_contable.utils.word_export import (
     export_audited_financial_package_to_word,
+    export_financial_package_to_word,
     export_remittance_letter_to_word,
 )
 
@@ -570,6 +571,14 @@ def emitir_paquete_estados_financieros(package_name):
     package.estado_preparacion = "Emitido"
     package.save(ignore_permissions=True)
     return {"name": package.name, "estado_preparacion": package.estado_preparacion, "fecha_emision": package.fecha_emision}
+
+
+@frappe.whitelist()
+def exportar_paquete_eeff_word(package_name):
+    ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden exportar paquetes de estados financieros a Word."))
+    if not frappe.db.exists("Paquete Estados Financieros Cliente", package_name):
+        frappe.throw(_("El paquete indicado no existe."), title=_("Paquete Invalido"))
+    return export_financial_package_to_word(package_name)
 
 
 @frappe.whitelist()

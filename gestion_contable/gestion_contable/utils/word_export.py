@@ -8,10 +8,41 @@ from frappe import _
 from frappe.utils import cint, cstr, now_datetime
 
 REPORT_TITLE = "Informe Completo de EEFF Auditados"
+NON_AUDITED_REPORT_TITLE = "Estados Financieros y Notas"
 REMITTANCE_TITLE = "Carta de Remision"
 FONT_NAME = "Arial Narrow"
 BODY_SIZE = 12
 COMPACT_SIZE = 10
+
+
+def export_financial_package_to_word(package_name):
+    package = frappe.get_doc("Paquete Estados Financieros Cliente", package_name)
+
+    document = _build_financial_package_document(package)
+    stream = io.BytesIO()
+    document.save(stream)
+    content = stream.getvalue()
+    stream.close()
+
+    from frappe.utils.file_manager import save_file
+
+    file_name = _build_non_audited_word_export_filename(package.name)
+    file_doc = save_file(file_name, content, "Paquete Estados Financieros Cliente", package.name, is_private=1)
+    version_info = _register_package_document_version(
+        package.name,
+        tipo_documento="Word Revision Cliente",
+        file_doc=file_doc,
+        content_hash=hashlib.sha256(content).hexdigest(),
+        estado_documento="Generado",
+        observaciones="Documento Word EEFF generado para revision del cliente.",
+    )
+    return {
+        "file_name": file_doc.file_name,
+        "file_url": file_doc.file_url,
+        "file_id": file_doc.name,
+        "version_documento": version_info["version_documento"],
+        "tipo_documento": version_info["tipo_documento"],
+    }
 
 
 def export_audited_financial_package_to_word(package_name):
@@ -139,6 +170,62 @@ def _build_audited_package_document(package, dictamen):
 
     document.add_page_break()
     _add_dictamen_section(document, dictamen)
+    document.add_page_break()
+    _add_estados_section(document, package)
+    document.add_page_break()
+    _add_notas_section(document, package)
+    return document
+
+
+def _build_financial_package_document(package):
+    Document, WD_ALIGN_PARAGRAPH, WD_ORIENTATION, WD_SECTION_START, OxmlElement, qn, Cm, Pt, RGBColor = _docx_imports()
+
+    document = Document()
+    _configure_document(document, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, Pt, document_title=NON_AUDITED_REPORT_TITLE)
+
+    title = document.add_paragraph(NON_AUDITED_REPORT_TITLE, style="Title")
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    subtitle = document.add_paragraph(style="Subtitle")
+    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    subtitle.add_run(package.razon_social_reportante or package.cliente or "Cliente")
+    _set_paragraph_runs_font(subtitle)
+
+    badge = document.add_paragraph()
+    badge.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    badge.add_run("Documento preparado por la firma para revision del cliente").italic = True
+    _set_paragraph_runs_font(badge)
+
+    cover_table = document.add_table(rows=4, cols=2)
+    cover_pairs = [
+        ("Cliente", package.cliente or "-"),
+        ("Razon social reportante", package.razon_social_reportante or "-"),
+        ("Identificacion fiscal", package.identificacion_fiscal_reportante or "-"),
+        ("Periodo", package.periodo_contable or "-"),
+        ("Fecha de corte", cstr(package.fecha_corte or "-")),
+        ("Fecha de emision", cstr(package.fecha_emision or "-")),
+        ("Marco contable", package.marco_contable or "-"),
+        ("Version", cstr(package.version or "-")),
+    ]
+    for index, pair in enumerate(cover_pairs):
+        row = cover_table.rows[index // 2]
+        cell = row.cells[index % 2]
+        _fill_label_value_cell(cell, pair[0], pair[1])
+    _style_meta_table(cover_table)
+
+    summary = document.add_paragraph(
+        "Se presenta el juego de estados financieros y sus notas explicativas preparados por la firma para revision del cliente."
+    )
+    _set_paragraph_runs_font(summary)
+
+    document.add_page_break()
+    toc_heading = document.add_paragraph("Indice", style="Heading 1")
+    toc_heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    toc_paragraph = document.add_paragraph()
+    _append_field(toc_paragraph, 'TOC \\o "1-3" \\h \\z \\u', "Actualice la tabla de contenido al abrir el documento en Word.", OxmlElement, qn)
+    note = document.add_paragraph("Nota: si Word no actualiza el indice automaticamente, use Actualizar campo.")
+    _set_paragraph_runs_font(note)
+
     document.add_page_break()
     _add_estados_section(document, package)
     document.add_page_break()
@@ -633,6 +720,14 @@ def _build_remittance_filename(package_name):
 def _build_word_export_filename(package_name):
     safe_name = _sanitize_filename(package_name)
     base_name = f"{REPORT_TITLE} - {safe_name}" if safe_name else REPORT_TITLE
+    max_base_length = 135 - len(".docx")
+    base_name = base_name[:max_base_length].rstrip(" -_")
+    return f"{base_name}.docx"
+
+
+def _build_non_audited_word_export_filename(package_name):
+    safe_name = _sanitize_filename(package_name)
+    base_name = f"{NON_AUDITED_REPORT_TITLE} - {safe_name}" if safe_name else NON_AUDITED_REPORT_TITLE
     max_base_length = 135 - len(".docx")
     base_name = base_name[:max_base_length].rstrip(" -_")
     return f"{base_name}.docx"
