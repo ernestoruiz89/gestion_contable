@@ -75,6 +75,8 @@ class CreadorNotasEEFF {
             .cne-layout-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.cne-structure-wrap,.cne-matrix-wrap{overflow:auto;padding:0 16px 16px}.cne-structure-table,.cne-matrix-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
             .cne-structure-table th,.cne-structure-table td,.cne-matrix-table th,.cne-matrix-table td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:top}.cne-structure-table th,.cne-matrix-table th{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;font-weight:800}
             .cne-structure-table input,.cne-structure-table select,.cne-matrix-table input{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font-size:12px;background:#fff}.cne-delete-link{color:#be123c;cursor:pointer;font-weight:700}.cne-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;background:#eef2ff;color:#3730a3;text-transform:uppercase}.cne-rowhead{min-width:220px;background:#fff}.cne-code{display:block;color:#64748b;font-size:11px;margin-top:3px}.cne-matrix-input.computed{background:#f8fafc;border-style:dashed}.cne-help{padding:0 16px 16px;color:#475569;font-size:12px}.cne-help code{background:#f1f5f9;padding:2px 5px;border-radius:6px}
+            .cne-fullscreen{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;margin:0!important;border-radius:0!important;display:flex;flex-direction:column}
+            .cne-fullscreen .cne-structure-wrap,.cne-fullscreen .cne-matrix-wrap{flex:1;max-height:none}
             @media (max-width:1100px){.cne-shell{grid-template-columns:1fr}.cne-grid.note,.cne-layout-two,.cne-note-meta{grid-template-columns:1fr}}
         `;
         document.head.appendChild(style);
@@ -170,6 +172,17 @@ class CreadorNotasEEFF {
         this.wrapper.on("click", ".cne-delete-row", (event) => this.delete_row(parseInt(event.currentTarget.dataset.index, 10)));
         this.wrapper.on("change", ".cne-row-field", (event) => this.update_row_field(event));
         this.wrapper.on("change", ".cne-matrix-input", (event) => this.update_matrix_cell(event));
+        this.wrapper.on("click", ".cne-toggle-fullscreen", (event) => {
+            const $card = $(event.currentTarget).closest(".cne-card");
+            $card.toggleClass("cne-fullscreen");
+            const isFull = $card.hasClass("cne-fullscreen");
+            $(event.currentTarget).text(isFull ? "Contraer Pantalla" : "Expandir Pantalla");
+            if (isFull) {
+                $("body").css("overflow", "hidden");
+            } else {
+                if (!$(".cne-fullscreen").length) $("body").css("overflow", "");
+            }
+        });
     }
 
     on_client_change() {
@@ -494,7 +507,7 @@ class CreadorNotasEEFF {
         return `
             <div class="cne-card">
                 <div class="cne-card-head"><h3>Columnas</h3><p>Codigo, etiqueta, grupo, tipo y formula por columna.</p></div>
-                <div class="cne-toolbar"><button class="cne-btn cne-add-column">Nueva Columna</button></div>
+                <div class="cne-toolbar"><button class="cne-btn cne-add-column">Nueva Columna</button><button class="cne-btn cne-toggle-fullscreen" style="margin-left:auto;">Expandir Pantalla</button></div>
                 <div class="cne-structure-wrap">
                     <table class="cne-structure-table">
                         <thead><tr><th>Codigo</th><th>Etiqueta</th><th>Grupo</th><th>Tipo</th><th>Alineacion</th><th>Auto</th><th>Formula</th><th>Orden</th><th>Total</th><th></th></tr></thead>
@@ -525,7 +538,7 @@ class CreadorNotasEEFF {
         return `
             <div class="cne-card">
                 <div class="cne-card-head"><h3>Filas</h3><p>Codigo, nivel, tipo y formula por fila.</p></div>
-                <div class="cne-toolbar"><button class="cne-btn cne-add-row">Nueva Fila</button></div>
+                <div class="cne-toolbar"><button class="cne-btn cne-add-row">Nueva Fila</button><button class="cne-btn cne-toggle-fullscreen" style="margin-left:auto;">Expandir Pantalla</button></div>
                 <div class="cne-structure-wrap">
                     <table class="cne-structure-table">
                         <thead><tr><th>Codigo</th><th>Descripcion</th><th>Nivel</th><th>Tipo</th><th>Auto</th><th>Formula</th><th>Orden</th><th>Negrita</th><th>Subrayado</th><th></th></tr></thead>
@@ -559,7 +572,10 @@ class CreadorNotasEEFF {
         const matrix = this.compute_matrix(sectionId);
         return `
             <div class="cne-card">
-                <div class="cne-card-head"><h3>Matriz Visual</h3><p>Edita celdas manuales y revisa valores calculados en tiempo real.</p></div>
+                <div class="cne-card-head" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div><h3>Matriz Visual</h3><p>Edita celdas manuales y revisa valores calculados en tiempo real.</p></div>
+                    <button class="cne-btn cne-toggle-fullscreen">Expandir Pantalla</button>
+                </div>
                 <div class="cne-matrix-wrap">
                     ${rows.length && columns.length ? `
                         <table class="cne-matrix-table">
@@ -568,30 +584,30 @@ class CreadorNotasEEFF {
                                     <tr>
                                         <th class="cne-rowhead" rowspan="2">Fila / Columna</th>
                                         ${columnGroups.map((group) => {
-                                            if (group.standalone) {
-                                                const column = group.columns[0];
-                                                return `
+            if (group.standalone) {
+                const column = group.columns[0];
+                return `
                                                     <th rowspan="2">
                                                         <div>${this.escape(column.etiqueta || column.codigo_columna)}</div>
                                                         <span class="cne-code">${this.escape(column.codigo_columna)}</span>
                                                         ${this.truthy(column.calculo_automatico) ? '<span class="cne-pill">fx columna</span>' : ''}
                                                     </th>
                                                 `;
-                                            }
-                                            return `<th colspan="${group.span}">${this.escape(group.label)}</th>`;
-                                        }).join("")}
+            }
+            return `<th colspan="${group.span}">${this.escape(group.label)}</th>`;
+        }).join("")}
                                     </tr>
                                     <tr>
                                         ${columnGroups.map((group) => {
-                                            if (group.standalone) return "";
-                                            return group.columns.map((column) => `
+            if (group.standalone) return "";
+            return group.columns.map((column) => `
                                                 <th>
                                                     <div>${this.escape(column.etiqueta || column.codigo_columna)}</div>
                                                     <span class="cne-code">${this.escape(column.codigo_columna)}</span>
                                                     ${this.truthy(column.calculo_automatico) ? '<span class="cne-pill">fx columna</span>' : ''}
                                                 </th>
                                             `).join("");
-                                        }).join("")}
+        }).join("")}
                                     </tr>
                                 ` : `
                                     <tr>
