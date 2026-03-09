@@ -85,9 +85,9 @@ class CreadorNotasEEFF {
             [data-theme="dark"] .cne-field input, [data-theme="dark"] .cne-field select, [data-theme="dark"] .cne-field textarea, [data-theme="dark"] .cne-structure-table input, [data-theme="dark"] .cne-structure-table select, [data-theme="dark"] .cne-matrix-table input { background: var(--control-bg) !important; color: var(--text-color); border-color: var(--border-color); }
             [data-theme="dark"] .cne-btn, [data-theme="dark"] .cne-section-tab { background: var(--control-bg); color: var(--text-color); border-color: var(--border-color); }
             [data-theme="dark"] .cne-section-tab.active { background: var(--text-color); color: var(--card-bg); }
-            [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-matrix-input.computed, [data-theme="dark"] .cne-help code { background: var(--control-bg); text-shadow: none; }
+            [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-matrix-cell.computed, [data-theme="dark"] .cne-help code { background: var(--control-bg) !important; text-shadow: none; }
             [data-theme="dark"] .cne-empty { background: transparent; border-color: var(--border-color); color: var(--text-muted); }
-            [data-theme="dark"] .cne-matrix-cell { border-color: var(--border-color); background: var(--control-bg); }
+            [data-theme="dark"] .cne-matrix-cell { border-color: var(--border-color); background: var(--control-bg) !important; }
             [data-theme="dark"] .cne-matrix-cell .cne-matrix-format-btn { border-right-color: var(--border-color); background: var(--card-bg); color: var(--text-color); }
             [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-menu { background: var(--card-bg); border-color: var(--border-color); }
             [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-item { color: var(--text-color); }
