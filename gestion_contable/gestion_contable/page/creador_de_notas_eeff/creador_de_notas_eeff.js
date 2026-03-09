@@ -1,4 +1,4 @@
-frappe.pages["creador-de-notas-eeff"].on_page_load = function (wrapper) {
+﻿frappe.pages["creador-de-notas-eeff"].on_page_load = function (wrapper) {
     const page = frappe.ui.make_app_page({
         parent: wrapper,
         title: "Creador de Notas EEFF",
@@ -157,6 +157,8 @@ class CreadorNotasEEFF {
         });
         this.wrapper.on("change", ".cne-section-field", (event) => this.update_section_field(event));
         this.wrapper.on("click", ".cne-add-column", () => this.add_column());
+        this.wrapper.on("click", ".cne-upload-csv", () => this.open_csv_picker());
+        this.wrapper.on("change", ".cne-csv-input", (event) => this.handle_csv_upload(event));
         this.wrapper.on("click", ".cne-delete-column", (event) => this.delete_column(parseInt(event.currentTarget.dataset.index, 10)));
         this.wrapper.on("change", ".cne-column-field", (event) => this.update_column_field(event));
         this.wrapper.on("click", ".cne-add-row", () => this.add_row());
@@ -355,7 +357,7 @@ class CreadorNotasEEFF {
             <div class="cne-card">
                 <div class="cne-card-head">
                     <h3>Nota ${this.escape(doc.numero_nota || "")}</h3>
-                    <p>${this.escape(doc.name)} · ${this.escape(doc.estado_aprobacion || "Borrador")}</p>
+                    <p>${this.escape(doc.name)} Â· ${this.escape(doc.estado_aprobacion || "Borrador")}</p>
                 </div>
                 <div class="cne-grid note" style="padding:16px;">
                     ${this.noteInput("numero_nota", "Numero Nota", doc.numero_nota || "")}
@@ -389,7 +391,7 @@ class CreadorNotasEEFF {
     render_section_tabs() {
         return this.get_sections().map((row) => `
             <button class="cne-section-tab ${row.seccion_id === this.state.current_section_id ? "active" : ""}" data-section-id="${this.escape(row.seccion_id)}">
-                ${this.escape(row.seccion_id)} · ${this.escape(row.titulo_seccion || "Seccion")}
+                ${this.escape(row.seccion_id)} Â· ${this.escape(row.titulo_seccion || "Seccion")}
             </button>
         `).join("");
     }
@@ -398,6 +400,9 @@ class CreadorNotasEEFF {
         return `
             <div class="cne-card">
                 <div class="cne-card-head"><h3>Seccion ${this.escape(section.seccion_id)}</h3><p>Edita estructura, formulas y celdas desde una sola vista.</p></div>
+                <div class="cne-toolbar" style="padding:12px 16px 0 16px;">
+                    ${section.tipo_seccion !== "Narrativa" ? `<button class="cne-btn cne-upload-csv">Cargar CSV</button><input type="file" class="cne-csv-input" accept=".csv,text/csv,.txt,.tsv" style="display:none">` : ""}
+                </div>
                 <div class="cne-grid note" style="padding:16px;">
                     ${this.sectionInput("seccion_id", "ID Seccion", section.seccion_id || "", "text", section.seccion_id || "")}
                     ${this.sectionInput("titulo_seccion", "Titulo Seccion", section.titulo_seccion || "")}
@@ -651,6 +656,182 @@ class CreadorNotasEEFF {
         });
     }
 
+    open_csv_picker() {
+        const input = this.wrapper.find('.cne-csv-input').get(0);
+        if (input) {
+            input.value = '';
+            input.click();
+        }
+    }
+
+    handle_csv_upload(event) {
+        const file = event.currentTarget.files && event.currentTarget.files[0];
+        const section = this.get_current_section();
+        const doc = this.get_doc();
+        if (!file || !section || !doc) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const parsed = this.parse_csv_table(String(reader.result || ''));
+                this.apply_csv_to_section(section.seccion_id, parsed);
+                this.render_editor();
+                frappe.show_alert({ indicator: 'green', message: __('CSV cargado en la seccion actual') });
+            } catch (error) {
+                frappe.msgprint({
+                    title: __('CSV invalido'),
+                    indicator: 'red',
+                    message: __(error.message || 'No se pudo interpretar el archivo CSV.'),
+                });
+            }
+        };
+        reader.readAsText(file, 'utf-8');
+    }
+
+    parse_csv_table(content) {
+        const lines = String(content || '').replace(/^\uFEFF/, '').split(/\r?\n/).filter((line) => line.trim());
+        if (lines.length < 2) {
+            throw new Error(__('El archivo debe incluir una fila de encabezados y al menos una fila de datos.'));
+        }
+        const delimiter = this.detect_csv_delimiter(lines[0]);
+        const rows = lines.map((line) => this.parse_csv_line(line, delimiter));
+        const headers = rows[0].map((value) => String(value || '').trim());
+        if (headers.length < 2) {
+            throw new Error(__('El archivo debe tener al menos una columna de descripcion y una columna de valores.'));
+        }
+        return { headers, rows: rows.slice(1) };
+    }
+
+    detect_csv_delimiter(headerLine) {
+        const candidates = [',', ';', '\t'];
+        let best = ',';
+        let bestCount = -1;
+        candidates.forEach((candidate) => {
+            const count = headerLine.split(candidate).length;
+            if (count > bestCount) {
+                best = candidate;
+                bestCount = count;
+            }
+        });
+        return best;
+    }
+
+    parse_csv_line(line, delimiter) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i += 1) {
+            const char = line[i];
+            const next = line[i + 1];
+            if (char === '"') {
+                if (inQuotes && next === '"') {
+                    current += '"';
+                    i += 1;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === delimiter && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current.trim());
+        return result;
+    }
+
+    apply_csv_to_section(sectionId, parsed) {
+        const doc = this.get_doc();
+        const headers = parsed.headers;
+        const dataRows = parsed.rows;
+        const valueHeaders = headers.slice(1);
+
+        doc.columnas_tabulares = (doc.columnas_tabulares || []).filter((row) => row.seccion_id !== sectionId);
+        doc.filas_tabulares = (doc.filas_tabulares || []).filter((row) => row.seccion_id !== sectionId);
+        doc.celdas_tabulares = (doc.celdas_tabulares || []).filter((row) => row.seccion_id !== sectionId);
+
+        valueHeaders.forEach((header, index) => {
+            doc.columnas_tabulares.push({
+                seccion_id: sectionId,
+                codigo_columna: this.build_csv_column_code(header, index + 1),
+                etiqueta: header || __('Columna {0}', [index + 1]),
+                grupo_columna: '',
+                tipo_dato: 'Moneda',
+                alineacion: 'Right',
+                calculo_automatico: 0,
+                formula_columnas: '',
+                orden: index + 1,
+                es_total: 0,
+            });
+        });
+
+        dataRows.forEach((rawRow, rowIndex) => {
+            const description = String(rawRow[0] || '').trim();
+            if (!description) return;
+            const normalized = description.toLowerCase();
+            const tipoFila = normalized.startsWith('total') ? 'Total' : normalized.startsWith('subtotal') ? 'Subtotal' : 'Detalle';
+            const codigoFila = this.build_csv_row_code(description, rowIndex + 1);
+            doc.filas_tabulares.push({
+                seccion_id: sectionId,
+                codigo_fila: codigoFila,
+                descripcion: description,
+                nivel: 1,
+                tipo_fila: tipoFila,
+                calculo_automatico: 0,
+                formula_filas: '',
+                orden: rowIndex + 1,
+                negrita: tipoFila !== 'Detalle' ? 1 : 0,
+                subrayado: tipoFila === 'Total' ? 1 : 0,
+            });
+
+            valueHeaders.forEach((header, colIndex) => {
+                const rawValue = rawRow[colIndex + 1];
+                if (rawValue === undefined || rawValue === null || String(rawValue).trim() === '') return;
+                const numericValue = this.parse_csv_numeric_value(rawValue);
+                doc.celdas_tabulares.push({
+                    seccion_id: sectionId,
+                    codigo_fila: codigoFila,
+                    codigo_columna: this.build_csv_column_code(header, colIndex + 1),
+                    valor_numero: numericValue,
+                    valor_texto: numericValue === null ? String(rawValue).trim() : '',
+                    formato_numero: numericValue === null ? 'Texto' : 'Moneda',
+                });
+            });
+        });
+    }
+
+    build_csv_column_code(header, index) {
+        const code = String(header || '')
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^A-Za-z0-9]+/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .toUpperCase();
+        return (code || `COL_${index}`).slice(0, 20);
+    }
+
+    build_csv_row_code(description, index) {
+        const code = String(description || '')
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^A-Za-z0-9]+/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .toUpperCase();
+        return (code || `FIL_${index}`).slice(0, 20);
+    }
+
+    parse_csv_numeric_value(rawValue) {
+        const cleaned = String(rawValue || '').trim();
+        if (!cleaned) return null;
+        const normalized = cleaned
+            .replace(/C\$/gi, '')
+            .replace(/US\$/gi, '')
+            .replace(/\s+/g, '')
+            .replace(/\(([^)]+)\)/, '-$1')
+            .replace(/,/g, '');
+        const parsed = Number(normalized);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+
     add_column() {
         const doc = this.get_doc();
         const section = this.get_current_section();
@@ -857,3 +1038,5 @@ class CreadorNotasEEFF {
     as_float(value) { if (value === null || value === undefined || value === "") return 0; const parsed = parseFloat(String(value).replace(/,/g, "")); return Number.isNaN(parsed) ? 0 : parsed; }
     escape(value) { return frappe.utils.escape_html(String(value ?? "")); }
 }
+
+
