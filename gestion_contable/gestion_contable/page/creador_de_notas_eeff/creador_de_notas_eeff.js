@@ -93,7 +93,7 @@ class CreadorNotasEEFF {
             [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-item { color: var(--text-color); }
             [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-item:hover { background: var(--control-bg); }
             .cne-matrix-cell{display:flex;align-items:stretch;border:1px solid #cbd5e1;border-radius:8px;background:#fff;}
-            .cne-matrix-cell input.cne-matrix-input{border:none!important;border-radius:0 8px 8px 0!important;flex:1;min-width:0!important;outline:none;background:transparent!important}
+            .cne-matrix-cell input.cne-matrix-input{border:none!important;border-radius:0 8px 8px 0!important;flex:1;min-width:0!important;outline:none;}
             .cne-matrix-cell .cne-matrix-format-dropdown { display: flex; align-items: stretch; }
             .cne-matrix-cell .cne-matrix-format-btn{border:none;border-right:1px solid #cbd5e1;background:#f8fafc;padding:0;color:#475569;font-size:12px;cursor:pointer;outline:none;text-align:center;font-weight:700;width:32px;border-radius:8px 0 0 8px;}
             .cne-matrix-cell .cne-matrix-format-btn:hover{background:#e2e8f0}
