@@ -88,7 +88,7 @@ class CreadorNotasEEFF {
                         <h3>Notas del paquete</h3>
                         <p>La page edita la nota, pero el doctype sigue siendo la fuente de verdad.</p>
                     </div>
-                    <div class="cne-note-list" data-role="note-list"></div>
+                    <div class="cne-filter-panel" data-role="filters"></div><div class="cne-note-list" data-role="note-list"></div>
                 </aside>
                 <section class="cne-main">
                     <div data-role="editor"></div>
@@ -118,6 +118,7 @@ class CreadorNotasEEFF {
             change: () => this.on_note_change(),
         });
 
+        this.$filters = this.wrapper.find('[data-role="filters"]');
         this.$noteList = this.wrapper.find('[data-role="note-list"]');
         this.$editor = this.wrapper.find('[data-role="editor"]');
     }
@@ -136,6 +137,9 @@ class CreadorNotasEEFF {
     }
 
     bind_events() {
+        this.wrapper.on("change", ".cne-filter-client", (event) => this.on_inline_client_change(event));
+        this.wrapper.on("change", ".cne-filter-package", (event) => this.on_inline_package_change(event));
+        this.wrapper.on("change", ".cne-filter-note", (event) => this.on_inline_note_change(event));
         this.wrapper.on("click", ".cne-note-item", (event) => {
             const name = event.currentTarget.dataset.noteName;
             if (name) this.load_bootstrap({ note_name: name });
@@ -157,6 +161,7 @@ class CreadorNotasEEFF {
         });
         this.wrapper.on("change", ".cne-section-field", (event) => this.update_section_field(event));
         this.wrapper.on("click", ".cne-add-column", () => this.add_column());
+        this.wrapper.on("click", ".cne-download-csv", () => this.download_current_section_csv());
         this.wrapper.on("click", ".cne-upload-csv", () => this.open_csv_picker());
         this.wrapper.on("change", ".cne-csv-input", (event) => this.handle_csv_upload(event));
         this.wrapper.on("click", ".cne-delete-column", (event) => this.delete_column(parseInt(event.currentTarget.dataset.index, 10)));
@@ -188,6 +193,32 @@ class CreadorNotasEEFF {
         this.load_bootstrap({ note_name: noteName });
     }
 
+    on_inline_client_change(event) {
+        if (this.setting_filters) return;
+        const cliente = event.currentTarget.value || null;
+        this.load_bootstrap({ cliente, package_name: null, note_name: null });
+    }
+
+    on_inline_package_change(event) {
+        if (this.setting_filters) return;
+        const cliente = this.state.cliente || null;
+        const package_name = event.currentTarget.value || null;
+        this.load_bootstrap({ cliente, package_name, note_name: null });
+    }
+
+    on_inline_note_change(event) {
+        if (this.setting_filters) return;
+        const note_name = event.currentTarget.value || null;
+        if (!note_name) {
+            this.state.note = null;
+            this.render_filters();
+            this.render_notes();
+            this.render_editor();
+            return;
+        }
+        this.load_bootstrap({ note_name });
+    }
+
     load_bootstrap(overrides = {}) {
         const route = this.state.route_options || {};
         const args = {
@@ -217,6 +248,7 @@ class CreadorNotasEEFF {
                 this.state.note = data.note || null;
                 this.ensure_current_section();
                 this.sync_filter_options();
+                this.render_filters();
                 this.render_notes();
                 this.render_editor();
                 this.last_bootstrap_key = bootstrapKey;
@@ -245,6 +277,42 @@ class CreadorNotasEEFF {
         if (field.$input) {
             field.$input.val(safeValue);
         }
+    }
+
+    render_filters() {
+        if (!this.$filters || !this.$filters.length) return;
+        const currentNote = this.get_doc()?.name || "";
+        this.$filters.html(`
+            <div class="cne-card" style="margin:12px;">
+                <div class="cne-card-head">
+                    <h3>Filtros</h3>
+                    <p>Carga las notas desde el cliente y el paquete sin depender de la barra superior.</p>
+                </div>
+                <div class="cne-grid" style="padding:16px;">
+                    <div class="cne-field">
+                        <label>Cliente</label>
+                        <select class="cne-filter-client">
+                            <option value=""></option>
+                            ${(this.state.clients || []).map((row) => `<option value="${this.escape(row.value)}" ${row.value === this.state.cliente ? "selected" : ""}>${this.escape(row.label || row.value)}</option>`).join("")}
+                        </select>
+                    </div>
+                    <div class="cne-field">
+                        <label>Paquete Estados Financieros Cliente</label>
+                        <select class="cne-filter-package" ${this.state.cliente ? "" : "disabled"}>
+                            <option value=""></option>
+                            ${(this.state.packages || []).map((row) => `<option value="${this.escape(row.value)}" ${row.value === this.state.package_name ? "selected" : ""}>${this.escape(row.label || row.value)}</option>`).join("")}
+                        </select>
+                    </div>
+                    <div class="cne-field">
+                        <label>Nota</label>
+                        <select class="cne-filter-note" ${(this.state.package_name || this.state.notes.length) ? "" : "disabled"}>
+                            <option value=""></option>
+                            ${(this.state.notes || []).map((row) => `<option value="${this.escape(row.name)}" ${row.name === currentNote ? "selected" : ""}>${this.escape(row.label || row.name)}</option>`).join("")}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `);
     }
 
     open_create_note_dialog() {
@@ -319,6 +387,7 @@ class CreadorNotasEEFF {
                 this.state.note = data.note || null;
                 this.ensure_current_section();
                 this.sync_filter_options();
+                this.render_filters();
                 this.render_notes();
                 this.render_editor();
                 frappe.show_alert({ indicator: "green", message: __("Nota guardada") });
@@ -1038,6 +1107,7 @@ class CreadorNotasEEFF {
     as_float(value) { if (value === null || value === undefined || value === "") return 0; const parsed = parseFloat(String(value).replace(/,/g, "")); return Number.isNaN(parsed) ? 0 : parsed; }
     escape(value) { return frappe.utils.escape_html(String(value - "")); }
 }
+
 
 
 
