@@ -1154,15 +1154,7 @@ class CreadorNotasEEFF {
 
             let formatFromExplicit = null;
             if (explicit.has(key)) {
-                const cell = explicit.get(key);
-                formatFromExplicit = cell.formato_numero;
-
-                if (cell.es_manual === 1 || cell.es_manual === "1") {
-                    const val = cell.valor_numero !== null ? cell.valor_numero : (cell.valor_texto || "");
-                    const result = { value: val, is_manual: true, is_computed: false, format: formatFromExplicit };
-                    cache.set(key, result);
-                    return result;
-                }
+                formatFromExplicit = explicit.get(key).formato_numero;
             }
 
             if (stack.has(key)) return { value: "", is_manual: false, is_computed: true, format: formatFromExplicit };
@@ -1171,11 +1163,21 @@ class CreadorNotasEEFF {
             const col = colsByCode[columnCode];
             let result = { value: "", is_manual: false, is_computed: false, format: formatFromExplicit };
 
-            if (row && this.truthy(row.calculo_automatico) && row.formula_filas) {
+            const isManualFromExplicit = explicit.has(key) && (explicit.get(key).es_manual === 1 || explicit.get(key).es_manual === "1");
+
+            if (!isManualFromExplicit && row && this.truthy(row.calculo_automatico) && row.formula_filas) {
                 result = { value: this.evaluate_formula(row.formula_filas, (refCode, sign) => sign * this.as_float(resolve(refCode, columnCode, stack).value)), is_manual: false, is_computed: true, format: formatFromExplicit };
-            } else if (col && this.truthy(col.calculo_automatico) && col.formula_columnas) {
+            } else if (!isManualFromExplicit && col && this.truthy(col.calculo_automatico) && col.formula_columnas) {
                 result = { value: this.evaluate_formula(col.formula_columnas, (refCode, sign) => sign * this.as_float(resolve(rowCode, refCode, stack).value)), is_manual: false, is_computed: true, format: formatFromExplicit };
+            } else if (explicit.has(key)) {
+                const cell = explicit.get(key);
+                const val = cell.valor_numero !== null ? cell.valor_numero : (cell.valor_texto || "");
+                result = { value: val, is_manual: isManualFromExplicit, is_computed: false, format: formatFromExplicit };
             }
+
+            stack.delete(key);
+            cache.set(key, result);
+            return result;
 
             stack.delete(key);
             cache.set(key, result);
