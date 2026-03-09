@@ -404,6 +404,8 @@ class NotaEstadoFinanciero(Document):
                 "valor_numero": None if cell.valor_numero in (None, "") else flt(cell.valor_numero),
                 "formato_numero": cell.formato_numero or "Numero",
                 "comentario": cell.comentario,
+                "es_manual": cint(cell.es_manual or 0),
+                "redondear_entero": cint(cell.redondear_entero or 0),
             }
             for cell in cells
         }
@@ -419,9 +421,7 @@ class NotaEstadoFinanciero(Document):
                 frappe.throw(_("Se detecto una referencia circular al calcular la tabla estructurada de la nota."), title=_("Formula Invalida"))
 
             explicit = cell_map.get(key)
-            if explicit and explicit["valor_numero"] is not None:
-                numeric_cache[key] = flt(explicit["valor_numero"])
-                return numeric_cache[key]
+            is_manual = explicit.get("es_manual", 0) if explicit else 0
 
             row_obj = row_lookup.get((section_id, row_code))
             col_obj = column_lookup.get((section_id, column_code))
@@ -429,14 +429,16 @@ class NotaEstadoFinanciero(Document):
             next_stack = set(stack)
             next_stack.add(key)
 
-            if row_obj and cint(row_obj.calculo_automatico or 0) and cstr(row_obj.formula_filas or "").strip():
+            if not is_manual and row_obj and cint(row_obj.calculo_automatico or 0) and cstr(row_obj.formula_filas or "").strip():
                 value = 0.0
                 for sign, ref_code in self._parse_formula_references(row_obj.formula_filas, _("la fila {0}").format(row_code)):
                     value += sign * flt(get_numeric_value(section_id, ref_code, column_code, next_stack) or 0)
-            elif col_obj and cint(col_obj.calculo_automatico or 0) and cstr(col_obj.formula_columnas or "").strip():
+            elif not is_manual and col_obj and cint(col_obj.calculo_automatico or 0) and cstr(col_obj.formula_columnas or "").strip():
                 value = 0.0
                 for sign, ref_code in self._parse_formula_references(col_obj.formula_columnas, _("la columna {0}").format(column_code)):
                     value += sign * flt(get_numeric_value(section_id, row_code, ref_code, next_stack) or 0)
+            elif explicit and explicit["valor_numero"] is not None:
+                value = flt(explicit["valor_numero"])
 
             numeric_cache[key] = value
             return value
@@ -457,6 +459,7 @@ class NotaEstadoFinanciero(Document):
                         "valor_numero": get_numeric_value(section.seccion_id, row.codigo_fila, col.codigo_columna),
                         "formato_numero": explicit.get("formato_numero") or (col.tipo_dato if col.tipo_dato in FORMATOS_NUMERO else "Numero"),
                         "comentario": explicit.get("comentario"),
+                        "redondear_entero": explicit.get("redondear_entero") if "redondear_entero" in explicit else cint(col.redondear_entero or 0),
                     })
                 section_rows.append({
                     "codigo_fila": row.codigo_fila,
