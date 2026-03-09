@@ -85,8 +85,20 @@ class CreadorNotasEEFF {
             [data-theme="dark"] .cne-sidebar-head p, [data-theme="dark"] .cne-card-head p, [data-theme="dark"] .cne-note-item span, [data-theme="dark"] .cne-field label, [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-code, [data-theme="dark"] .cne-help { color: var(--text-muted); }
             [data-theme="dark"] .cne-btn, [data-theme="dark"] .cne-section-tab { background: var(--control-bg); color: var(--text-color); border-color: var(--border-color); }
             [data-theme="dark"] .cne-section-tab.active { background: var(--text-color); color: var(--card-bg); }
-            [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-matrix-input.computed, [data-theme="dark"] .cne-help code { background: var(--control-bg); }
-            [data-theme="dark"] .cne-empty { background: transparent; border-color: var(--border-color); color: var(--text-muted); }
+            [data-theme="dark"] .cne-matrix-cell { border-color: var(--border-color); background: var(--control-bg); }
+            [data-theme="dark"] .cne-matrix-cell .cne-matrix-format-btn { border-left-color: var(--border-color); background: var(--card-bg); color: var(--text-color); }
+            [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-menu { background: var(--card-bg); border-color: var(--border-color); }
+            [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-item { color: var(--text-color); }
+            [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-item:hover { background: var(--control-bg); }
+            .cne-matrix-cell{display:flex;align-items:stretch;border:1px solid #cbd5e1;border-radius:8px;background:#fff;}
+            .cne-matrix-cell input.cne-matrix-input{border:none!important;border-radius:8px 0 0 8px!important;flex:1;min-width:0!important;outline:none;background:transparent!important}
+            .cne-matrix-cell .cne-matrix-format-dropdown { display: flex; align-items: stretch; }
+            .cne-matrix-cell .cne-matrix-format-btn{border:none;border-left:1px solid #cbd5e1;background:#f8fafc;padding:0;color:#475569;font-size:12px;cursor:pointer;outline:none;text-align:center;font-weight:700;width:32px;border-radius:0 8px 8px 0;}
+            .cne-matrix-cell .cne-matrix-format-btn:hover{background:#e2e8f0}
+            .cne-matrix-cell .dropdown-toggle::after{display:none!important}
+            .cne-matrix-cell.computed{background:#f8fafc;border-style:dashed}
+            .cne-matrix-format-dropdown .dropdown-menu { border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #cbd5e1; font-size: 13px; font-weight: 500; min-width: 140px; }
+            .cne-matrix-format-dropdown .dropdown-item { padding: 6px 12px; }
             @media (max-width:1100px){.cne-shell{grid-template-columns:1fr}.cne-grid.note,.cne-layout-two,.cne-note-meta{grid-template-columns:1fr}}
         `;
         document.head.appendChild(style);
@@ -181,7 +193,11 @@ class CreadorNotasEEFF {
         this.wrapper.on("click", ".cne-add-row", () => this.add_row());
         this.wrapper.on("click", ".cne-delete-row", (event) => this.delete_row(parseInt(event.currentTarget.dataset.index, 10)));
         this.wrapper.on("change", ".cne-row-field", (event) => this.update_row_field(event));
-        this.wrapper.on("change", ".cne-matrix-input", (event) => this.update_matrix_cell(event));
+        this.wrapper.on("change", ".cne-matrix-input", (event) => this.update_matrix_value(event));
+        this.wrapper.on("click", ".cne-format-option", (event) => {
+            event.preventDefault();
+            this.update_matrix_format(event);
+        });
         this.wrapper.on("click", ".cne-toggle-fullscreen", (event) => {
             const $card = $(event.currentTarget).closest(".cne-card");
             $card.toggleClass("cne-fullscreen");
@@ -641,9 +657,25 @@ class CreadorNotasEEFF {
                                             ${this.truthy(row.calculo_automatico) ? '<span class="cne-pill">fx fila</span>' : ''}
                                         </td>
                                         ${columns.map((column) => {
-            const cell = matrix[`${row.codigo_fila}::${column.codigo_columna}`] || { value: "", is_manual: false, is_computed: false };
+            const cell = matrix[`${row.codigo_fila}::${column.codigo_columna}`] || { value: "", is_manual: false, is_computed: false, format: null };
             const value = cell.value === null || cell.value === undefined ? "" : String(cell.value);
-            return `<td><input class="cne-matrix-input ${cell.is_computed && !cell.is_manual ? "computed" : ""}" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}" data-type="${this.escape(column.tipo_dato || "Numero")}" value="${this.escape(value)}"></td>`;
+            const format = cell.format || column.tipo_dato || "Moneda";
+            return `<td>
+                <div class="cne-matrix-cell ${cell.is_computed && !cell.is_manual ? 'computed' : ''}">
+                    <input class="cne-matrix-input" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}" value="${this.escape(value)}">
+                    <div class="dropdown cne-matrix-format-dropdown">
+                        <button class="cne-matrix-format-btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Formato">
+                            ${format === 'Numero' ? '#' : format === 'Moneda' ? '$' : format === 'Porcentaje' ? '%' : 'T'}
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item cne-format-option" href="#" data-format="Numero" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}"># Número</a>
+                            <a class="dropdown-item cne-format-option" href="#" data-format="Moneda" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">$ Moneda</a>
+                            <a class="dropdown-item cne-format-option" href="#" data-format="Porcentaje" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">% Porcentaje</a>
+                            <a class="dropdown-item cne-format-option" href="#" data-format="Texto" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">T Texto</a>
+                        </div>
+                    </div>
+                </div>
+            </td>`;
         }).join("")}
                                     </tr>
                                 `).join("")}
@@ -1017,30 +1049,72 @@ class CreadorNotasEEFF {
             row[fieldname] = value;
         }
         this.render_matrix_only();
-    } update_matrix_cell(event) {
+    }
+
+    update_matrix_value(event) {
         const doc = this.get_doc();
         const section = this.get_current_section();
         if (!doc || !section) return;
         doc.celdas_tabulares = doc.celdas_tabulares || [];
         const rowCode = event.currentTarget.dataset.rowCode;
         const columnCode = event.currentTarget.dataset.columnCode;
-        const type = event.currentTarget.dataset.type || "Numero";
         const raw = event.currentTarget.value;
         const index = doc.celdas_tabulares.findIndex((row) => row.seccion_id === section.seccion_id && row.codigo_fila === rowCode && row.codigo_columna === columnCode);
-        if (raw === "") {
-            if (index >= 0) doc.celdas_tabulares.splice(index, 1);
-            this.render_matrix_only();
-            return;
+
+        let cell = index >= 0 ? doc.celdas_tabulares[index] : null;
+        if (!cell) {
+            if (raw === "") return;
+            const colDefs = this.get_columns(section.seccion_id);
+            const type = colDefs.find(c => c.codigo_columna === columnCode)?.tipo_dato || "Moneda";
+            cell = { seccion_id: section.seccion_id, codigo_fila: rowCode, codigo_columna: columnCode, formato_numero: type === "Moneda" ? "Moneda" : type === "Porcentaje" ? "Porcentaje" : type === "Texto" ? "Texto" : "Numero" };
+            doc.celdas_tabulares.push(cell);
         }
-        const cell = index >= 0 ? doc.celdas_tabulares[index] : { seccion_id: section.seccion_id, codigo_fila: rowCode, codigo_columna: columnCode, formato_numero: type === "Moneda" ? "Moneda" : type === "Porcentaje" ? "Porcentaje" : "Numero" };
-        if (type === "Texto") {
+
+        if (raw === "") {
+            cell.valor_texto = "";
+            cell.valor_numero = null;
+        } else if (cell.formato_numero === "Texto") {
             cell.valor_texto = raw;
             cell.valor_numero = null;
         } else {
             cell.valor_numero = this.as_float(raw);
             cell.valor_texto = "";
         }
-        if (index < 0) doc.celdas_tabulares.push(cell);
+
+        const colDef = this.get_columns(section.seccion_id).find(c => c.codigo_columna === columnCode);
+        const defaultFmt = colDef?.tipo_dato || "Moneda";
+        if (cell.valor_numero === null && (cell.valor_texto || "") === "" && cell.formato_numero === defaultFmt) {
+            const finalIdx = doc.celdas_tabulares.indexOf(cell);
+            if (finalIdx >= 0) doc.celdas_tabulares.splice(finalIdx, 1);
+        }
+
+        this.render_matrix_only();
+    }
+
+    update_matrix_format(event) {
+        const doc = this.get_doc();
+        const section = this.get_current_section();
+        if (!doc || !section) return;
+        doc.celdas_tabulares = doc.celdas_tabulares || [];
+        const rowCode = event.currentTarget.dataset.rowCode;
+        const columnCode = event.currentTarget.dataset.columnCode;
+        const format = event.currentTarget.dataset.format;
+        const index = doc.celdas_tabulares.findIndex((row) => row.seccion_id === section.seccion_id && row.codigo_fila === rowCode && row.codigo_columna === columnCode);
+
+        let cell = index >= 0 ? doc.celdas_tabulares[index] : null;
+        if (!cell) {
+            cell = { seccion_id: section.seccion_id, codigo_fila: rowCode, codigo_columna: columnCode, valor_texto: "", valor_numero: null, formato_numero: format };
+            doc.celdas_tabulares.push(cell);
+        } else {
+            cell.formato_numero = format;
+            if (format === "Texto" && cell.valor_numero !== null) {
+                cell.valor_texto = String(cell.valor_numero);
+                cell.valor_numero = null;
+            } else if (format !== "Texto" && cell.valor_texto) {
+                cell.valor_numero = this.as_float(cell.valor_texto);
+                cell.valor_texto = "";
+            }
+        }
         this.render_matrix_only();
     }
 
@@ -1055,22 +1129,33 @@ class CreadorNotasEEFF {
         const resolve = (rowCode, columnCode, stack = new Set()) => {
             const key = `${rowCode}::${columnCode}`;
             if (cache.has(key)) return cache.get(key);
+
+            let formatFromExplicit = null;
             if (explicit.has(key)) {
                 const cell = explicit.get(key);
-                const result = { value: cell.valor_numero - cell.valor_texto - "", is_manual: true, is_computed: false };
-                cache.set(key, result);
-                return result;
+                formatFromExplicit = cell.formato_numero;
+                const hasValue = (cell.valor_numero !== null && cell.valor_numero !== undefined) || (cell.valor_texto !== null && cell.valor_texto !== "");
+                if (hasValue) {
+                    // Safe logic to grab number or text
+                    const val = cell.valor_numero !== null ? cell.valor_numero : (cell.valor_texto || "");
+                    const result = { value: val, is_manual: true, is_computed: false, format: formatFromExplicit };
+                    cache.set(key, result);
+                    return result;
+                }
             }
-            if (stack.has(key)) return { value: "", is_manual: false, is_computed: true };
+
+            if (stack.has(key)) return { value: "", is_manual: false, is_computed: true, format: formatFromExplicit };
             stack.add(key);
             const row = rowsByCode[rowCode];
             const col = colsByCode[columnCode];
-            let result = { value: "", is_manual: false, is_computed: false };
+            let result = { value: "", is_manual: false, is_computed: false, format: formatFromExplicit };
+
             if (row && this.truthy(row.calculo_automatico) && row.formula_filas) {
-                result = { value: this.evaluate_formula(row.formula_filas, (refCode, sign) => sign * this.as_float(resolve(refCode, columnCode, stack).value)), is_manual: false, is_computed: true };
+                result = { value: this.evaluate_formula(row.formula_filas, (refCode, sign) => sign * this.as_float(resolve(refCode, columnCode, stack).value)), is_manual: false, is_computed: true, format: formatFromExplicit };
             } else if (col && this.truthy(col.calculo_automatico) && col.formula_columnas) {
-                result = { value: this.evaluate_formula(col.formula_columnas, (refCode, sign) => sign * this.as_float(resolve(rowCode, refCode, stack).value)), is_manual: false, is_computed: true };
+                result = { value: this.evaluate_formula(col.formula_columnas, (refCode, sign) => sign * this.as_float(resolve(rowCode, refCode, stack).value)), is_manual: false, is_computed: true, format: formatFromExplicit };
             }
+
             stack.delete(key);
             cache.set(key, result);
             return result;
