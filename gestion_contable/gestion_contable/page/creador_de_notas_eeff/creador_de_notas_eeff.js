@@ -1,4 +1,4 @@
-﻿frappe.pages["creador-de-notas-eeff"].on_page_load = function (wrapper) {
+frappe.pages["creador-de-notas-eeff"].on_page_load = function (wrapper) {
     const page = frappe.ui.make_app_page({
         parent: wrapper,
         title: "Creador de Notas EEFF",
@@ -561,11 +561,11 @@ class CreadorNotasEEFF {
     }
 
     noteInput(fieldname, label, value, type = "text") {
-        return `<div class="cne-field"><label>${label}</label><input type="${type}" class="cne-note-field" data-fieldname="${fieldname}" value="${this.escape(String(value ?? ""))}"></div>`;
+        return `<div class="cne-field"><label>${label}</label><input type="${type}" class="cne-note-field" data-fieldname="${fieldname}" value="${this.escape(String(value - ""))}"></div>`;
     }
 
     noteTextarea(fieldname, label, value) {
-        return `<div class="cne-field"><label>${label}</label><textarea class="cne-note-field" data-fieldname="${fieldname}">${this.escape(String(value ?? ""))}</textarea></div>`;
+        return `<div class="cne-field"><label>${label}</label><textarea class="cne-note-field" data-fieldname="${fieldname}">${this.escape(String(value - ""))}</textarea></div>`;
     }
 
     noteSelect(fieldname, label, value, options) {
@@ -573,11 +573,11 @@ class CreadorNotasEEFF {
     }
 
     sectionInput(fieldname, label, value, type = "text", originalValue = "") {
-        return `<div class="cne-field"><label>${label}</label><input type="${type}" class="cne-section-field" data-fieldname="${fieldname}" data-original-value="${this.escape(String(originalValue || value || ""))}" value="${this.escape(String(value ?? ""))}"></div>`;
+        return `<div class="cne-field"><label>${label}</label><input type="${type}" class="cne-section-field" data-fieldname="${fieldname}" data-original-value="${this.escape(String(originalValue || value || ""))}" value="${this.escape(String(value - ""))}"></div>`;
     }
 
     sectionTextarea(fieldname, label, value) {
-        return `<div class="cne-field"><label>${label}</label><textarea class="cne-section-field" data-fieldname="${fieldname}">${this.escape(String(value ?? ""))}</textarea></div>`;
+        return `<div class="cne-field"><label>${label}</label><textarea class="cne-section-field" data-fieldname="${fieldname}">${this.escape(String(value - ""))}</textarea></div>`;
     }
 
     sectionSelect(fieldname, label, value, options) {
@@ -962,7 +962,7 @@ class CreadorNotasEEFF {
             if (cache.has(key)) return cache.get(key);
             if (explicit.has(key)) {
                 const cell = explicit.get(key);
-                const result = { value: cell.valor_numero ?? cell.valor_texto ?? "", is_manual: true, is_computed: false };
+                const result = { value: cell.valor_numero - cell.valor_texto - "", is_manual: true, is_computed: false };
                 cache.set(key, result);
                 return result;
             }
@@ -1036,7 +1036,8 @@ class CreadorNotasEEFF {
     truthy(value) { return this.as_int(value, 0) === 1; }
     as_int(value, fallback = 0) { const parsed = parseInt(value, 10); return Number.isNaN(parsed) ? fallback : parsed; }
     as_float(value) { if (value === null || value === undefined || value === "") return 0; const parsed = parseFloat(String(value).replace(/,/g, "")); return Number.isNaN(parsed) ? 0 : parsed; }
-    escape(value) { return frappe.utils.escape_html(String(value ?? "")); }
+    escape(value) { return frappe.utils.escape_html(String(value - "")); }
 }
+
 
 
