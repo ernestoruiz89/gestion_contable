@@ -26,6 +26,31 @@ frappe.ui.form.on("Paquete Estados Financieros Cliente", {
                 window.open(url, "_blank");
             }, __("Impresion"));
 
+            frm.add_custom_button(__("Exportar Carta de Remision"), () => {
+                frappe.call({
+                    method: "gestion_contable.gestion_contable.doctype.paquete_estados_financieros_cliente.paquete_estados_financieros_cliente.exportar_carta_remision_word",
+                    args: { package_name: frm.doc.name },
+                    freeze: true,
+                    freeze_message: __("Generando carta de remision en Word..."),
+                    callback: (r) => {
+                        if (!r.message || !r.message.file_url) {
+                            return;
+                        }
+                        frappe.show_alert({ message: __("Carta de remision generada"), indicator: "green" });
+                        window.open(r.message.file_url, "_blank");
+                    },
+                    error: () => {
+                        frappe.msgprint({
+                            title: __("Exportacion Word no disponible"),
+                            indicator: "orange",
+                            message: __(
+                                "No se pudo generar la carta de remision en Word. Si falta la dependencia opcional, instale <b>python-docx</b> con <b>bench pip install python-docx</b>."
+                            ),
+                        });
+                    },
+                });
+            }, __("Impresion"));
+
             frm.add_custom_button(__("Exportar Word Revision"), () => {
                 frappe.call({
                     method: "gestion_contable.gestion_contable.doctype.paquete_estados_financieros_cliente.paquete_estados_financieros_cliente.exportar_informe_completo_eeff_auditados_word",

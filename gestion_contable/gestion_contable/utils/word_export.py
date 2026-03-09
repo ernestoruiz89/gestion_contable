@@ -8,6 +8,7 @@ from frappe import _
 from frappe.utils import cint, cstr, now_datetime
 
 REPORT_TITLE = "Informe Completo de EEFF Auditados"
+REMITTANCE_TITLE = "Carta de Remision"
 FONT_NAME = "Arial Narrow"
 BODY_SIZE = 12
 COMPACT_SIZE = 10
@@ -55,11 +56,43 @@ def export_audited_financial_package_to_word(package_name):
     }
 
 
+def export_remittance_letter_to_word(package_name):
+    package = frappe.get_doc("Paquete Estados Financieros Cliente", package_name)
+    if not package.dictamen_de_auditoria:
+        frappe.throw(
+            _("El paquete debe tener un Dictamen de Auditoria vinculado para exportar la carta de remision."),
+            title=_("Dictamen Requerido"),
+        )
+
+    dictamen = frappe.get_doc("Informe Final Auditoria", package.dictamen_de_auditoria)
+    if dictamen.tipo_de_informe != "Dictamen de Auditoria":
+        frappe.throw(
+            _("El documento vinculado en Dictamen de Auditoria no corresponde a un dictamen valido."),
+            title=_("Dictamen Invalido"),
+        )
+
+    document = _build_remittance_document(package, dictamen)
+    stream = io.BytesIO()
+    document.save(stream)
+    content = stream.getvalue()
+    stream.close()
+
+    from frappe.utils.file_manager import save_file
+
+    file_name = _build_remittance_filename(package.name)
+    file_doc = save_file(file_name, content, "Paquete Estados Financieros Cliente", package.name, is_private=1)
+    return {
+        "file_name": file_doc.file_name,
+        "file_url": file_doc.file_url,
+        "file_id": file_doc.name,
+    }
+
+
 def _build_audited_package_document(package, dictamen):
-    Document, WD_ALIGN_PARAGRAPH, WD_ORIENTATION, WD_SECTION_START, OxmlElement, qn, Cm, Pt = _docx_imports()
+    Document, WD_ALIGN_PARAGRAPH, WD_ORIENTATION, WD_SECTION_START, OxmlElement, qn, Cm, Pt, RGBColor = _docx_imports()
 
     document = Document()
-    _configure_document(document, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, Pt)
+    _configure_document(document, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, Pt, document_title=REPORT_TITLE)
 
     title = document.add_paragraph(REPORT_TITLE, style="Title")
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -71,7 +104,7 @@ def _build_audited_package_document(package, dictamen):
 
     badge = document.add_paragraph()
     badge.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    badge.add_run("Documento formal de revision y entrega al cliente").italic = True
+    badge.add_run("Documento formal de revision del cliente").italic = True
     _set_paragraph_runs_font(badge)
 
     cover_table = document.add_table(rows=4, cols=2)
@@ -110,7 +143,14 @@ def _build_audited_package_document(package, dictamen):
     _add_estados_section(document, package)
     document.add_page_break()
     _add_notas_section(document, package)
-    document.add_page_break()
+    return document
+
+
+def _build_remittance_document(package, dictamen):
+    Document, WD_ALIGN_PARAGRAPH, WD_ORIENTATION, WD_SECTION_START, OxmlElement, qn, Cm, Pt, RGBColor = _docx_imports()
+
+    document = Document()
+    _configure_document(document, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, Pt, document_title=REPORT_TITLE)
     _add_delivery_section(document, package, dictamen)
     return document
 
@@ -122,16 +162,16 @@ def _docx_imports():
         from docx.enum.text import WD_ALIGN_PARAGRAPH
         from docx.oxml import OxmlElement
         from docx.oxml.ns import qn
-        from docx.shared import Cm, Pt
+        from docx.shared import Cm, Pt, RGBColor
     except ImportError:
         frappe.throw(
             _("No esta instalada la dependencia opcional python-docx. Instala la dependencia en el sitio con <b>bench pip install python-docx</b> para habilitar la exportacion Word."),
             title=_("Dependencia Faltante"),
         )
-    return Document, WD_ALIGN_PARAGRAPH, WD_ORIENTATION, WD_SECTION_START, OxmlElement, qn, Cm, Pt
+    return Document, WD_ALIGN_PARAGRAPH, WD_ORIENTATION, WD_SECTION_START, OxmlElement, qn, Cm, Pt, RGBColor
 
 
-def _configure_document(document, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, Pt):
+def _configure_document(document, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, Pt, document_title=REPORT_TITLE):
     styles = document.styles
     styles["Normal"].font.name = FONT_NAME
     styles["Normal"].font.size = Pt(BODY_SIZE)
@@ -145,11 +185,11 @@ def _configure_document(document, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, 
     styles["Heading 3"].font.size = Pt(BODY_SIZE)
 
     for section in document.sections:
-        _configure_section(section, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, landscape=False)
+        _configure_section(section, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, landscape=False, document_title=document_title)
 
 
-def _configure_section(section, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, landscape=False):
-    _Document, _Align, WD_ORIENTATION, _SectionStart, _OxmlElement, _qn, _Cm, _Pt = _docx_imports()
+def _configure_section(section, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, landscape=False, document_title=REPORT_TITLE):
+    _Document, _Align, WD_ORIENTATION, _SectionStart, _OxmlElement, _qn, _Cm, _Pt, _RGBColor = _docx_imports()
     section.top_margin = Cm(2.2)
     section.bottom_margin = Cm(2.0)
     section.left_margin = Cm(2.3)
@@ -163,7 +203,7 @@ def _configure_section(section, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm
     header = section.header
     header_para = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
     header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    header_para.text = f"{package.razon_social_reportante or package.cliente or '-'} | {REPORT_TITLE}"
+    header_para.text = f"{package.razon_social_reportante or package.cliente or '-'} | {document_title}"
     _set_paragraph_runs_font(header_para, size=10)
 
     footer = section.footer
@@ -178,10 +218,10 @@ def _configure_section(section, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm
     _set_paragraph_runs_font(footer_para, size=10)
 
 
-def _add_oriented_section(document, package, landscape=False):
-    _Document, WD_ALIGN_PARAGRAPH, _WD_ORIENTATION, WD_SECTION_START, OxmlElement, qn, Cm, Pt = _docx_imports()
+def _add_oriented_section(document, package, landscape=False, document_title=REPORT_TITLE):
+    _Document, WD_ALIGN_PARAGRAPH, _WD_ORIENTATION, WD_SECTION_START, OxmlElement, qn, Cm, Pt, _RGBColor = _docx_imports()
     section = document.add_section(WD_SECTION_START.NEW_PAGE)
-    _configure_section(section, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, landscape=landscape)
+    _configure_section(section, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm, landscape=landscape, document_title=document_title)
     return section
 
 
@@ -335,7 +375,7 @@ def _add_notas_section(document, package):
             compact = len(section.get("columnas") or []) > 5
             if section.get("tipo_seccion") in ("Tabla", "Texto y Tabla"):
                 if compact:
-                    _add_oriented_section(document, package, landscape=True)
+                    _add_oriented_section(document, package, landscape=True, document_title=REPORT_TITLE)
                     if section.get("titulo_seccion"):
                         document.add_paragraph(section.get("titulo_seccion"), style="Heading 3")
                 table = _add_structured_note_table(document, section)
@@ -362,7 +402,7 @@ def _add_notas_section(document, package):
             if section.get("contenido_narrativo"):
                 _add_rich_block(document, section.get("contenido_narrativo"))
             if compact:
-                _add_oriented_section(document, package, landscape=False)
+                _add_oriented_section(document, package, landscape=False, document_title=REPORT_TITLE)
 
         if nota_doc.observaciones_preparacion:
             document.add_paragraph("Observaciones", style="Heading 3")
@@ -444,7 +484,7 @@ def _fill_label_value_cell(cell, label, value):
 
 
 def _set_paragraph_runs_font(paragraph, font_name=FONT_NAME, size=BODY_SIZE, bold=False):
-    _Document, _Align, _Orientation, _SectionStart, OxmlElement, qn, _Cm, Pt = _docx_imports()
+    _Document, _Align, _Orientation, _SectionStart, OxmlElement, qn, _Cm, Pt, RGBColor = _docx_imports()
     if not paragraph.runs:
         paragraph.add_run("")
     for run in paragraph.runs:
@@ -452,6 +492,7 @@ def _set_paragraph_runs_font(paragraph, font_name=FONT_NAME, size=BODY_SIZE, bol
         run.font.size = Pt(size)
         if bold:
             run.bold = True
+        run.font.color.rgb = RGBColor(0, 0, 0)
         rpr = run._element.get_or_add_rPr()
         rfonts = rpr.rFonts
         if rfonts is None:
@@ -463,7 +504,7 @@ def _set_paragraph_runs_font(paragraph, font_name=FONT_NAME, size=BODY_SIZE, bol
 
 
 def _style_table_no_borders(table):
-    _Document, _Align, _Orientation, _SectionStart, OxmlElement, qn, _Cm, _Pt = _docx_imports()
+    _Document, _Align, _Orientation, _SectionStart, OxmlElement, qn, _Cm, _Pt, _RGBColor = _docx_imports()
     tbl = table._tbl
     tblPr = tbl.tblPr
     borders = tblPr.first_child_found_in("w:tblBorders")
@@ -479,7 +520,7 @@ def _style_table_no_borders(table):
 
 
 def _style_cell_border(cell, top=None, bottom=None):
-    _Document, _Align, _Orientation, _SectionStart, OxmlElement, qn, _Cm, _Pt = _docx_imports()
+    _Document, _Align, _Orientation, _SectionStart, OxmlElement, qn, _Cm, _Pt, _RGBColor = _docx_imports()
     tcPr = cell._tc.get_or_add_tcPr()
     tcBorders = tcPr.first_child_found_in("w:tcBorders")
     if tcBorders is None:
@@ -579,6 +620,14 @@ def _fmt_number(value):
         return f"{float(value):,.2f}"
     except Exception:
         return cstr(value)
+
+
+def _build_remittance_filename(package_name):
+    safe_name = _sanitize_filename(package_name)
+    base_name = f"{REMITTANCE_TITLE} - {safe_name}" if safe_name else REMITTANCE_TITLE
+    max_base_length = 135 - len(".docx")
+    base_name = base_name[:max_base_length].rstrip(" -_")
+    return f"{base_name}.docx"
 
 
 def _build_word_export_filename(package_name):
