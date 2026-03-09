@@ -470,7 +470,7 @@ class CreadorNotasEEFF {
             <div class="cne-card">
                 <div class="cne-card-head"><h3>Seccion ${this.escape(section.seccion_id)}</h3><p>Edita estructura, formulas y celdas desde una sola vista.</p></div>
                 <div class="cne-toolbar" style="padding:12px 16px 0 16px;">
-                    ${section.tipo_seccion !== "Narrativa" ? `${this.sectionHasCsvData(section.seccion_id) ? `<button class="cne-btn cne-download-csv">Descargar CSV</button>` : ""}<button class="cne-btn cne-upload-csv">Cargar CSV</button><input type="file" class="cne-csv-input" accept=".csv,text/csv,.txt,.tsv" style="display:none">` : ""}
+                    ${section.tipo_seccion !== "Narrativa" ? `${(this.get_columns(section.seccion_id).length > 0 && this.get_rows(section.seccion_id).length > 0) ? `<button class="cne-btn cne-download-csv">Descargar CSV</button>` : ""}<button class="cne-btn cne-upload-csv">Cargar CSV</button><input type="file" class="cne-csv-input" accept=".csv,text/csv,.txt,.tsv" style="display:none">` : ""}
                 </div>
                 <div class="cne-grid note" style="padding:16px;">
                     ${this.sectionInput("seccion_id", "ID Seccion", section.seccion_id || "", "text", section.seccion_id || "")}
