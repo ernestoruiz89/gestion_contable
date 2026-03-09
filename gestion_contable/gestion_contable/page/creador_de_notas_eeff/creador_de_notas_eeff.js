@@ -426,7 +426,7 @@ class CreadorNotasEEFF {
             <div class="cne-card">
                 <div class="cne-card-head">
                     <h3>Nota ${this.escape(doc.numero_nota || "")}</h3>
-                    <p>${this.escape(doc.name)} Ã‚Â· ${this.escape(doc.estado_aprobacion || "Borrador")}</p>
+                    <p>${this.escape(doc.name)} - ${this.escape(doc.estado_aprobacion || "Borrador")}</p>
                 </div>
                 <div class="cne-grid note" style="padding:16px;">
                     ${this.noteInput("numero_nota", "Numero Nota", doc.numero_nota || "")}
@@ -460,7 +460,7 @@ class CreadorNotasEEFF {
     render_section_tabs() {
         return this.get_sections().map((row) => `
             <button class="cne-section-tab ${row.seccion_id === this.state.current_section_id ? "active" : ""}" data-section-id="${this.escape(row.seccion_id)}">
-                ${this.escape(row.seccion_id)} Ã‚Â· ${this.escape(row.titulo_seccion || "Seccion")}
+                ${this.escape(row.seccion_id)} - ${this.escape(row.titulo_seccion || "Seccion")}
             </button>
         `).join("");
     }
@@ -630,11 +630,11 @@ class CreadorNotasEEFF {
     }
 
     noteInput(fieldname, label, value, type = "text") {
-        return `<div class="cne-field"><label>${label}</label><input type="${type}" class="cne-note-field" data-fieldname="${fieldname}" value="${this.escape(String(value - ""))}"></div>`;
+        return `<div class="cne-field"><label>${label}</label><input type="${type}" class="cne-note-field" data-fieldname="${fieldname}" value="${this.escape(String(value ?? ""))}"></div>`;
     }
 
     noteTextarea(fieldname, label, value) {
-        return `<div class="cne-field"><label>${label}</label><textarea class="cne-note-field" data-fieldname="${fieldname}">${this.escape(String(value - ""))}</textarea></div>`;
+        return `<div class="cne-field"><label>${label}</label><textarea class="cne-note-field" data-fieldname="${fieldname}">${this.escape(String(value ?? ""))}</textarea></div>`;
     }
 
     noteSelect(fieldname, label, value, options) {
@@ -642,11 +642,11 @@ class CreadorNotasEEFF {
     }
 
     sectionInput(fieldname, label, value, type = "text", originalValue = "") {
-        return `<div class="cne-field"><label>${label}</label><input type="${type}" class="cne-section-field" data-fieldname="${fieldname}" data-original-value="${this.escape(String(originalValue || value || ""))}" value="${this.escape(String(value - ""))}"></div>`;
+        return `<div class="cne-field"><label>${label}</label><input type="${type}" class="cne-section-field" data-fieldname="${fieldname}" data-original-value="${this.escape(String(originalValue || value || ""))}" value="${this.escape(String(value ?? ""))}"></div>`;
     }
 
     sectionTextarea(fieldname, label, value) {
-        return `<div class="cne-field"><label>${label}</label><textarea class="cne-section-field" data-fieldname="${fieldname}">${this.escape(String(value - ""))}</textarea></div>`;
+        return `<div class="cne-field"><label>${label}</label><textarea class="cne-section-field" data-fieldname="${fieldname}">${this.escape(String(value ?? ""))}</textarea></div>`;
     }
 
     sectionSelect(fieldname, label, value, options) {
@@ -1094,6 +1094,52 @@ class CreadorNotasEEFF {
         return groups;
     }
 
+    sectionHasCsvData(sectionId) {
+        return this.get_columns(sectionId).length > 0 && this.get_rows(sectionId).length > 0;
+    }
+
+    download_current_section_csv() {
+        const section = this.get_current_section();
+        if (!section) return;
+        const columns = this.get_columns(section.seccion_id);
+        const rows = this.get_rows(section.seccion_id);
+        if (!columns.length || !rows.length) {
+            frappe.msgprint(__("La seccion actual no tiene datos suficientes para exportar CSV."));
+            return;
+        }
+        const matrix = this.compute_matrix(section.seccion_id);
+        const hasGroups = columns.some((column) => (column.grupo_columna || "").trim());
+        const csvRows = [];
+        if (hasGroups) {
+            csvRows.push(["Concepto"].concat(columns.map((column) => (column.grupo_columna || "").trim())));
+            csvRows.push([""].concat(columns.map((column) => column.etiqueta || column.codigo_columna || "")));
+        } else {
+            csvRows.push(["Concepto"].concat(columns.map((column) => column.etiqueta || column.codigo_columna || "")));
+        }
+        rows.forEach((row) => {
+            const values = columns.map((column) => {
+                const cell = matrix[`${row.codigo_fila}::${column.codigo_columna}`] || { value: "" };
+                return cell.value === null || cell.value === undefined ? "" : String(cell.value);
+            });
+            csvRows.push([row.descripcion || row.codigo_fila || ""].concat(values));
+        });
+        const csvContent = csvRows.map((row) => row.map((value) => {
+            const textValue = String(value ?? "");
+            if (/[",\n;]/.test(textValue)) {
+                return '"' + textValue.replace(/"/g, '""') + '"';
+            }
+            return textValue;
+        }).join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${section.seccion_id || "seccion"}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    }
+
     render_matrix_only() {
         const section = this.get_current_section();
         if (!section) return;
@@ -1105,7 +1151,7 @@ class CreadorNotasEEFF {
     truthy(value) { return this.as_int(value, 0) === 1; }
     as_int(value, fallback = 0) { const parsed = parseInt(value, 10); return Number.isNaN(parsed) ? fallback : parsed; }
     as_float(value) { if (value === null || value === undefined || value === "") return 0; const parsed = parseFloat(String(value).replace(/,/g, "")); return Number.isNaN(parsed) ? 0 : parsed; }
-    escape(value) { return frappe.utils.escape_html(String(value - "")); }
+    escape(value) { return frappe.utils.escape_html(String(value ?? "")); }
 }
 
 
