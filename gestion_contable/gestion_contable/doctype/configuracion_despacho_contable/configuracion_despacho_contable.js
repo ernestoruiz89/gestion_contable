@@ -116,7 +116,7 @@ function update_dummy_tools_ui(frm) {
         error() {
             render_dummy_tools_status(frm, {
                 enabled: false,
-                site_config_key: "gestion_contable_enable_destructive_dummy_tools",
+                site_config_key: "gestion_contable_enable_dummy_tools",
                 message: __("No fue posible verificar el estado de las herramientas dummy."),
             });
         },
@@ -131,7 +131,7 @@ function toggle_dummy_buttons(frm, enabled) {
 
 function render_dummy_tools_status(frm, status) {
     const wrapper = frm.fields_dict.herramientas_desarrollo_estado.$wrapper;
-    const key = frappe.utils.escape_html(status.site_config_key || "gestion_contable_enable_destructive_dummy_tools");
+    const key = frappe.utils.escape_html(status.site_config_key || "gestion_contable_enable_dummy_tools");
     const message = frappe.utils.escape_html(status.message || "");
 
     if (status.enabled) {

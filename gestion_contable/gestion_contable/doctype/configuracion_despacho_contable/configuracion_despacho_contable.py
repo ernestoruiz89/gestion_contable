@@ -8,7 +8,8 @@ from frappe.utils import cint
 
 from gestion_contable.gestion_contable.utils.dummy_data import clear_demo_dataset, generate_demo_dataset
 
-DUMMY_TOOLS_SITE_CONFIG_KEY = "gestion_contable_enable_destructive_dummy_tools"
+DUMMY_TOOLS_SITE_CONFIG_KEY = "gestion_contable_enable_dummy_tools"
+LEGACY_DUMMY_TOOLS_SITE_CONFIG_KEY = "gestion_contable_enable_destructive_dummy_tools"
 
 
 class ConfiguracionDespachoContable(Document):
@@ -46,7 +47,13 @@ def limpiar_datos_dummy():
 
 
 def is_dummy_tools_enabled():
-    return bool(cint(frappe.conf.get(DUMMY_TOOLS_SITE_CONFIG_KEY) or 0))
+    return bool(
+        cint(
+            frappe.conf.get(DUMMY_TOOLS_SITE_CONFIG_KEY)
+            or frappe.conf.get(LEGACY_DUMMY_TOOLS_SITE_CONFIG_KEY)
+            or 0
+        )
+    )
 
 
 def _ensure_dummy_tools_enabled():

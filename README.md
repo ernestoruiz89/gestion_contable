@@ -1,158 +1,219 @@
-# Gestión Contable
+# Gestion Contable
 
-Aplicación de [Frappe Framework](https://frappeframework.com) / [ERPNext](https://erpnext.com) diseñada para la gestión operativa, administrativa y comercial de despachos contables y firmas de auditoría.
+Aplicacion para Frappe Framework y ERPNext orientada a despachos contables y firmas de auditoria.
 
-## Descripción
+Centraliza el ciclo comercial, la operacion por cliente, la auditoria formal, la preparacion de estados financieros del cliente, la facturacion, la cobranza y la interaccion con clientes por portal web.
 
-**Gestión Contable** centraliza los procesos de un despacho contable: captación comercial, gestión de contratos, ejecución de encargos, emisión de estados financieros, auditoría, cobranza y comunicación con clientes, incluyendo un portal web de autoservicio.
+## Alcance
 
-### Módulos Principales
+La app cubre estos frentes:
 
-#### 1. Operaciones y Gestión de Encargos
-- **Cliente Contable**: Extensión del Customer de ERPNext con datos contables específicos (frecuencia de cierre, contactos funcionales, etc.).
-- **Encargo Contable & Servicios**: Servicios recurrentes o únicos por cliente, basados en plantillas con hitos y tarifas.
-- **Requerimientos y Entregables**: Solicitudes de información al cliente y control de entregables emitidos.
-- **Periodo Contable**: Control de periodos fiscales (apertura/cierre) por empresa y cliente.
-- **Documento Contable**: Repositorio centralizado de documentos con evidencia documental.
+- Comercial y contractual: `Lead`, `Opportunity`, `Quotation`, `Contract`, `Contrato Comercial`, `Cambio Alcance Comercial`.
+- Operacion del despacho: `Cliente Contable`, `Periodo Contable`, `Encargo Contable`, `Task`, `Documento Contable`, `Servicio Contable`, `Tarifa Cliente Servicio`, `Plantilla Encargo Contable`.
+- Requerimientos al cliente: `Requerimiento Cliente`, `Entregable Cliente`, portal de cliente, correos y seguimiento.
+- Auditoria formal: `Expediente Auditoria`, `Riesgo Control Auditoria`, `Papel Trabajo Auditoria`, `Hallazgo Auditoria`, `Informe Final Auditoria`.
+- Estados financieros del cliente: `Paquete Estados Financieros Cliente`, `Estado Financiero Cliente`, `Nota Estado Financiero`, `Ajuste Estados Financieros Cliente`, `Version Documento EEFF`.
+- Facturacion y cobranza: integracion con `Sales Invoice`, `Payment Entry`, `Timesheet`, dashboards y reportes gerenciales.
 
-#### 2. Gestión Comercial
-- **Contrato Comercial**: Honorarios, vigencia, alcance de servicios y facturación.
-- **Cambios de Alcance**: Adendas y modificaciones a contratos originales con detalle de cambios.
+## Integracion con ERPNext
 
-#### 3. Estados Financieros
-- **Paquetes de Estados Financieros**: Generación de juegos completos de EEFF (Situación Financiera, Resultados, Flujos de Efectivo, Cambios en Patrimonio).
-- **Notas y Ajustes**: Notas explicativas con cifras y referencias, ajustes de auditoría.
-- **Versionado**: Control de versiones de documentos financieros entregados.
+La app se apoya en doctypes estandar, no los reemplaza:
 
-#### 4. Auditoría
-- **Expediente de Auditoría**: Estructura completa del engagement de auditoría.
-- **Matriz de Riesgos y Controles**: Identificación y evaluación de riesgos y controles.
-- **Papeles de Trabajo**: Documentación de pruebas sustantivas y de cumplimiento.
-- **Hallazgos**: Registro de deficiencias y observaciones.
-- **Informes Finales**: Dictamen, Carta a la Gerencia, Informe de Control Interno, Procedimientos Acordados.
+- `Customer`
+- `Task`
+- `Project`
+- `Timesheet`
+- `Sales Invoice`
+- `Payment Entry`
+- `Lead`
+- `Opportunity`
+- `Quotation`
+- `Contract`
+- `Communication`
+- `File`
+- `Workflow`
 
-#### 5. Cobranza y Comunicación
-- **Seguimiento de Cobranza**: Gestiones de cobro, compromisos de pago e historial.
-- **Correos Automatizados**: Envío automático de requerimientos, recordatorios y avisos de vencimiento.
-- **Configuración del Despacho**: Plantillas de correo y flags de automatización.
+## Modulos principales
 
-## Integraciones con ERPNext
+### Comercial
 
-La aplicación se integra directamente con módulos estándar de ERPNext:
+- `Contrato Comercial` con alcances por servicio, SLA, vigencia y control de cambios.
+- `Cambio Alcance Comercial` para adendas y modificaciones controladas.
 
-| DocType ERPNext | Integración |
-|---|---|
-| **Customer** | Vínculo base del Cliente Contable |
-| **Task** | Custom Fields para tipo de servicio, aprobaciones por supervisor/socio y vínculo a encargos |
-| **Sales Invoice** | Sincronización automática de facturación con encargos |
-| **Payment Entry** | Sincronización automática de cobros con encargos |
-| **Timesheet** | Sincronización de horas registradas por encargo |
-| **Lead / Opportunity / Quotation / Contract** | Flujo comercial (CRM estándar de ERPNext) |
+### Operacion y encargos
 
-## Portal de Cliente
+- `Encargo Contable` como eje de horas, presupuesto, hitos, facturacion, rentabilidad y cobranza.
+- Integracion con `Project`, `Task` y `Timesheet`.
+- `Documento Contable` con evidencias documentales, hash, retencion y trazabilidad.
 
-La aplicación incluye un **portal web** para que los clientes del despacho puedan:
+### Requerimientos y portal
 
-- Consultar el estado de sus requerimientos pendientes
-- Descargar entregables generados por el despacho
-- Acceder a un dashboard general de su relación con el despacho
+- `Requerimiento Cliente` y `Entregable Cliente` para solicitudes de informacion.
+- Portal web para clientes:
+  - `/portal-cliente`
+  - `/requerimientos-cliente`
+  - `/entregables-cliente`
+- Carga de archivos desde portal y registro de comunicaciones.
 
-## Workspace (Panel de Gestión)
+### Auditoria
 
-Todas las funcionalidades se acceden desde el **Panel de Gestión** integrado:
+- Expediente formal de auditoria.
+- Matriz riesgo-control.
+- Papeles de trabajo vinculados a evidencia especifica.
+- Hallazgos y seguimiento.
+- Informe final y dictamen de auditoria.
 
-### Páginas Personalizadas
-- 📋 **Panel de Tareas**: Kanban drag-and-drop con filtros avanzados
-- 📊 **Rentabilidad y Cobranza**: Dashboard financiero por encargo
-- 👥 **Resumen de Asignados**: Carga de trabajo por colaborador
-- 🔍 **Seguimiento de Auditoría**: Estado de expedientes y papeles de trabajo
-- � **Salida a Producción**: Control de puesta en marcha
+### Estados financieros del cliente
 
-### Reportes Gerenciales (Script Reports)
-- Resumen de Tareas por Encargo
-- Resumen de Rentabilidad y Cobranza
-- Cartera Gerencial por Encargo
-- Estado Gerencial de Auditoría
-- Seguimiento Gerencial de Requerimientos
-- Margen por Encargo y Servicio
+- Paquetes de EEFF auditados y no auditados.
+- Estados individuales, notas, ajustes y versionado.
+- Creador visual de notas complejas: `creador-de-notas-eeff`.
+- Exportacion Word de:
+  - paquete de EEFF no auditado
+  - informe completo auditado
+  - carta de remision
 
-### Formatos de Impresión
-19 formatos especializados, incluyendo: Contratos Comerciales (por tipo de servicio), Estados Financieros individuales, Paquetes de EEFF completos, Dictamen de Auditoría, Carta a la Gerencia, Informe de Hallazgos, Informe de Control Interno, entre otros.
+## Flujos de EEFF
 
-## Roles y Permisos
+### Flujo contable
 
-| Rol | Descripción |
-|---|---|
-| **System Manager** | Administración completa del sistema |
-| **Socio del Despacho** | Aprobación final, reportes gerenciales y de rentabilidad |
-| **Supervisor del Despacho** | Revisión de papeles de trabajo, aprobación intermedia, control de encargos |
-| **Contador del Despacho** | Gestión operativa de clientes, periodos, estados financieros y auditoría |
-| **Auxiliar Contable del Despacho** | Captura de datos, carga de documentos y ejecución de tareas |
+Permite preparar y emitir estados financieros para clientes a los que la firma lleva contabilidad, sin requerir auditoria.
 
-## Automatizaciones
+- `Paquete Estados Financieros Cliente`
+- `Estado Financiero Cliente`
+- `Nota Estado Financiero`
+- `Ajuste Estados Financieros Cliente`
+- `Exportar Word EEFF`
 
-- **Scheduler (diario)**: Alertas de retención y correos automáticos de requerimientos (envío, recordatorio, vencimiento).
-- **Doc Events**: Sincronización en tiempo real de facturación, pagos y timesheets con encargos contables.
-- **Validaciones de Task**: Reglas personalizadas al guardar tareas vinculadas al despacho.
-- **Bootstrap**: Configuración automática de workflows, plantillas de correo y roles al instalar o migrar.
+### Flujo auditado
 
-## Requisitos Previos
+Extiende el paquete de EEFF con expediente e informe de auditoria.
 
-- [Frappe Bench](https://frappeframework.com/docs/user/en/installation)
-- [ERPNext](https://erpnext.com) instalado (Customer, Sales Invoice, Payment Entry, Timesheet, Task)
-- Python >= 3.10
-- Node.js
+- `Expediente Auditoria`
+- `Informe Final Auditoria`
+- `Dictamen de Auditoria`
+- `Informe Completo de EEFF Auditados`
+- `Exportar Word Revision Auditada`
+- `Exportar Carta de Remision`
 
-### Dependencias Opcionales
+## Workspace y pages
+
+La app expone un workspace principal: `Panel de Gestion`.
+
+Pages principales:
+
+- `panel-de-tareas`
+- `resumen-de-asignados`
+- `seguimiento-de-auditoria`
+- `rentabilidad-y-cobranza`
+- `salida-a-produccion`
+- `creador-de-notas-eeff`
+
+## Reportes
+
+Reportes gerenciales incluidos:
+
+- `Resumen de Tareas por Encargo`
+- `Resumen Rentabilidad y Cobranza`
+- `Cartera Gerencial por Encargo`
+- `Estado Gerencial de Auditoria`
+- `Seguimiento Gerencial de Requerimientos`
+- `Margen por Encargo y Servicio`
+
+## Instalacion
 
 ```bash
-# Exportación de documentos a Word (.docx)
-pip install python-docx>=1.1.0
-```
-
-## Instalación
-
-```bash
-# Desde el directorio de tu bench
 bench get-app https://github.com/ernestoruiz89/gestion_contable
-
-# Instalar en un sitio
-bench --site [nombre-del-sitio] install-app gestion_contable
-
-# Construir los assets
+bench --site [sitio] install-app gestion_contable
 bench build --app gestion_contable
-
-# Ejecutar migraciones
-bench --site [nombre-del-sitio] migrate
+bench --site [sitio] migrate
 ```
 
-## Estructura del Proyecto
+## Requisitos
 
+- Python `>= 3.10`
+- Frappe / ERPNext compatibles con la version de tu bench
+- Node.js para construir assets
+
+Dependencia opcional para exportacion Word:
+
+```bash
+bench pip install python-docx
 ```
+
+Si `python-docx` no esta instalado, la app sigue funcionando y solo fallan las acciones de exportacion Word con un mensaje explicito.
+
+## Bootstrap automatico
+
+En `after_install` y `after_migrate` la app sincroniza elementos base como:
+
+- workflows
+- roles
+- templates de correo
+- recargas de metadata necesarias
+
+## Data demo
+
+La app incluye utilidades de dataset demo, pero estan deshabilitadas por defecto.
+
+Para habilitarlas temporalmente en un sitio de desarrollo, agrega en `site_config.json`:
+
+```json
+{
+  "gestion_contable_enable_dummy_tools": 1
+}
+```
+
+Luego:
+
+```bash
+bench --site [sitio] clear-cache
+```
+
+Con eso podras usar `Configuracion Despacho Contable` para:
+
+- generar data demo
+- limpiar data demo
+
+El dataset demo actual cubre:
+
+- multiples clientes
+- operacion de los ultimos meses
+- contabilidad recurrente
+- auditorias completas y en proceso
+- facturas y pagos
+- portal de cliente
+- paquetes de estados financieros
+
+## Estructura del proyecto
+
+```text
 gestion_contable/
-├── gestion_contable/
-│   ├── fixtures/              # Roles y Custom Fields exportados
-│   ├── gestion_contable/
-│   │   ├── doctype/           # ~35 DocTypes (modelos de datos)
-│   │   ├── overrides/         # Overrides de DocTypes estándar (Task)
-│   │   ├── page/              # 5 páginas personalizadas (SPAs)
-│   │   ├── patches/           # Migraciones de datos
-│   │   ├── portal/            # Lógica del portal de cliente
-│   │   ├── print_format/      # 19 formatos de impresión
-│   │   ├── report/            # 6 reportes gerenciales (Script Reports)
-│   │   ├── services/          # Lógica de sincronización con ERPNext
-│   │   ├── setup/             # Bootstrap, workflows y email templates
-│   │   ├── templates/         # Templates Jinja para print formats
-│   │   ├── tests/             # Tests unitarios
-│   │   ├── utils/             # Utilidades (emailing, finance, word_export, etc.)
-│   │   └── workspace/         # Configuración del Panel de Gestión
-│   ├── hooks.py               # Doc events, scheduler, fixtures, portal
-│   ├── patches.txt            # Registro de migraciones
-│   ├── public/                # Assets (CSS/JS compilados)
-│   └── www/                   # Páginas web del portal de cliente
-├── pyproject.toml
-└── README.md
+|-- gestion_contable/
+|   |-- hooks.py
+|   |-- patches.txt
+|   `-- gestion_contable/
+|       |-- doctype/
+|       |-- overrides/
+|       |-- page/
+|       |-- patches/
+|       |-- portal/
+|       |-- print_format/
+|       |-- report/
+|       |-- services/
+|       |-- setup/
+|       |-- templates/
+|       |-- tests/
+|       |-- utils/
+|       `-- workspace/
+|-- docs/
+|-- pyproject.toml
+`-- README.md
 ```
+
+## Documentacion adicional
+
+- Manual de usuario: [docs/manual_de_usuario.md](docs/manual_de_usuario.md)
 
 ## Licencia
 
