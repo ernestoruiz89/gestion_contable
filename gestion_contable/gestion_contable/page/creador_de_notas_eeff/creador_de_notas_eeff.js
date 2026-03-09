@@ -1,4 +1,4 @@
-frappe.pages["creador-de-notas-eeff"].on_page_load = function (wrapper) {
+﻿frappe.pages["creador-de-notas-eeff"].on_page_load = function (wrapper) {
     const page = frappe.ui.make_app_page({
         parent: wrapper,
         title: "Creador de Notas EEFF",
@@ -357,7 +357,7 @@ class CreadorNotasEEFF {
             <div class="cne-card">
                 <div class="cne-card-head">
                     <h3>Nota ${this.escape(doc.numero_nota || "")}</h3>
-                    <p>${this.escape(doc.name)} Â· ${this.escape(doc.estado_aprobacion || "Borrador")}</p>
+                    <p>${this.escape(doc.name)} Ã‚Â· ${this.escape(doc.estado_aprobacion || "Borrador")}</p>
                 </div>
                 <div class="cne-grid note" style="padding:16px;">
                     ${this.noteInput("numero_nota", "Numero Nota", doc.numero_nota || "")}
@@ -391,7 +391,7 @@ class CreadorNotasEEFF {
     render_section_tabs() {
         return this.get_sections().map((row) => `
             <button class="cne-section-tab ${row.seccion_id === this.state.current_section_id ? "active" : ""}" data-section-id="${this.escape(row.seccion_id)}">
-                ${this.escape(row.seccion_id)} Â· ${this.escape(row.titulo_seccion || "Seccion")}
+                ${this.escape(row.seccion_id)} Ã‚Â· ${this.escape(row.titulo_seccion || "Seccion")}
             </button>
         `).join("");
     }
@@ -401,7 +401,7 @@ class CreadorNotasEEFF {
             <div class="cne-card">
                 <div class="cne-card-head"><h3>Seccion ${this.escape(section.seccion_id)}</h3><p>Edita estructura, formulas y celdas desde una sola vista.</p></div>
                 <div class="cne-toolbar" style="padding:12px 16px 0 16px;">
-                    ${section.tipo_seccion !== "Narrativa" ? `<button class="cne-btn cne-upload-csv">Cargar CSV</button><input type="file" class="cne-csv-input" accept=".csv,text/csv,.txt,.tsv" style="display:none">` : ""}
+                    ${section.tipo_seccion !== "Narrativa" ? `${this.sectionHasCsvData(section.seccion_id) ? `<button class="cne-btn cne-download-csv">Descargar CSV</button>` : ""}<button class="cne-btn cne-upload-csv">Cargar CSV</button><input type="file" class="cne-csv-input" accept=".csv,text/csv,.txt,.tsv" style="display:none">` : ""}
                 </div>
                 <div class="cne-grid note" style="padding:16px;">
                     ${this.sectionInput("seccion_id", "ID Seccion", section.seccion_id || "", "text", section.seccion_id || "")}
@@ -1038,6 +1038,7 @@ class CreadorNotasEEFF {
     as_float(value) { if (value === null || value === undefined || value === "") return 0; const parsed = parseFloat(String(value).replace(/,/g, "")); return Number.isNaN(parsed) ? 0 : parsed; }
     escape(value) { return frappe.utils.escape_html(String(value - "")); }
 }
+
 
 
 
