@@ -82,7 +82,7 @@ class CreadorNotasEEFF {
             [data-theme="dark"] .cne-sidebar-head, [data-theme="dark"] .cne-card-head, [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-structure-table td, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-matrix-table td, [data-theme="dark"] .cne-note-item { border-color: var(--border-color); }
             [data-theme="dark"] .cne-sidebar-head h3, [data-theme="dark"] .cne-card-head h3, [data-theme="dark"] .cne-note-item strong, [data-theme="dark"] .cne-rowhead strong, [data-theme="dark"] .cne-matrix-table td strong { color: var(--text-color); }
             [data-theme="dark"] .cne-sidebar-head p, [data-theme="dark"] .cne-card-head p, [data-theme="dark"] .cne-note-item span, [data-theme="dark"] .cne-field label, [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-code, [data-theme="dark"] .cne-help { color: var(--text-muted); }
-            [data-theme="dark"] .cne-field input, [data-theme="dark"] .cne-field select, [data-theme="dark"] .cne-field textarea, [data-theme="dark"] .cne-structure-table input, [data-theme="dark"] .cne-structure-table select { background: var(--control-bg); color: var(--text-color); border-color: var(--border-color); }
+            [data-theme="dark"] .cne-field input, [data-theme="dark"] .cne-field select, [data-theme="dark"] .cne-field textarea, [data-theme="dark"] .cne-structure-table input, [data-theme="dark"] .cne-structure-table select, [data-theme="dark"] .cne-matrix-table input { background: var(--control-bg) !important; color: var(--text-color); border-color: var(--border-color); }
             [data-theme="dark"] .cne-btn, [data-theme="dark"] .cne-section-tab { background: var(--control-bg); color: var(--text-color); border-color: var(--border-color); }
             [data-theme="dark"] .cne-section-tab.active { background: var(--text-color); color: var(--card-bg); }
             [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-matrix-input.computed, [data-theme="dark"] .cne-help code { background: var(--control-bg); text-shadow: none; }
@@ -93,7 +93,7 @@ class CreadorNotasEEFF {
             [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-item { color: var(--text-color); }
             [data-theme="dark"] .cne-matrix-format-dropdown .dropdown-item:hover { background: var(--control-bg); }
             .cne-matrix-cell{display:flex;align-items:stretch;border:1px solid #cbd5e1;border-radius:8px;background:#fff;}
-            .cne-matrix-cell input.cne-matrix-input{border:none!important;border-radius:0 8px 8px 0!important;flex:1;min-width:0!important;outline:none;}
+            .cne-matrix-cell input.cne-matrix-input{border:none!important;border-radius:0 8px 8px 0!important;flex:1;min-width:0!important;outline:none;background:transparent!important}
             .cne-matrix-cell .cne-matrix-format-dropdown { display: flex; align-items: stretch; }
             .cne-matrix-cell .cne-matrix-format-btn{border:none;border-right:1px solid #cbd5e1;background:#f8fafc;padding:0;color:#475569;font-size:12px;cursor:pointer;outline:none;text-align:center;font-weight:700;width:32px;border-radius:8px 0 0 8px;}
             .cne-matrix-cell .cne-matrix-format-btn:hover{background:#e2e8f0}
