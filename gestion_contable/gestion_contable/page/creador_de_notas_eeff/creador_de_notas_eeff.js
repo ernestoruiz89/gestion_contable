@@ -81,7 +81,7 @@ class CreadorNotasEEFF {
             [data-theme="dark"] .cne-sidebar, [data-theme="dark"] .cne-card, [data-theme="dark"] .cne-rowhead { background: var(--card-bg); border-color: var(--border-color); }
             [data-theme="dark"] .cne-sidebar-head, [data-theme="dark"] .cne-card-head, [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-structure-table td, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-matrix-table td, [data-theme="dark"] .cne-note-item { border-color: var(--border-color); }
             [data-theme="dark"] .cne-field input, [data-theme="dark"] .cne-field select, [data-theme="dark"] .cne-field textarea, [data-theme="dark"] .cne-structure-table input, [data-theme="dark"] .cne-structure-table select, [data-theme="dark"] .cne-matrix-table input { background: var(--control-bg); color: var(--text-color); border-color: var(--border-color); }
-            [data-theme="dark"] .cne-sidebar-head h3, [data-theme="dark"] .cne-card-head h3, [data-theme="dark"] .cne-note-item strong, [data-theme="dark"] .cne-rowhead strong { color: var(--text-color); }
+            [data-theme="dark"] .cne-sidebar-head h3, [data-theme="dark"] .cne-card-head h3, [data-theme="dark"] .cne-note-item strong, [data-theme="dark"] .cne-rowhead strong, [data-theme="dark"] .cne-matrix-table td strong { color: var(--text-color); }
             [data-theme="dark"] .cne-sidebar-head p, [data-theme="dark"] .cne-card-head p, [data-theme="dark"] .cne-note-item span, [data-theme="dark"] .cne-field label, [data-theme="dark"] .cne-structure-table th, [data-theme="dark"] .cne-matrix-table th, [data-theme="dark"] .cne-code, [data-theme="dark"] .cne-help { color: var(--text-muted); }
             [data-theme="dark"] .cne-btn, [data-theme="dark"] .cne-section-tab { background: var(--control-bg); color: var(--text-color); border-color: var(--border-color); }
             [data-theme="dark"] .cne-section-tab.active { background: var(--text-color); color: var(--card-bg); }
@@ -538,7 +538,7 @@ class CreadorNotasEEFF {
                 <div class="cne-toolbar"><button class="cne-btn cne-add-column">Nueva Columna</button><button class="cne-btn cne-toggle-fullscreen" style="margin-left:auto;">Expandir Pantalla</button></div>
                 <div class="cne-structure-wrap">
                     <table class="cne-structure-table">
-                        <thead><tr><th>Codigo</th><th>Etiqueta</th><th>Grupo</th><th>Tipo</th><th>Alineacion</th><th>Auto</th><th>Formula</th><th>Orden</th><th>Total</th><th></th></tr></thead>
+                        <thead><tr><th>Codigo</th><th>Etiqueta</th><th>Grupo</th><th>Tipo</th><th>Alineacion</th><th>Entero</th><th>Auto</th><th>Formula</th><th>Orden</th><th>Total</th><th></th></tr></thead>
                         <tbody>
                             ${rows.length ? rows.map((row, index) => `
                                 <tr>
@@ -547,6 +547,7 @@ class CreadorNotasEEFF {
                                     <td><input class="cne-column-field" data-index="${index}" data-fieldname="grupo_columna" value="${this.escape(row.grupo_columna || "")}"></td>
                                     <td>${this.inlineSelect("cne-column-field", index, "tipo_dato", row.tipo_dato || "Moneda", ["Texto", "Numero", "Moneda", "Porcentaje"])}</td>
                                     <td>${this.inlineSelect("cne-column-field", index, "alineacion", row.alineacion || "Right", ["Left", "Center", "Right"])}</td>
+                                    <td><input type="checkbox" class="cne-column-field" data-index="${index}" data-fieldname="redondear_entero" ${this.checked(row.redondear_entero)}></td>
                                     <td><input type="checkbox" class="cne-column-field" data-index="${index}" data-fieldname="calculo_automatico" ${this.checked(row.calculo_automatico)}></td>
                                     <td><input class="cne-column-field" data-index="${index}" data-fieldname="formula_columnas" value="${this.escape(row.formula_columnas || "")}"></td>
                                     <td><input type="number" class="cne-column-field" data-index="${index}" data-fieldname="orden" value="${this.escape(String(row.orden || index + 1))}"></td>
@@ -659,9 +660,11 @@ class CreadorNotasEEFF {
                                             ${this.truthy(row.calculo_automatico) ? '<span class="cne-pill">fx fila</span>' : ''}
                                         </td>
                                         ${columns.map((column) => {
-            const cell = matrix[`${row.codigo_fila}::${column.codigo_columna}`] || { value: "", is_manual: false, is_computed: false, format: null };
-            const value = cell.value === null || cell.value === undefined ? "" : String(cell.value);
+            const cell = matrix[`${row.codigo_fila}::${column.codigo_columna}`] || { value: "", is_manual: false, is_computed: false, format: null, round: null };
+            let value = cell.value === null || cell.value === undefined ? "" : String(cell.value);
             const format = cell.format || column.tipo_dato || "Moneda";
+            const isRound = cell.round !== null && cell.round !== undefined ? cell.round : column.redondear_entero;
+            if (isRound && !isNaN(cell.value) && cell.value !== "") value = String(Math.round(Number(cell.value)));
             return `<td>
                 <div class="cne-matrix-cell ${cell.is_computed && !cell.is_manual ? 'computed' : ''}">
                     <div class="dropdown cne-matrix-format-dropdown">
@@ -673,6 +676,10 @@ class CreadorNotasEEFF {
                             <a class="dropdown-item cne-format-option" href="#" data-format="Moneda" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">$ Moneda</a>
                             <a class="dropdown-item cne-format-option" href="#" data-format="Porcentaje" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">% Porcentaje</a>
                             <a class="dropdown-item cne-format-option" href="#" data-format="Texto" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">T Texto</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item cne-format-option" href="#" data-format="ToggleRound" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}">
+                                ${isRound ? '☑' : '☐'} Redondear entero
+                            </a>
                         </div>
                     </div>
                     <input class="cne-matrix-input" data-row-code="${this.escape(row.codigo_fila)}" data-column-code="${this.escape(column.codigo_columna)}" value="${this.escape(value)}">
@@ -1108,16 +1115,26 @@ class CreadorNotasEEFF {
 
         let cell = index >= 0 ? doc.celdas_tabulares[index] : null;
         if (!cell) {
-            cell = { seccion_id: section.seccion_id, codigo_fila: rowCode, codigo_columna: columnCode, valor_texto: "", valor_numero: null, formato_numero: format, es_manual: 0 };
+            const defaultFormat = this.get_columns(section.seccion_id).find(c => c.codigo_columna === columnCode)?.tipo_dato || "Moneda";
+            cell = { seccion_id: section.seccion_id, codigo_fila: rowCode, codigo_columna: columnCode, valor_texto: "", valor_numero: null, formato_numero: defaultFormat, es_manual: 0, redondear_entero: 0 };
+            if (format === "ToggleRound") {
+                cell.redondear_entero = 1;
+            } else {
+                cell.formato_numero = format;
+            }
             doc.celdas_tabulares.push(cell);
         } else {
-            cell.formato_numero = format;
-            if (format === "Texto" && cell.valor_numero !== null && cell.es_manual) {
-                cell.valor_texto = String(cell.valor_numero);
-                cell.valor_numero = null;
-            } else if (format !== "Texto" && cell.valor_texto && cell.es_manual) {
-                cell.valor_numero = this.as_float(cell.valor_texto);
-                cell.valor_texto = "";
+            if (format === "ToggleRound") {
+                cell.redondear_entero = cell.redondear_entero ? 0 : 1;
+            } else {
+                cell.formato_numero = format;
+                if (format === "Texto" && cell.valor_numero !== null && cell.es_manual) {
+                    cell.valor_texto = String(cell.valor_numero);
+                    cell.valor_numero = null;
+                } else if (format !== "Texto" && cell.valor_texto && cell.es_manual) {
+                    cell.valor_numero = this.as_float(cell.valor_texto);
+                    cell.valor_texto = "";
+                }
             }
         }
         this.render_matrix_only();

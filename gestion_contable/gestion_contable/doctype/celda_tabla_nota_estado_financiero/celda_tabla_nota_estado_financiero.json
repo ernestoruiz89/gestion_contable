@@ -12,6 +12,7 @@
         "valor_texto",
         "valor_numero",
         "formato_numero",
+        "redondear_entero",
         "comentario"
     ],
     "fields": [
@@ -58,6 +59,12 @@
             "label": "Formato Numero",
             "options": "Numero\nMoneda\nPorcentaje\nTexto",
             "default": "Numero"
+        },
+        {
+            "fieldname": "redondear_entero",
+            "fieldtype": "Check",
+            "label": "Redondear a Entero",
+            "default": 0
         },
         {
             "fieldname": "comentario",

@@ -10,6 +10,7 @@
         "etiqueta",
         "tipo_dato",
         "alineacion",
+        "redondear_entero",
         "grupo_columna",
         "calculo_automatico",
         "formula_columnas",
@@ -51,6 +52,12 @@
             "label": "Alineacion",
             "options": "Left\nCenter\nRight",
             "default": "Left"
+        },
+        {
+            "fieldname": "redondear_entero",
+            "fieldtype": "Check",
+            "label": "Redondear a Entero",
+            "default": 0
         },
         {
             "fieldname": "grupo_columna",

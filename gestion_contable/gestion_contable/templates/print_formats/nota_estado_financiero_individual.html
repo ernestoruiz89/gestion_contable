@@ -1,20 +1,88 @@
 <style>
-  .nefi-wrap, .nefi-wrap * { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important; color: #000000 !important; font-size: 12pt; line-height: 1.25; }
-  .nefi-head { margin-bottom: 18px; }
-  .nefi-head h1 { margin: 0; font-size: 18pt; }
-  .nefi-section { margin: 0 0 18px; }
-  .nefi-section h2 { margin: 0 0 8px; font-size: 14pt; }
-  .nefi-section h3 { margin: 0 0 8px; font-size: 13pt; }
-  .nefi-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .nefi-table th, .nefi-table td { border: none; padding: 4px 8px; vertical-align: middle; }
-  .nefi-table th { background: transparent; text-align: left; font-weight: 700; }
-  .nefi-table td.num { text-align: right; white-space: nowrap; }
-  .nefi-row-subtotal td, .nefi-row-total td { font-weight: 700; }
-  .nefi-row-subtotal td { border-top: 1px solid #000000; border-bottom: 1px solid #000000; }
-  .nefi-row-total td { border-top: 1px solid #000000; border-bottom: 3px double #000000; }
-  .nefi-row-comment td { font-style: italic; color: #000000; }
-  .nefi-table-compact th, .nefi-table-compact td { font-size: 10pt; padding: 3px 6px; }
-  .nefi-note-comment { margin-top: 4px; }
+  .nefi-wrap,
+  .nefi-wrap * {
+    font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important;
+    color: #000000 !important;
+    font-size: 12pt;
+    line-height: 1.25;
+  }
+
+  .nefi-head {
+    margin-bottom: 18px;
+  }
+
+  .nefi-head h1 {
+    margin: 0;
+    font-size: 18pt;
+  }
+
+  .nefi-section {
+    margin: 0 0 18px;
+  }
+
+  .nefi-section h2 {
+    margin: 0 0 8px;
+    font-size: 14pt;
+  }
+
+  .nefi-section h3 {
+    margin: 0 0 8px;
+    font-size: 13pt;
+  }
+
+  .nefi-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+
+  .nefi-table th,
+  .nefi-table td {
+    border: none;
+    padding: 4px 8px;
+    vertical-align: middle;
+  }
+
+  .nefi-table th {
+    background: transparent;
+    text-align: left;
+    font-weight: 700;
+  }
+
+  .nefi-table td.num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .nefi-row-subtotal td,
+  .nefi-row-total td {
+    font-weight: 700;
+  }
+
+  .nefi-row-subtotal td {
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+  }
+
+  .nefi-row-total td {
+    border-top: 1px solid #000000;
+    border-bottom: 3px double #000000;
+  }
+
+  .nefi-row-comment td {
+    font-style: italic;
+    color: #000000;
+  }
+
+  .nefi-table-compact th,
+  .nefi-table-compact td {
+    font-size: 10pt;
+    padding: 3px 6px;
+  }
+
+  .nefi-note-comment {
+    margin-top: 4px;
+  }
 </style>
 {% set structured_sections = doc.get_structured_sections() %}
 <div class="nefi-wrap">
@@ -23,120 +91,121 @@
   </div>
 
   {% if doc.contenido_narrativo %}
-    <div class="nefi-section">
-      <div>{{ doc.contenido_narrativo | safe }}</div>
-    </div>
+  <div class="nefi-section">
+    <div>{{ doc.contenido_narrativo | safe }}</div>
+  </div>
   {% endif %}
 
   {% if doc.cifras_nota %}
-    <div class="nefi-section">
-      <table class="nefi-table">
-        <thead>
-          <tr>
-            <th>Concepto</th>
-            <th>Monto Actual</th>
-            <th>Monto Comparativo</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% set ns = namespace(total_actual=0, total_comparativo=0) %}
-          {% for cifra in doc.cifras_nota %}
-            {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
-            {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
-            <tr>
-              <td>
-                <div><strong>{{ cifra.concepto or "-" }}</strong></div>
-                {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
-                {% if cifra.comentario %}<div class="nefi-note-comment">{{ cifra.comentario }}</div>{% endif %}
-              </td>
-              <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
-              <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
-            </tr>
-          {% endfor %}
-          <tr class="nefi-row-total">
-            <td>Total</td>
-            <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
-            <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="nefi-section">
+    <table class="nefi-table">
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>Monto Actual</th>
+          <th>Monto Comparativo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set ns = namespace(total_actual=0, total_comparativo=0) %}
+        {% for cifra in doc.cifras_nota %}
+        {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
+        {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
+        <tr>
+          <td>
+            <div><strong>{{ cifra.concepto or "-" }}</strong></div>
+            {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
+            {% if cifra.comentario %}<div class="nefi-note-comment">{{ cifra.comentario }}</div>{% endif %}
+          </td>
+          <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
+          <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
+        </tr>
+        {% endfor %}
+        <tr class="nefi-row-total">
+          <td>Total</td>
+          <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
+          <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   {% endif %}
 
   {% if structured_sections %}
-    {% for section in structured_sections %}
-      <div class="nefi-section">
-        <h3>{{ section.titulo_seccion }}</h3>
-        {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
-          <table class="nefi-table{% if section.columnas|length > 5 %} nefi-table-compact{% endif %}">
-            <thead>
-              {% if section.tiene_grupos_columnas %}
-                <tr>
-                  <th rowspan="2">Concepto</th>
-                  {% for grupo in section.grupos_columnas %}
-                    {% if grupo.standalone %}
-                      {% set columna = grupo.columns[0] %}
-                      <th rowspan="2" style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                    {% else %}
-                      <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
-                    {% endif %}
-                  {% endfor %}
-                </tr>
-                <tr>
-                  {% for grupo in section.grupos_columnas %}
-                    {% if not grupo.standalone %}
-                      {% for columna in grupo.columns %}
-                        <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                      {% endfor %}
-                    {% endif %}
-                  {% endfor %}
-                </tr>
-              {% else %}
-                <tr>
-                  <th>Concepto</th>
-                  {% for columna in section.columnas %}
-                    <th style="text-align: {{ (columna.alineacion or "Left").lower() }};">{{ columna.etiqueta }}</th>
-                  {% endfor %}
-                </tr>
-              {% endif %}
-            </thead>
-            <tbody>
-              {% for fila in section.filas %}
-                <tr class="nefi-row-{{ (fila.tipo_fila or "Detalle").lower().replace(" ", "-") }}">
-                  <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
-                  {% for celda in fila.celdas %}
-                    <td style="text-align: {{ (section.columnas[loop.index0].alineacion or "Left").lower() }};">
-                      {% if celda.valor_texto %}
-                        {{ celda.valor_texto }}
-                      {% elif celda.valor_numero is not none %}
-                        {% if celda.formato_numero == "Porcentaje" %}
-                          {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Percent"}) }}
-                        {% elif celda.formato_numero == "Numero" %}
-                          {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Float"}) }}
-                        {% else %}
-                          {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Currency"}) }}
-                        {% endif %}
-                      {% else %}
-                        -
-                      {% endif %}
-                    </td>
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+  {% for section in structured_sections %}
+  <div class="nefi-section">
+    <h3>{{ section.titulo_seccion }}</h3>
+    {% if section.tipo_seccion in ("Tabla", "Texto y Tabla") %}
+    <table class="nefi-table{% if section.columnas|length > 5 %} nefi-table-compact{% endif %}">
+      <thead>
+        {% if section.tiene_grupos_columnas %}
+        <tr>
+          <th rowspan="2">Concepto</th>
+          {% for grupo in section.grupos_columnas %}
+          {% if grupo.standalone %}
+          {% set columna = grupo.columns[0] %}
+          <th rowspan="2" style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+          {% else %}
+          <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
+          {% endif %}
+          {% endfor %}
+        </tr>
+        <tr>
+          {% for grupo in section.grupos_columnas %}
+          {% if not grupo.standalone %}
+          {% for columna in grupo.columns %}
+          <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+          {% endfor %}
+          {% endif %}
+          {% endfor %}
+        </tr>
+        {% else %}
+        <tr>
+          <th>Concepto</th>
+          {% for columna in section.columnas %}
+          <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+          {% endfor %}
+        </tr>
         {% endif %}
-        {% if section.contenido_narrativo %}
-          <div style="margin-top: 8px;">{{ section.contenido_narrativo | safe }}</div>
-        {% endif %}
-      </div>
-    {% endfor %}
+      </thead>
+      <tbody>
+        {% for fila in section.filas %}
+        <tr class="nefi-row-{{ (fila.tipo_fila or " Detalle").lower().replace(" ", " -") }}">
+          <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
+          {% for celda in fila.celdas %}
+          <td style="text-align: {{ (section.columnas[loop.index0].alineacion or " Left").lower() }};">
+            {% if celda.valor_texto %}
+            {{ celda.valor_texto }}
+            {% elif celda.valor_numero is not none %}
+            {% set valor = celda.valor_numero|round|int if celda.redondear_entero else celda.valor_numero %}
+            {% if celda.formato_numero == "Porcentaje" %}
+            {{ frappe.format_value(valor, {"fieldtype": "Percent"}) }}
+            {% elif celda.formato_numero == "Numero" %}
+            {{ frappe.format_value(valor, {"fieldtype": "Float"}) }}
+            {% else %}
+            {{ frappe.format_value(valor, {"fieldtype": "Currency"}) }}
+            {% endif %}
+            {% else %}
+            -
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    {% if section.contenido_narrativo %}
+    <div style="margin-top: 8px;">{{ section.contenido_narrativo | safe }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
   {% endif %}
 
   {% if doc.observaciones_preparacion %}
-    <div class="nefi-section">
-      <h2>Observaciones</h2>
-      <div>{{ doc.observaciones_preparacion }}</div>
-    </div>
+  <div class="nefi-section">
+    <h2>Observaciones</h2>
+    <div>{{ doc.observaciones_preparacion }}</div>
+  </div>
   {% endif %}
 </div>

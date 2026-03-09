@@ -468,12 +468,13 @@ limit_page_length=300
                 {% if celda.valor_texto %}
                 {{ celda.valor_texto }}
                 {% elif celda.valor_numero is not none %}
+                {% set valor = celda.valor_numero|round|int if celda.redondear_entero else celda.valor_numero %}
                 {% if celda.formato_numero == "Porcentaje" %}
-                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Percent"}) }}
+                {{ frappe.format_value(valor, {"fieldtype": "Percent"}) }}
                 {% elif celda.formato_numero == "Numero" %}
-                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Float"}) }}
+                {{ frappe.format_value(valor, {"fieldtype": "Float"}) }}
                 {% else %}
-                {{ frappe.format_value(celda.valor_numero, {"fieldtype": "Currency"}) }}
+                {{ frappe.format_value(valor, {"fieldtype": "Currency"}) }}
                 {% endif %}
                 {% else %}
                 -
