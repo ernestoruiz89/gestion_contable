@@ -310,7 +310,7 @@ limit_page_length=200
           </thead>
           <tbody>
             {% for fila in section.filas %}
-            <tr class="pefc-row-{{ (fila.tipo_fila or 'Detalle').lower().replace(" ", '-') }}">
+            <tr class="pefc-row-{{ (fila.tipo_fila or 'Detalle').lower().replace(' ', '-') }}">
               <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
               {% for celda in fila.celdas %}
               <td style="text-align: {{ (section.columnas[loop.index0].alineacion or 'Left').lower() }};">
