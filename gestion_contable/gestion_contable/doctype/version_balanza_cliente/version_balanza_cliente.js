@@ -24,4 +24,14 @@ frappe.ui.form.on("Version Balanza Cliente", {
             });
         }, __("Balanza"));
     },
+
+    periodo_contable(frm) {
+        if (frm.doc.periodo_contable) {
+            frappe.db.get_value("Periodo Contable", frm.doc.periodo_contable, "fecha_de_fin", (r) => {
+                if (r && r.fecha_de_fin) {
+                    frm.set_value("fecha_corte", r.fecha_de_fin);
+                }
+            });
+        }
+    },
 });
