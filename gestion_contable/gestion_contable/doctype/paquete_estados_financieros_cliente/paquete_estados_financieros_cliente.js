@@ -181,7 +181,7 @@ function addDuplicateButton(frm) {
                     fieldtype: "Select",
                     fieldname: "tipo_paquete",
                     label: __("Tipo Paquete"),
-                    options: ["Preliminar", "Para Auditoria", "Auditado", "Reexpresado", "Comparativo"].join("\n"),
+                    options: ["Preliminar", "Para Auditoria", "Auditado", "Reexpresado", "Comparativo", "Interno"].join("\n"),
                     default: frm.doc.tipo_paquete,
                 },
                 {
@@ -253,6 +253,32 @@ function addDuplicateButton(frm) {
 }
 
 frappe.ui.form.on("Paquete Estados Financieros Cliente", {
+    setup(frm) {
+        frm.set_query("encargo_contable", () => {
+            return {
+                filters: frm.doc.cliente ? { cliente: frm.doc.cliente } : {}
+            };
+        });
+
+        frm.set_query("periodo_contable", () => {
+            return {
+                filters: frm.doc.cliente ? { cliente: frm.doc.cliente } : {}
+            };
+        });
+
+        frm.set_query("expediente_auditoria", () => {
+            return {
+                filters: frm.doc.cliente ? { cliente: frm.doc.cliente } : {}
+            };
+        });
+
+        frm.set_query("esquema_mapeo_contable", () => {
+            return {
+                filters: frm.doc.cliente ? { cliente: frm.doc.cliente } : {}
+            };
+        });
+    },
+
     tipo_paquete(frm) {
         updateAuditFields(frm);
     },
