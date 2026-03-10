@@ -146,10 +146,8 @@
     text-align: center;
   }
 
-  .efc-sig-name {
-    margin-bottom: 60px;
-    font-size: 11pt;
-    font-weight: 400;
+  .efc-sig-gap {
+    height: 60px;
   }
 
   .efc-sig-line {
@@ -158,6 +156,12 @@
     font-weight: 700;
     font-size: 10pt;
     text-transform: uppercase;
+  }
+
+  .efc-sig-name {
+    font-size: 11pt;
+    font-weight: 400;
+    margin-top: 4px;
   }
 
   .efc-sig-title {
@@ -381,22 +385,25 @@ limit_page_length=200
   <div class="efc-signatures-wrapper">
     {% if paquete.elaborado_por %}
     <div class="efc-sig-box">
-      <div class="efc-sig-name">{{ paquete.elaborado_por }}</div>
+      <div class="efc-sig-gap"></div>
       <div class="efc-sig-line">Elaborado Por</div>
+      <div class="efc-sig-name">{{ paquete.elaborado_por }}</div>
       {% if paquete.cargo_elaborado_por %}<div class="efc-sig-title">{{ paquete.cargo_elaborado_por }}</div>{% endif %}
     </div>
     {% endif %}
     {% if paquete.revisado_por %}
     <div class="efc-sig-box">
-      <div class="efc-sig-name">{{ paquete.revisado_por }}</div>
+      <div class="efc-sig-gap"></div>
       <div class="efc-sig-line">Revisado Por</div>
+      <div class="efc-sig-name">{{ paquete.revisado_por }}</div>
       {% if paquete.cargo_revisado_por %}<div class="efc-sig-title">{{ paquete.cargo_revisado_por }}</div>{% endif %}
     </div>
     {% endif %}
     {% if paquete.autorizado_por %}
     <div class="efc-sig-box">
-      <div class="efc-sig-name">{{ paquete.autorizado_por }}</div>
+      <div class="efc-sig-gap"></div>
       <div class="efc-sig-line">Autorizado Por</div>
+      <div class="efc-sig-name">{{ paquete.autorizado_por }}</div>
       {% if paquete.cargo_autorizado_por %}<div class="efc-sig-title">{{ paquete.cargo_autorizado_por }}</div>{% endif
       %}
     </div>
