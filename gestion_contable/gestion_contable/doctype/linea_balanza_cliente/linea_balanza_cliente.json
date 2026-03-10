@@ -1,0 +1,177 @@
+{
+    "actions": [],
+    "creation": "2026-03-10 11:05:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "version_balanza_cliente",
+        "row_no",
+        "idx_importacion",
+        "codigo_cuenta",
+        "descripcion_cuenta",
+        "column_break_1",
+        "periodo_linea",
+        "centro_costo",
+        "origen_linea",
+        "section_montos",
+        "debe_mes_actual",
+        "haber_mes_actual",
+        "column_break_2",
+        "debe_saldo",
+        "haber_saldo",
+        "saldo_final",
+        "saldo_neto",
+        "linea_fuente_externa"
+    ],
+    "fields": [
+        {
+            "fieldname": "version_balanza_cliente",
+            "fieldtype": "Link",
+            "label": "Version Balanza Cliente",
+            "options": "Version Balanza Cliente",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "row_no",
+            "fieldtype": "Int",
+            "label": "Fila Origen"
+        },
+        {
+            "fieldname": "idx_importacion",
+            "fieldtype": "Int",
+            "label": "Orden Importacion"
+        },
+        {
+            "fieldname": "codigo_cuenta",
+            "fieldtype": "Data",
+            "label": "Cuenta",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "descripcion_cuenta",
+            "fieldtype": "Data",
+            "label": "Descripcion",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "periodo_linea",
+            "fieldtype": "Data",
+            "label": "Periodo"
+        },
+        {
+            "fieldname": "centro_costo",
+            "fieldtype": "Data",
+            "label": "Centro Costo"
+        },
+        {
+            "fieldname": "origen_linea",
+            "fieldtype": "Select",
+            "label": "Origen Linea",
+            "options": "Importada\nAjuste\nReclasificacion\nCalculada",
+            "default": "Importada"
+        },
+        {
+            "fieldname": "section_montos",
+            "fieldtype": "Section Break",
+            "label": "Montos"
+        },
+        {
+            "fieldname": "debe_mes_actual",
+            "fieldtype": "Currency",
+            "label": "Debe Mes Actual",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "haber_mes_actual",
+            "fieldtype": "Currency",
+            "label": "Haber Mes Actual"
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "debe_saldo",
+            "fieldtype": "Currency",
+            "label": "Debe Saldo",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "haber_saldo",
+            "fieldtype": "Currency",
+            "label": "Haber Saldo"
+        },
+        {
+            "fieldname": "saldo_final",
+            "fieldtype": "Currency",
+            "label": "Saldo Final",
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "saldo_neto",
+            "fieldtype": "Currency",
+            "label": "Saldo Neto",
+            "read_only": 1
+        },
+        {
+            "fieldname": "linea_fuente_externa",
+            "fieldtype": "Long Text",
+            "label": "Linea Fuente Externa",
+            "read_only": 1
+        }
+    ],
+    "module": "Gestion Contable",
+    "name": "Linea Balanza Cliente",
+    "naming_rule": "Expression",
+    "autoname": "hash",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

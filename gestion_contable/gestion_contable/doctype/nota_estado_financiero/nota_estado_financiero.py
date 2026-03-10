@@ -165,8 +165,18 @@ class NotaEstadoFinanciero(Document):
         self.categoria_nota = self.categoria_nota or "Otra"
 
     def normalizar_cifras(self):
+        seen_codes = set()
         for idx, row in enumerate(self.cifras_nota or [], start=1):
             row.orden = cint(row.orden or idx)
+            row.codigo_cifra = cstr(row.codigo_cifra or frappe.scrub(row.concepto or f"cifra_{idx}")).strip().upper()
+            if row.codigo_cifra in seen_codes:
+                frappe.throw(_("La cifra con codigo <b>{0}</b> esta duplicada en la nota.").format(row.codigo_cifra), title=_("Codigo Duplicado"))
+            seen_codes.add(row.codigo_cifra)
+            row.origen_dato = cstr(row.origen_dato or ("Manual" if cint(row.es_manual or 0) else "")).strip() or None
+            row.calculo_automatico = cint(row.calculo_automatico or 0)
+            row.formula_cifras = cstr(row.formula_cifras or "").strip().upper()
+            if row.formula_cifras and not row.calculo_automatico:
+                row.calculo_automatico = 1
             if not cstr(row.concepto or "").strip():
                 frappe.throw(_("Cada cifra de nota debe indicar el concepto."), title=_("Concepto Requerido"))
         self.total_cifras = len(self.cifras_nota or [])

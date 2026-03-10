@@ -4,6 +4,7 @@ from frappe.model.document import Document
 from frappe.utils import cint, cstr, now_datetime, nowdate
 
 from gestion_contable.gestion_contable.doctype.informe_final_auditoria.informe_final_auditoria import TIPO_DICTAMEN_AUDITORIA
+from gestion_contable.gestion_contable.services.balanza.mapping import actualizar_paquete_desde_balanza
 from gestion_contable.gestion_contable.utils.estados_financieros import (
     calculate_package_summary,
     get_customer_identity,
@@ -45,6 +46,9 @@ CONTENT_FIELDS = (
     "observaciones_generales",
     "informe_final_auditoria",
     "dictamen_de_auditoria",
+    "version_balanza_actual",
+    "version_balanza_comparativa",
+    "esquema_mapeo_contable",
 )
 ESTADOS_PREPARACION = (
     "Borrador",
@@ -100,6 +104,7 @@ class PaqueteEstadosFinancierosCliente(Document):
         self.validar_consistencias()
         self.aplicar_resumen(calculate_package_summary(self.name if self.name and not self.name.startswith("new-") else None))
         self.normalizar_versiones_documento_eeff()
+        self.validar_integracion_balanza()
         self.validar_versionado()
         self.validar_versiones_documento_eeff()
         self.validar_informes_relacionados()
@@ -206,6 +211,41 @@ class PaqueteEstadosFinancierosCliente(Document):
                 frappe.throw(_("El periodo del paquete no coincide con el periodo del expediente vinculado."), title=_("Periodo Inconsistente"))
         if self.fecha_emision and cstr(self.fecha_emision) < cstr(self.fecha_corte):
             frappe.throw(_("La fecha de emision no puede ser anterior a la fecha de corte."), title=_("Fechas Invalidas"))
+
+    def validar_integracion_balanza(self):
+        for fieldname, rol in (("version_balanza_actual", "Actual"), ("version_balanza_comparativa", "Comparativo")):
+            version_name = self.get(fieldname)
+            if not version_name:
+                continue
+            if not frappe.db.exists("Version Balanza Cliente", version_name):
+                frappe.throw(_("La version de balanza vinculada en {0} no existe.").format(fieldname), title=_("Balanza Invalida"))
+            version_doc = frappe.db.get_value(
+                "Version Balanza Cliente",
+                version_name,
+                ["cliente", "company", "periodo_contable", "rol_periodo", "estado_version"],
+                as_dict=True,
+            )
+            if version_doc.cliente and self.cliente and version_doc.cliente != self.cliente:
+                frappe.throw(_("La balanza vinculada en {0} pertenece a otro cliente.").format(fieldname), title=_("Cliente Inconsistente"))
+            if version_doc.periodo_contable and self.periodo_contable and version_doc.periodo_contable != self.periodo_contable:
+                frappe.throw(_("La balanza vinculada en {0} pertenece a otro periodo contable.").format(fieldname), title=_("Periodo Inconsistente"))
+            if version_doc.rol_periodo and version_doc.rol_periodo != rol:
+                frappe.throw(_("La balanza vinculada en {0} debe tener rol de periodo <b>{1}</b>.").format(fieldname, rol), title=_("Rol Periodo Invalido"))
+        if self.esquema_mapeo_contable:
+            if not frappe.db.exists("Esquema Mapeo Contable", self.esquema_mapeo_contable):
+                frappe.throw(_("El esquema de mapeo contable indicado no existe."), title=_("Esquema Invalido"))
+            esquema = frappe.db.get_value(
+                "Esquema Mapeo Contable",
+                self.esquema_mapeo_contable,
+                ["cliente", "company", "marco_contable", "tipo_paquete"],
+                as_dict=True,
+            )
+            if esquema.cliente and self.cliente and esquema.cliente != self.cliente:
+                frappe.throw(_("El esquema de mapeo contable pertenece a otro cliente."), title=_("Cliente Inconsistente"))
+            if esquema.marco_contable and self.marco_contable and esquema.marco_contable != self.marco_contable:
+                frappe.throw(_("El esquema de mapeo contable no coincide con el marco contable del paquete."), title=_("Marco Inconsistente"))
+            if esquema.tipo_paquete and self.tipo_paquete and esquema.tipo_paquete != self.tipo_paquete:
+                frappe.throw(_("El esquema de mapeo contable no coincide con el tipo de paquete."), title=_("Tipo Paquete Inconsistente"))
 
     def aplicar_resumen(self, summary):
         for key, value in (summary or {}).items():
@@ -513,6 +553,11 @@ def duplicar_paquete_estados_financieros(
     target_package.informe_final_auditoria = None
     target_package.dictamen_de_auditoria = None
     target_package.fecha_emision = None
+    target_package.version_balanza_actual = None
+    target_package.version_balanza_comparativa = None
+    target_package.fecha_ultima_actualizacion_automatica = None
+    target_package.ultima_ejecucion_actualizacion_eeff = None
+    target_package.alertas_actualizacion_automatica = None
     target_package.versiones_documento_eeff = []
     for summary_field in (
         "total_estados",
@@ -571,6 +616,12 @@ def emitir_paquete_estados_financieros(package_name):
     package.estado_preparacion = "Emitido"
     package.save(ignore_permissions=True)
     return {"name": package.name, "estado_preparacion": package.estado_preparacion, "fecha_emision": package.fecha_emision}
+
+
+@frappe.whitelist()
+def actualizar_paquete_desde_balanza_paquete(package_name):
+    ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden actualizar paquetes desde balanza."))
+    return actualizar_paquete_desde_balanza(package_name)
 
 
 @frappe.whitelist()

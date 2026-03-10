@@ -277,6 +277,23 @@ frappe.ui.form.on("Paquete Estados Financieros Cliente", {
             });
         }, __("Estados Financieros"));
 
+        frm.add_custom_button(__("Actualizar desde Balanza"), () => {
+            frappe.call({
+                method: "gestion_contable.gestion_contable.doctype.paquete_estados_financieros_cliente.paquete_estados_financieros_cliente.actualizar_paquete_desde_balanza_paquete",
+                args: { package_name: frm.doc.name },
+                freeze: true,
+                freeze_message: __("Actualizando estados, notas y sumarias desde balanza..."),
+                callback: (r) => {
+                    const message = r.message || {};
+                    frappe.show_alert({
+                        message: __("Actualizacion completada. Estados: {0}, Notas: {1}, Sumarias: {2}", [message.estados_actualizados || 0, message.notas_actualizadas || 0, message.sumarias_actualizadas || 0]),
+                        indicator: (message.alertas || []).length ? "orange" : "green",
+                    });
+                    frm.reload_doc();
+                },
+            });
+        }, __("Estados Financieros"));
+
         if (frm.doc.estado_aprobacion === "Aprobado" && frm.doc.estado_preparacion !== "Emitido") {
             frm.add_custom_button(__("Emitir Paquete"), () => {
                 frappe.call({

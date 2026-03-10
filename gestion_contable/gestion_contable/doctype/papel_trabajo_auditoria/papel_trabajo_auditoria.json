@@ -11,10 +11,12 @@
         "column_break_1",
         "periodo",
         "company",
+        "version_balanza_cliente",
         "estado_papel",
         "section_papel",
         "tipo_papel",
         "referencia",
+        "codigo_sumaria",
         "titulo",
         "riesgo_control_auditoria",
         "documento_contable",
@@ -28,6 +30,8 @@
         "resultado",
         "conclusion",
         "notas",
+        "section_sumaria",
+        "lineas_cedula_sumaria",
         "section_preparacion",
         "preparado_por",
         "fecha_preparacion",
@@ -97,6 +101,12 @@
             "read_only": 1
         },
         {
+            "fieldname": "version_balanza_cliente",
+            "fieldtype": "Link",
+            "label": "Version Balanza Cliente",
+            "options": "Version Balanza Cliente"
+        },
+        {
             "fieldname": "estado_papel",
             "fieldtype": "Select",
             "label": "Estado Papel",
@@ -120,6 +130,11 @@
             "fieldname": "referencia",
             "fieldtype": "Data",
             "label": "Referencia"
+        },
+        {
+            "fieldname": "codigo_sumaria",
+            "fieldtype": "Data",
+            "label": "Codigo Sumaria"
         },
         {
             "fieldname": "titulo",
@@ -193,6 +208,17 @@
             "fieldname": "notas",
             "fieldtype": "Small Text",
             "label": "Notas"
+        },
+        {
+            "fieldname": "section_sumaria",
+            "fieldtype": "Section Break",
+            "label": "Lineas Cedula Sumaria"
+        },
+        {
+            "fieldname": "lineas_cedula_sumaria",
+            "fieldtype": "Table",
+            "label": "Lineas Cedula Sumaria",
+            "options": "Linea Cedula Sumaria Auditoria"
         },
         {
             "fieldname": "section_preparacion",

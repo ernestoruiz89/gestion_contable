@@ -6,11 +6,17 @@
     "engine": "InnoDB",
     "field_order": [
         "concepto",
+        "codigo_cifra",
         "subconcepto",
         "orden",
+        "es_manual",
+        "origen_dato",
+        "calculo_automatico",
+        "formula_cifras",
         "monto_actual",
         "monto_comparativo",
         "unidad_presentacion",
+        "ultima_regla_mapeo",
         "comentario"
     ],
     "fields": [
@@ -22,6 +28,11 @@
             "in_list_view": 1
         },
         {
+            "fieldname": "codigo_cifra",
+            "fieldtype": "Data",
+            "label": "Codigo Cifra"
+        },
+        {
             "fieldname": "subconcepto",
             "fieldtype": "Data",
             "label": "Subconcepto"
@@ -31,6 +42,30 @@
             "fieldtype": "Int",
             "label": "Orden",
             "default": 0
+        },
+        {
+            "fieldname": "es_manual",
+            "fieldtype": "Check",
+            "label": "Es Manual",
+            "default": 0
+        },
+        {
+            "fieldname": "origen_dato",
+            "fieldtype": "Select",
+            "label": "Origen Dato",
+            "options": "Manual\nBalanza\nFormula",
+            "default": "Manual"
+        },
+        {
+            "fieldname": "calculo_automatico",
+            "fieldtype": "Check",
+            "label": "Calculo Automatico",
+            "default": 0
+        },
+        {
+            "fieldname": "formula_cifras",
+            "fieldtype": "Small Text",
+            "label": "Formula Cifras"
         },
         {
             "fieldname": "monto_actual",
@@ -47,6 +82,11 @@
             "fieldname": "unidad_presentacion",
             "fieldtype": "Data",
             "label": "Unidad Presentacion"
+        },
+        {
+            "fieldname": "ultima_regla_mapeo",
+            "fieldtype": "Data",
+            "label": "Ultima Regla Mapeo"
         },
         {
             "fieldname": "comentario",

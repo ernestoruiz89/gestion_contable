@@ -34,10 +34,16 @@
         "comentarios_supervisor",
         "comentarios_socio",
         "section_integracion",
+        "version_balanza_actual",
+        "version_balanza_comparativa",
+        "esquema_mapeo_contable",
         "informe_final_auditoria",
         "dictamen_de_auditoria",
         "fecha_emision",
         "column_break_3",
+        "fecha_ultima_actualizacion_automatica",
+        "ultima_ejecucion_actualizacion_eeff",
+        "alertas_actualizacion_automatica",
         "total_estados",
         "estados_aprobados",
         "total_notas",
@@ -245,6 +251,24 @@
             "label": "Integracion y Resumen"
         },
         {
+            "fieldname": "version_balanza_actual",
+            "fieldtype": "Link",
+            "label": "Version Balanza Actual",
+            "options": "Version Balanza Cliente"
+        },
+        {
+            "fieldname": "version_balanza_comparativa",
+            "fieldtype": "Link",
+            "label": "Version Balanza Comparativa",
+            "options": "Version Balanza Cliente"
+        },
+        {
+            "fieldname": "esquema_mapeo_contable",
+            "fieldtype": "Link",
+            "label": "Esquema Mapeo Contable",
+            "options": "Esquema Mapeo Contable"
+        },
+        {
             "fieldname": "informe_final_auditoria",
             "fieldtype": "Link",
             "label": "Informe Final Auditoria",
@@ -265,6 +289,25 @@
         {
             "fieldname": "column_break_3",
             "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "fecha_ultima_actualizacion_automatica",
+            "fieldtype": "Datetime",
+            "label": "Ultima Actualizacion Automatica",
+            "read_only": 1
+        },
+        {
+            "fieldname": "ultima_ejecucion_actualizacion_eeff",
+            "fieldtype": "Link",
+            "label": "Ultima Ejecucion Actualizacion EEFF",
+            "options": "Ejecucion Actualizacion EEFF",
+            "read_only": 1
+        },
+        {
+            "fieldname": "alertas_actualizacion_automatica",
+            "fieldtype": "Small Text",
+            "label": "Alertas Actualizacion Automatica",
+            "read_only": 1
         },
         {
             "fieldname": "total_estados",

@@ -1,0 +1,149 @@
+{
+    "actions": [],
+    "creation": "2026-03-10 11:10:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "nombre_esquema",
+        "cliente",
+        "company",
+        "column_break_1",
+        "marco_contable",
+        "tipo_paquete",
+        "version",
+        "section_control",
+        "activo",
+        "es_vigente",
+        "descripcion",
+        "section_reglas",
+        "reglas"
+    ],
+    "fields": [
+        {
+            "fieldname": "nombre_esquema",
+            "fieldtype": "Data",
+            "label": "Nombre Esquema",
+            "read_only": 1,
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "marco_contable",
+            "fieldtype": "Select",
+            "label": "Marco Contable",
+            "options": "NIIF\nNIIF para PYMES\nBase Fiscal\nGerencial\nOtra",
+            "default": "NIIF para PYMES"
+        },
+        {
+            "fieldname": "tipo_paquete",
+            "fieldtype": "Select",
+            "label": "Tipo Paquete",
+            "options": "Preliminar\nPara Auditoria\nAuditado\nReexpresado\nComparativo",
+            "default": "Preliminar"
+        },
+        {
+            "fieldname": "version",
+            "fieldtype": "Int",
+            "label": "Version",
+            "default": 1
+        },
+        {
+            "fieldname": "section_control",
+            "fieldtype": "Section Break",
+            "label": "Control"
+        },
+        {
+            "fieldname": "activo",
+            "fieldtype": "Check",
+            "label": "Activo",
+            "default": 1
+        },
+        {
+            "fieldname": "es_vigente",
+            "fieldtype": "Check",
+            "label": "Es Vigente",
+            "default": 0
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Small Text",
+            "label": "Descripcion"
+        },
+        {
+            "fieldname": "section_reglas",
+            "fieldtype": "Section Break",
+            "label": "Reglas"
+        },
+        {
+            "fieldname": "reglas",
+            "fieldtype": "Table",
+            "label": "Reglas",
+            "options": "Regla Mapeo Contable"
+        }
+    ],
+    "module": "Gestion Contable",
+    "name": "Esquema Mapeo Contable",
+    "naming_rule": "By fieldname",
+    "autoname": "field:nombre_esquema",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

@@ -6,10 +6,15 @@
     "engine": "InnoDB",
     "field_order": [
         "codigo_rubro",
+        "codigo_linea_estado",
         "descripcion",
+        "es_manual",
+        "origen_dato",
         "nivel",
         "orden",
         "naturaleza",
+        "calculo_automatico",
+        "formula_lineas",
         "es_total",
         "es_subtotal",
         "es_resultado_final",
@@ -21,6 +26,7 @@
         "signo_presentacion",
         "numero_nota_referencial",
         "requiere_nota",
+        "ultima_regla_mapeo",
         "comentario_preparacion"
     ],
     "fields": [
@@ -31,11 +37,29 @@
             "in_list_view": 1
         },
         {
+            "fieldname": "codigo_linea_estado",
+            "fieldtype": "Data",
+            "label": "Codigo Linea Estado"
+        },
+        {
             "fieldname": "descripcion",
             "fieldtype": "Data",
             "label": "Descripcion",
             "reqd": 1,
             "in_list_view": 1
+        },
+        {
+            "fieldname": "es_manual",
+            "fieldtype": "Check",
+            "label": "Es Manual",
+            "default": 0
+        },
+        {
+            "fieldname": "origen_dato",
+            "fieldtype": "Select",
+            "label": "Origen Dato",
+            "options": "Manual\nBalanza\nFormula",
+            "default": "Manual"
         },
         {
             "fieldname": "nivel",
@@ -54,6 +78,17 @@
             "fieldtype": "Select",
             "label": "Naturaleza",
             "options": "Activo\nPasivo\nPatrimonio\nIngreso\nGasto\nOtro"
+        },
+        {
+            "fieldname": "calculo_automatico",
+            "fieldtype": "Check",
+            "label": "Calculo Automatico",
+            "default": 0
+        },
+        {
+            "fieldname": "formula_lineas",
+            "fieldtype": "Small Text",
+            "label": "Formula Lineas"
         },
         {
             "fieldname": "es_total",
@@ -119,6 +154,11 @@
             "fieldtype": "Check",
             "label": "Requiere Nota",
             "default": 0
+        },
+        {
+            "fieldname": "ultima_regla_mapeo",
+            "fieldtype": "Data",
+            "label": "Ultima Regla Mapeo"
         },
         {
             "fieldname": "comentario_preparacion",

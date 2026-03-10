@@ -9,10 +9,12 @@
         "codigo_fila",
         "codigo_columna",
         "es_manual",
+        "origen_dato",
         "valor_texto",
         "valor_numero",
         "formato_numero",
         "redondear_entero",
+        "ultima_regla_mapeo",
         "comentario"
     ],
     "fields": [
@@ -44,6 +46,13 @@
             "label": "Es Manual"
         },
         {
+            "fieldname": "origen_dato",
+            "fieldtype": "Select",
+            "label": "Origen Dato",
+            "options": "Manual\nBalanza\nFormula Fila\nFormula Columna",
+            "default": "Manual"
+        },
+        {
             "fieldname": "valor_texto",
             "fieldtype": "Small Text",
             "label": "Valor Texto"
@@ -65,6 +74,11 @@
             "fieldtype": "Check",
             "label": "Redondear a Entero",
             "default": 0
+        },
+        {
+            "fieldname": "ultima_regla_mapeo",
+            "fieldtype": "Data",
+            "label": "Ultima Regla Mapeo"
         },
         {
             "fieldname": "comentario",

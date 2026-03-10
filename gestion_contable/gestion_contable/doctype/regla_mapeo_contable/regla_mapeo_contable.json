@@ -1,0 +1,166 @@
+{
+    "actions": [],
+    "creation": "2026-03-10 11:11:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "activo",
+        "orden_ejecucion",
+        "destino_tipo",
+        "origen_version",
+        "selector_tipo",
+        "selector_valor",
+        "filtro_centro_costo",
+        "operacion_agregacion",
+        "signo_presentacion",
+        "sobrescribir_manual",
+        "obligatoria",
+        "destino_codigo_sumaria",
+        "destino_codigo_linea_sumaria",
+        "destino_descripcion",
+        "destino_tipo_estado",
+        "destino_codigo_linea_estado",
+        "destino_numero_nota",
+        "destino_codigo_cifra",
+        "destino_seccion_id",
+        "destino_codigo_fila",
+        "destino_codigo_columna",
+        "comentario"
+    ],
+    "fields": [
+        {
+            "fieldname": "activo",
+            "fieldtype": "Check",
+            "label": "Activo",
+            "default": 1
+        },
+        {
+            "fieldname": "orden_ejecucion",
+            "fieldtype": "Int",
+            "label": "Orden",
+            "default": 0
+        },
+        {
+            "fieldname": "destino_tipo",
+            "fieldtype": "Select",
+            "label": "Destino Tipo",
+            "options": "Cedula Sumaria\nLinea Estado\nCifra Nota\nCelda Nota",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "origen_version",
+            "fieldtype": "Select",
+            "label": "Origen Version",
+            "options": "Actual\nComparativo",
+            "default": "Actual",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "selector_tipo",
+            "fieldtype": "Select",
+            "label": "Selector Tipo",
+            "options": "Cuenta Exacta\nPrefijo\nRango\nLista\nRegex\nTodas",
+            "default": "Lista"
+        },
+        {
+            "fieldname": "selector_valor",
+            "fieldtype": "Small Text",
+            "label": "Selector Valor"
+        },
+        {
+            "fieldname": "filtro_centro_costo",
+            "fieldtype": "Data",
+            "label": "Filtro Centro Costo"
+        },
+        {
+            "fieldname": "operacion_agregacion",
+            "fieldtype": "Select",
+            "label": "Operacion Agregacion",
+            "options": "Saldo Neto\nDebe Mes Actual\nHaber Mes Actual\nDebe Saldo\nHaber Saldo",
+            "default": "Saldo Neto"
+        },
+        {
+            "fieldname": "signo_presentacion",
+            "fieldtype": "Select",
+            "label": "Signo Presentacion",
+            "options": "Normal\nInverso",
+            "default": "Normal"
+        },
+        {
+            "fieldname": "sobrescribir_manual",
+            "fieldtype": "Check",
+            "label": "Sobrescribir Manual",
+            "default": 0
+        },
+        {
+            "fieldname": "obligatoria",
+            "fieldtype": "Check",
+            "label": "Obligatoria",
+            "default": 0
+        },
+        {
+            "fieldname": "destino_codigo_sumaria",
+            "fieldtype": "Data",
+            "label": "Codigo Sumaria"
+        },
+        {
+            "fieldname": "destino_codigo_linea_sumaria",
+            "fieldtype": "Data",
+            "label": "Codigo Linea Sumaria"
+        },
+        {
+            "fieldname": "destino_descripcion",
+            "fieldtype": "Data",
+            "label": "Descripcion Destino"
+        },
+        {
+            "fieldname": "destino_tipo_estado",
+            "fieldtype": "Select",
+            "label": "Tipo Estado",
+            "options": "Estado de Situacion Financiera\nEstado de Resultados\nEstado de Cambios en el Patrimonio\nEstado de Flujos de Efectivo\nOtro Estado Complementario"
+        },
+        {
+            "fieldname": "destino_codigo_linea_estado",
+            "fieldtype": "Data",
+            "label": "Codigo Linea Estado"
+        },
+        {
+            "fieldname": "destino_numero_nota",
+            "fieldtype": "Data",
+            "label": "Numero Nota"
+        },
+        {
+            "fieldname": "destino_codigo_cifra",
+            "fieldtype": "Data",
+            "label": "Codigo Cifra"
+        },
+        {
+            "fieldname": "destino_seccion_id",
+            "fieldtype": "Data",
+            "label": "Seccion ID"
+        },
+        {
+            "fieldname": "destino_codigo_fila",
+            "fieldtype": "Data",
+            "label": "Codigo Fila"
+        },
+        {
+            "fieldname": "destino_codigo_columna",
+            "fieldtype": "Data",
+            "label": "Codigo Columna"
+        },
+        {
+            "fieldname": "comentario",
+            "fieldtype": "Small Text",
+            "label": "Comentario"
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Regla Mapeo Contable",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

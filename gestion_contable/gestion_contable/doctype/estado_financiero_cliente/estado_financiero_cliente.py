@@ -105,9 +105,19 @@ class EstadoFinancieroCliente(Document):
     def normalizar_lineas(self):
         if not self.lineas:
             frappe.throw(_("Debes registrar al menos una linea en el estado financiero del cliente."), title=_("Lineas Requeridas"))
+        seen_codes = set()
         for idx, row in enumerate(self.lineas, start=1):
             row.orden = cint(row.orden or idx)
             row.nivel = cint(row.nivel or 1)
+            row.codigo_linea_estado = cstr(row.codigo_linea_estado or row.codigo_rubro or frappe.scrub(row.descripcion or f"linea_{idx}")).strip().upper()
+            if row.codigo_linea_estado in seen_codes:
+                frappe.throw(_("La linea con codigo <b>{0}</b> esta duplicada en el estado financiero.").format(row.codigo_linea_estado), title=_("Codigo Duplicado"))
+            seen_codes.add(row.codigo_linea_estado)
+            row.origen_dato = cstr(row.origen_dato or ("Manual" if cint(row.es_manual or 0) else "")).strip() or None
+            row.calculo_automatico = cint(row.calculo_automatico or 0)
+            row.formula_lineas = cstr(row.formula_lineas or "").strip().upper()
+            if row.formula_lineas and not row.calculo_automatico:
+                row.calculo_automatico = 1
             row.numero_nota_referencial = normalize_note_number(row.numero_nota_referencial)
             if cint(row.requiere_nota) and not row.numero_nota_referencial:
                 line_label = cstr(row.descripcion or row.codigo_rubro or _("Fila {0}").format(idx)).strip()

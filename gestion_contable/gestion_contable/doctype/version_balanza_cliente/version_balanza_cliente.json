@@ -1,0 +1,310 @@
+{
+    "actions": [],
+    "creation": "2026-03-10 11:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "nombre_version",
+        "cliente",
+        "company",
+        "column_break_1",
+        "periodo_contable",
+        "fecha_corte",
+        "encargo_contable",
+        "paquete_estados_financieros_cliente",
+        "section_version",
+        "tipo_version",
+        "rol_periodo",
+        "version",
+        "column_break_2",
+        "estado_version",
+        "es_version_vigente",
+        "documento_contable_fuente",
+        "archivo_fuente",
+        "archivo_fuente_file",
+        "hash_fuente_sha256",
+        "section_control",
+        "total_lineas",
+        "total_debe_mes_actual",
+        "total_haber_mes_actual",
+        "column_break_3",
+        "total_debe_saldo",
+        "total_haber_saldo",
+        "saldo_neto",
+        "cuadra",
+        "ultima_importacion",
+        "ultima_publicacion",
+        "publicado_por",
+        "observaciones"
+    ],
+    "fields": [
+        {
+            "fieldname": "nombre_version",
+            "fieldtype": "Data",
+            "label": "Nombre Version",
+            "read_only": 1,
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Compania",
+            "options": "Company"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "periodo_contable",
+            "fieldtype": "Link",
+            "label": "Periodo Contable",
+            "options": "Periodo Contable",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "fecha_corte",
+            "fieldtype": "Date",
+            "label": "Fecha Corte"
+        },
+        {
+            "fieldname": "encargo_contable",
+            "fieldtype": "Link",
+            "label": "Encargo Contable",
+            "options": "Encargo Contable"
+        },
+        {
+            "fieldname": "paquete_estados_financieros_cliente",
+            "fieldtype": "Link",
+            "label": "Paquete Estados Financieros Cliente",
+            "options": "Paquete Estados Financieros Cliente"
+        },
+        {
+            "fieldname": "section_version",
+            "fieldtype": "Section Break",
+            "label": "Version y Fuente"
+        },
+        {
+            "fieldname": "tipo_version",
+            "fieldtype": "Select",
+            "label": "Tipo Version",
+            "options": "Original\nAjustada\nReclasificada\nFinal Publicada",
+            "default": "Original",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "rol_periodo",
+            "fieldtype": "Select",
+            "label": "Rol Periodo",
+            "options": "Actual\nComparativo\nOtro",
+            "default": "Actual",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "version",
+            "fieldtype": "Int",
+            "label": "Version",
+            "default": 1
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "estado_version",
+            "fieldtype": "Select",
+            "label": "Estado Version",
+            "options": "Borrador\nImportada\nValidada\nPublicada\nReemplazada",
+            "default": "Borrador",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "es_version_vigente",
+            "fieldtype": "Check",
+            "label": "Es Version Vigente",
+            "default": 0
+        },
+        {
+            "fieldname": "documento_contable_fuente",
+            "fieldtype": "Link",
+            "label": "Documento Contable Fuente",
+            "options": "Documento Contable"
+        },
+        {
+            "fieldname": "archivo_fuente",
+            "fieldtype": "Attach",
+            "label": "Archivo Fuente"
+        },
+        {
+            "fieldname": "archivo_fuente_file",
+            "fieldtype": "Link",
+            "label": "Registro File",
+            "options": "File",
+            "read_only": 1
+        },
+        {
+            "fieldname": "hash_fuente_sha256",
+            "fieldtype": "Data",
+            "label": "Hash Fuente SHA256",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_control",
+            "fieldtype": "Section Break",
+            "label": "Control"
+        },
+        {
+            "fieldname": "total_lineas",
+            "fieldtype": "Int",
+            "label": "Total Lineas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "total_debe_mes_actual",
+            "fieldtype": "Currency",
+            "label": "Total Debe Mes Actual",
+            "read_only": 1
+        },
+        {
+            "fieldname": "total_haber_mes_actual",
+            "fieldtype": "Currency",
+            "label": "Total Haber Mes Actual",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "total_debe_saldo",
+            "fieldtype": "Currency",
+            "label": "Total Debe Saldo",
+            "read_only": 1
+        },
+        {
+            "fieldname": "total_haber_saldo",
+            "fieldtype": "Currency",
+            "label": "Total Haber Saldo",
+            "read_only": 1
+        },
+        {
+            "fieldname": "saldo_neto",
+            "fieldtype": "Currency",
+            "label": "Saldo Neto",
+            "read_only": 1
+        },
+        {
+            "fieldname": "cuadra",
+            "fieldtype": "Check",
+            "label": "Cuadra",
+            "read_only": 1
+        },
+        {
+            "fieldname": "ultima_importacion",
+            "fieldtype": "Datetime",
+            "label": "Ultima Importacion",
+            "read_only": 1
+        },
+        {
+            "fieldname": "ultima_publicacion",
+            "fieldtype": "Datetime",
+            "label": "Ultima Publicacion",
+            "read_only": 1
+        },
+        {
+            "fieldname": "publicado_por",
+            "fieldtype": "Link",
+            "label": "Publicado por",
+            "options": "User",
+            "read_only": 1
+        },
+        {
+            "fieldname": "observaciones",
+            "fieldtype": "Small Text",
+            "label": "Observaciones"
+        }
+    ],
+    "links": [
+        {
+            "group": "Balanza",
+            "link_doctype": "Linea Balanza Cliente",
+            "link_fieldname": "version_balanza_cliente"
+        }
+    ],
+    "module": "Gestion Contable",
+    "name": "Version Balanza Cliente",
+    "naming_rule": "By fieldname",
+    "autoname": "field:nombre_version",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Auxiliar Contable del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 0,
+            "email": 0,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}
