@@ -140,6 +140,12 @@
             "options": "Documento Contable"
         },
         {
+            "fieldname": "descargar_plantilla",
+            "fieldtype": "Button",
+            "label": "Descargar Plantilla",
+            "options": "descargar_plantilla_csv"
+        },
+        {
             "fieldname": "archivo_fuente",
             "fieldtype": "Attach",
             "label": "Archivo Fuente"

@@ -34,4 +34,21 @@ frappe.ui.form.on("Version Balanza Cliente", {
             });
         }
     },
+
+    descargar_plantilla(frm) {
+        const columns = ["Cuenta", "Descripcion", "Debe Mes Actual", "Haber Mes Actual", "Debe Saldo", "Haber Saldo"];
+        const exampleRow = ["1.1.01.01.001", "Caja General", "1500.00", "0.00", "1500.00", "0.00"];
+        const csvContent = columns.join(",") + "\n" + exampleRow.join(",") + "\n";
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "plantilla_balanza.csv");
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    },
 });
+
+
