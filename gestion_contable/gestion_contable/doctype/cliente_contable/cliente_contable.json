@@ -335,6 +335,7 @@
     "naming_rule": "Expression",
     "autoname": "CC-.####",
     "title_field": "customer",
+    "show_title_field_in_link": 1,
     "owner": "Administrator",
     "permissions": [
         {

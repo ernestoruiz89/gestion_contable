@@ -101,8 +101,7 @@
             "fieldtype": "Data",
             "in_list_view": 1,
             "label": "Nombre del Encargo",
-            "read_only": 1,
-            "reqd": 1
+            "read_only": 1
         },
         {
             "fieldname": "cliente",
