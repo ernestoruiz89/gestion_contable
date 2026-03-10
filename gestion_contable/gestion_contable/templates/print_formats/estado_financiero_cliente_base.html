@@ -7,14 +7,6 @@
     line-height: 1.25;
   }
 
-  <style>.efc-wrap,
-  .efc-wrap * {
-    font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important;
-    color: #000000 !important;
-    font-size: 12pt;
-    line-height: 1.25;
-  }
-
   .efc-head {
     border-bottom: 2px solid #000000;
     padding-bottom: 10px;
@@ -120,6 +112,7 @@
     margin-top: 4px;
   }
 </style>
+
 {% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
 {% set labels = paquete.get_column_labels(doc.fecha_corte or paquete.fecha_corte, doc.fecha_comparativa or
 paquete.fecha_corte_comparativa) %}
@@ -136,14 +129,13 @@ fields=["name", "numero_nota", "titulo", "orden_presentacion", "estado_aprobacio
 order_by="orden_presentacion asc, creation asc",
 limit_page_length=200
 ) %}
+
 <div class="efc-wrap">
   <div class="efc-head">
     <h1>{{ paquete.razon_social_reportante or paquete.cliente }}</h1>
     <p>{{ doc.titulo_formal or doc.tipo_estado }}</p>
     {% if doc.subtitulo %}<p>{{ doc.subtitulo }}</p>{% endif %}
   </div>
-
-
 
   <table class="efc-table">
     <thead>
