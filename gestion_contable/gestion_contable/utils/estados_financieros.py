@@ -468,13 +468,19 @@ def _validate_cash_flow_math(state_doc):
 
 
 def validate_state_math(state_doc):
-    total_rows = [row for row in state_doc.lineas or [] if cint(row.es_total) or cint(row.es_subtotal)]
+    total_rows = [row for row in state_doc.lineas or [] if (cint(row.es_total) or cint(row.es_subtotal)) and not cint(getattr(row, "es_titulo", 0))]
+    
+    # Permitir montos cero en estado borrador para facilitar el diseño de la estructura
+    es_borrador = getattr(state_doc, "estado_aprobacion", "Borrador") == "Borrador"
+    
     for row in total_rows:
         if abs(flt(row.monto_actual)) <= MATH_TOLERANCE and abs(flt(row.monto_comparativo)) <= MATH_TOLERANCE:
-            frappe.throw(
-                _("La fila <b>{0}</b> marcada como subtotal/total debe tener al menos un monto informado.").format(cstr(row.descripcion or row.codigo_rubro or row.idx)),
-                title=_("Fila de Total Incompleta"),
-            )
+            if not es_borrador:
+                frappe.throw(
+                    _("La fila <b>{0}</b> marcada como subtotal/total debe tener al menos un monto informado.").format(cstr(row.descripcion or row.codigo_rubro or row.idx)),
+                    title=_("Fila de Total Incompleta"),
+                )
+
 
     if state_doc.tipo_estado == "Estado de Situacion Financiera":
         _validate_balance_sheet_math(state_doc)

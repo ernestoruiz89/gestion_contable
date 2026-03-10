@@ -14,7 +14,10 @@
         "orden",
         "naturaleza",
         "calculo_automatico",
-        "formula_lineas",
+        "es_titulo",
+        "negrita",
+        "subrayado",
+        "doble_subrayado",
         "es_total",
         "es_subtotal",
         "es_resultado_final",
@@ -89,6 +92,30 @@
             "fieldname": "formula_lineas",
             "fieldtype": "Small Text",
             "label": "Formula Lineas"
+        },
+        {
+            "fieldname": "es_titulo",
+            "fieldtype": "Check",
+            "label": "Es Titulo",
+            "default": 0
+        },
+        {
+            "fieldname": "negrita",
+            "fieldtype": "Check",
+            "label": "Negrita",
+            "default": 0
+        },
+        {
+            "fieldname": "subrayado",
+            "fieldtype": "Check",
+            "label": "Subrayado",
+            "default": 0
+        },
+        {
+            "fieldname": "doble_subrayado",
+            "fieldtype": "Check",
+            "label": "Doble Subrayado",
+            "default": 0
         },
         {
             "fieldname": "es_total",
