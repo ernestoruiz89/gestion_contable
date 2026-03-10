@@ -220,6 +220,7 @@ limit_page_length=200
     </thead>
     <tbody>
       {% for linea in doc.lineas %}
+      {% if not linea.no_imprimir %}
       {% set row_class = "" %}
       {% if linea.es_total %}
       {% set row_class = "efc-line-total" %}
@@ -236,6 +237,7 @@ limit_page_length=200
         <td class="num">{% if not linea.es_titulo %}{{ frappe.format_value(linea.monto_comparativo or 0, {"fieldtype":
           "Currency"}) }}{% endif %}</td>
       </tr>
+      {% endif %}
       {% endfor %}
     </tbody>
   </table>
