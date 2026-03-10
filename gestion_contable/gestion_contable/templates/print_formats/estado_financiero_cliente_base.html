@@ -28,6 +28,7 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 8px;
+    table-layout: fixed;
   }
 
   .efc-table th,
@@ -35,12 +36,28 @@
     border: none;
     padding: 2px !important;
     vertical-align: middle;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .efc-table th {
     background: transparent;
     text-align: left;
     font-weight: 700;
+  }
+
+  .efc-col-desc {
+    width: 55%;
+  }
+
+  .efc-col-nota {
+    width: 10%;
+    text-align: right;
+  }
+
+  .efc-col-monto {
+    width: 17.5%;
+    text-align: right;
   }
 
   .efc-table td.num {
@@ -138,12 +155,18 @@ limit_page_length=200
   </div>
 
   <table class="efc-table">
+    <colgroup>
+      <col class="efc-col-desc">
+      <col class="efc-col-nota">
+      <col class="efc-col-monto">
+      <col class="efc-col-monto">
+    </colgroup>
     <thead>
       <tr>
         <th>Descripcion</th>
-        <th>Nota</th>
-        <th>{{ labels.actual }}</th>
-        <th>{{ labels.comparativo }}</th>
+        <th class="num">Nota</th>
+        <th class="num">{{ labels.actual }}</th>
+        <th class="num">{{ labels.comparativo }}</th>
       </tr>
     </thead>
     <tbody>
