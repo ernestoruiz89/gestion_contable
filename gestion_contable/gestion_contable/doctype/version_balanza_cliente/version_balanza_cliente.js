@@ -23,6 +23,21 @@ frappe.ui.form.on("Version Balanza Cliente", {
                 callback: () => frm.reload_doc(),
             });
         }, __("Balanza"));
+
+        // Filtros por Cliente
+        frm.set_query("periodo_contable", () => ({ filters: { cliente: frm.doc.cliente } }));
+        frm.set_query("encargo_contable", () => ({ filters: { cliente: frm.doc.cliente } }));
+        frm.set_query("paquete_estados_financieros_cliente", () => ({ filters: { cliente: frm.doc.cliente } }));
+        frm.set_query("documento_contable_fuente", () => ({ filters: { cliente: frm.doc.cliente } }));
+    },
+
+    cliente(frm) {
+        // Limpiar campos dependientes al cambiar el cliente para evitar inconsistencias
+        frm.set_value("periodo_contable", "");
+        frm.set_value("encargo_contable", "");
+        frm.set_value("paquete_estados_financieros_cliente", "");
+        frm.set_value("documento_contable_fuente", "");
+        frm.set_value("fecha_corte", "");
     },
 
     periodo_contable(frm) {
