@@ -40,10 +40,13 @@
         "comentarios_socio",
         "section_firmas",
         "elaborado_por",
+        "cargo_elaborado_por",
         "column_break_firmas_1",
         "revisado_por",
+        "cargo_revisado_por",
         "column_break_firmas_2",
         "autorizado_por",
+        "cargo_autorizado_por",
         "section_integracion",
         "version_balanza_actual",
         "version_balanza_comparativa",
@@ -292,6 +295,12 @@
             "label": "Elaborado Por"
         },
         {
+            "fieldname": "cargo_elaborado_por",
+            "fieldtype": "Data",
+            "label": "Cargo",
+            "default": "Contador del Despacho"
+        },
+        {
             "fieldname": "column_break_firmas_1",
             "fieldtype": "Column Break"
         },
@@ -301,6 +310,12 @@
             "label": "Revisado Por"
         },
         {
+            "fieldname": "cargo_revisado_por",
+            "fieldtype": "Data",
+            "label": "Cargo",
+            "default": "Auditor Senior"
+        },
+        {
             "fieldname": "column_break_firmas_2",
             "fieldtype": "Column Break"
         },
@@ -308,6 +323,12 @@
             "fieldname": "autorizado_por",
             "fieldtype": "Data",
             "label": "Autorizado Por"
+        },
+        {
+            "fieldname": "cargo_autorizado_por",
+            "fieldtype": "Data",
+            "label": "Cargo",
+            "default": "Socio Director"
         },
         {
             "fieldname": "section_integracion",
