@@ -152,6 +152,15 @@ limit_page_length=200
   <div class="efc-head">
     <h1>{{ paquete.razon_social_reportante or paquete.cliente }}</h1>
     <p>{{ doc.titulo_formal or doc.tipo_estado }}</p>
+    {% set target_date = doc.fecha_corte or paquete.fecha_corte %}
+    {% if target_date %}
+    {% if doc.tipo_estado == "Estado de Situacion Financiera" %}
+    <p>Al {{ frappe.utils.formatdate(target_date, "dd 'de' MMMM 'del' YYYY") }}</p>
+    {% else %}
+    {% set anio = frappe.utils.getdate(target_date).year %}
+    <p>Del 01 de Enero al {{ frappe.utils.formatdate(target_date, "dd 'de' MMMM 'del' YYYY") }}</p>
+    {% endif %}
+    {% endif %}
     {% if doc.subtitulo %}<p>{{ doc.subtitulo }}</p>{% endif %}
   </div>
 
