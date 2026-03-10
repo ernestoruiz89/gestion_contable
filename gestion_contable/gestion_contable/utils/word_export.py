@@ -400,7 +400,10 @@ def _add_estados_section(document, package):
             table.rows[0].cells[header_index].text = title
         total_rows = []
         subtotal_rows = []
-        for line_index, linea in enumerate(estado_doc.lineas, start=1):
+        for linea in estado_doc.lineas:
+            if getattr(linea, "no_imprimir", 0):
+                continue
+            line_index = len(table.rows)
             row = table.add_row().cells
             row[0].text = ("    " * max((linea.nivel or 1) - 1, 0)) + (linea.descripcion or "-")
             row[1].text = cstr(linea.numero_nota_referencial or "-")
