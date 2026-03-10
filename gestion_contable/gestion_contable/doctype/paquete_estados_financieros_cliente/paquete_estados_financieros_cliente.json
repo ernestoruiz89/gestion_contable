@@ -38,6 +38,12 @@
         "workflow_comments_section",
         "comentarios_supervisor",
         "comentarios_socio",
+        "section_firmas",
+        "elaborado_por",
+        "column_break_firmas_1",
+        "revisado_por",
+        "column_break_firmas_2",
+        "autorizado_por",
         "section_integracion",
         "version_balanza_actual",
         "version_balanza_comparativa",
@@ -274,6 +280,34 @@
             "fieldtype": "Small Text",
             "label": "Comentarios Socio",
             "permlevel": 2
+        },
+        {
+            "fieldname": "section_firmas",
+            "fieldtype": "Section Break",
+            "label": "Datos para Firmas"
+        },
+        {
+            "fieldname": "elaborado_por",
+            "fieldtype": "Data",
+            "label": "Elaborado Por"
+        },
+        {
+            "fieldname": "column_break_firmas_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "revisado_por",
+            "fieldtype": "Data",
+            "label": "Revisado Por"
+        },
+        {
+            "fieldname": "column_break_firmas_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "autorizado_por",
+            "fieldtype": "Data",
+            "label": "Autorizado Por"
         },
         {
             "fieldname": "section_integracion",

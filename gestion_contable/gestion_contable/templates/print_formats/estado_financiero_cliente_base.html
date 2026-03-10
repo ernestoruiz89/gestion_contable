@@ -340,4 +340,27 @@ limit_page_length=200
     {% endfor %}
   </div>
   {% endif %}
+
+  {% if paquete.elaborado_por or paquete.revisado_por or paquete.autorizado_por %}
+  <div class="efc-signatures">
+    {% if paquete.elaborado_por %}
+    <div class="efc-sig-box">
+      <div class="efc-sig-line">Elaborado Por:</div>
+      <div>{{ paquete.elaborado_por }}</div>
+    </div>
+    {% endif %}
+    {% if paquete.revisado_por %}
+    <div class="efc-sig-box">
+      <div class="efc-sig-line">Revisado Por:</div>
+      <div>{{ paquete.revisado_por }}</div>
+    </div>
+    {% endif %}
+    {% if paquete.autorizado_por %}
+    <div class="efc-sig-box">
+      <div class="efc-sig-line">Autorizado Por:</div>
+      <div>{{ paquete.autorizado_por }}</div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
