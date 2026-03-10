@@ -188,7 +188,7 @@ function addDuplicateButton(frm) {
                     fieldtype: "Select",
                     fieldname: "marco_contable",
                     label: __("Marco Contable"),
-                    options: ["NIIF", "NIIF para PYMES", "Base Fiscal", "Gerencial", "Otra"].join("\n"),
+                    options: ["NIIF", "NIIF para PYMES", "Base Fiscal", "Gerencial", "PCGA", "Otra"].join("\n"),
                     default: frm.doc.marco_contable,
                 },
                 {

@@ -167,7 +167,7 @@
             "fieldname": "marco_contable",
             "fieldtype": "Select",
             "label": "Marco Contable",
-            "options": "NIIF\nNIIF para PYMES\nBase Fiscal\nGerencial\nOtra",
+            "options": "NIIF\nNIIF para PYMES\nBase Fiscal\nGerencial\nPCGA\nOtra",
             "default": "NIIF para PYMES",
             "in_list_view": 1
         },
