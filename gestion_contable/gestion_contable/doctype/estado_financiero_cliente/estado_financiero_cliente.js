@@ -45,7 +45,19 @@ function refreshStateAmountLabels(frm) {
 
 frappe.ui.form.on("Estado Financiero Cliente", {
     paquete_estados_financieros_cliente(frm) {
-        refreshStateAmountLabels(frm);
+        if (frm.doc.paquete_estados_financieros_cliente) {
+            frappe.db.get_value("Paquete Estados Financieros Cliente", frm.doc.paquete_estados_financieros_cliente, ["fecha_corte", "fecha_corte_comparativa"], (r) => {
+                if (r && r.fecha_corte) {
+                    frm.set_value("fecha_corte", r.fecha_corte);
+                }
+                if (r && r.fecha_corte_comparativa) {
+                    frm.set_value("fecha_comparativa", r.fecha_corte_comparativa);
+                }
+                refreshStateAmountLabels(frm);
+            });
+        } else {
+            refreshStateAmountLabels(frm);
+        }
     },
 
     refresh(frm) {
