@@ -57,13 +57,18 @@ def _select_rule_lines(lines, rule):
     if selector_type == "Rango":
         for token in tokens:
             if "-" not in token:
-                continue
+                frappe.throw(_("La regla {0} contiene un rango invalido: {1}.").format(rule.idx, token), title=_("Regla Invalida"))
             start, end = token.split("-", 1)
+            if not _normalize_code(start) or not _normalize_code(end):
+                frappe.throw(_("La regla {0} contiene un rango incompleto: {1}.").format(rule.idx, token), title=_("Regla Invalida"))
             ranges.append((_normalize_code(start), _normalize_code(end)))
 
     regex = None
     if selector_type == "Regex" and cstr(rule.selector_valor or "").strip():
-        regex = re.compile(cstr(rule.selector_valor).strip(), re.IGNORECASE)
+        try:
+            regex = re.compile(cstr(rule.selector_valor).strip(), re.IGNORECASE)
+        except re.error as exc:
+            frappe.throw(_("La regla {0} contiene un patron regex invalido: {1}.").format(rule.idx, cstr(exc)), title=_("Regla Invalida"))
 
     centro_tokens = _split_tokens(getattr(rule, "filtro_centro_costo", ""))
     selected = []
@@ -239,10 +244,13 @@ def _compute_note_figure_formulas(note_doc):
 
 
 def _load_state_docs(package_name):
-    docs = {}
+    docs = {"by_code": {}, "by_type": {}}
     for name in frappe.get_all("Estado Financiero Cliente", filters={"paquete_estados_financieros_cliente": package_name}, pluck="name", limit_page_length=200):
         doc = frappe.get_doc("Estado Financiero Cliente", name)
-        docs[doc.tipo_estado] = doc
+        state_code = _normalize_code(getattr(doc, "codigo_estado", ""))
+        if state_code:
+            docs["by_code"][state_code] = doc
+        docs["by_type"].setdefault(doc.tipo_estado, []).append(doc)
     return docs
 
 
@@ -269,8 +277,27 @@ def _load_sumaria_docs(expediente_name):
     return docs
 
 
+def _get_rule_source_version(package_doc, rule):
+    return package_doc.version_balanza_comparativa if cstr(rule.origen_version or "Actual").strip() == "Comparativo" else package_doc.version_balanza_actual
+
+
 def _apply_state_rule(state_docs, rule, amount, summary):
-    state_doc = state_docs.get(rule.destino_tipo_estado)
+    state_doc = None
+    state_code = _normalize_code(getattr(rule, "destino_codigo_estado", ""))
+    if state_code:
+        state_doc = state_docs["by_code"].get(state_code)
+        if not state_doc:
+            summary["alertas"].append(_("No existe el estado con codigo {0} para aplicar la regla {1}.").format(state_code, rule.idx))
+            return None
+    else:
+        matching_states = state_docs["by_type"].get(rule.destino_tipo_estado, [])
+        if len(matching_states) > 1:
+            summary["alertas"].append(
+                _("El destino {0} es ambiguo para la regla {1}; debes indicar un codigo de estado destino.").format(rule.destino_tipo_estado, rule.idx)
+            )
+            return None
+        state_doc = matching_states[0] if matching_states else None
+
     if not state_doc:
         summary["alertas"].append(_("No existe el estado {0} para aplicar la regla {1}.").format(rule.destino_tipo_estado, rule.idx))
         return None
@@ -366,6 +393,7 @@ def _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary):
 
     paper = sumaria_docs.get(sumaria_code)
     if not paper:
+        source_version_name = _get_rule_source_version(package_doc, rule)
         paper = frappe.get_doc(
             {
                 "doctype": "Papel Trabajo Auditoria",
@@ -374,7 +402,7 @@ def _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary):
                 "referencia": sumaria_code,
                 "codigo_sumaria": sumaria_code,
                 "titulo": _("Cedula Sumaria {0}").format(sumaria_code),
-                "version_balanza_cliente": package_doc.version_balanza_actual or package_doc.version_balanza_comparativa,
+                "version_balanza_cliente": source_version_name,
             }
         )
         paper.insert(ignore_permissions=True)
@@ -400,7 +428,27 @@ def _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary):
     setattr(row, fieldname, amount)
     row.origen_dato = "Balanza"
     row.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}"
-    paper.version_balanza_cliente = package_doc.version_balanza_actual or package_doc.version_balanza_comparativa
+
+    source_version_name = cstr(_get_rule_source_version(package_doc, rule) or "").strip()
+    source_versions = getattr(paper, "_source_version_names", None)
+    if source_versions is None:
+        source_versions = set()
+        if cstr(paper.version_balanza_cliente or "").strip():
+            source_versions.add(cstr(paper.version_balanza_cliente).strip())
+    if source_version_name:
+        source_versions.add(source_version_name)
+    paper._source_version_names = source_versions
+
+    if len(source_versions) == 1:
+        paper.version_balanza_cliente = next(iter(source_versions))
+    elif len(source_versions) > 1:
+        paper.version_balanza_cliente = None
+        sumarias_mixtas = summary.setdefault("sumarias_fuente_mixta", [])
+        if sumaria_code not in sumarias_mixtas:
+            sumarias_mixtas.append(sumaria_code)
+            summary["alertas"].append(
+                _("La cedula sumaria {0} usa balanza actual y comparativa; se limpio la version asociada para evitar trazabilidad incorrecta.").format(sumaria_code)
+            )
     return paper
 
 
@@ -417,9 +465,11 @@ def actualizar_paquete_desde_balanza(package_name):
         version_name = package_doc.get(fieldname)
         if not version_name:
             continue
-        estado_version = frappe.db.get_value("Version Balanza Cliente", version_name, "estado_version")
-        if estado_version != "Publicada":
+        version_status = frappe.db.get_value("Version Balanza Cliente", version_name, ["estado_version", "es_version_vigente"], as_dict=True)
+        if not version_status or version_status.estado_version != "Publicada":
             frappe.throw(_("La version de balanza vinculada en {0} debe estar publicada antes de actualizar el paquete.").format(fieldname), title=_("Balanza No Publicada"))
+        if not cint(version_status.es_version_vigente):
+            frappe.throw(_("La version de balanza vinculada en {0} fue reemplazada y ya no es la version vigente.").format(fieldname), title=_("Balanza Reemplazada"))
 
     actual_lines = _load_balance_lines(package_doc.version_balanza_actual)
     comparative_lines = _load_balance_lines(package_doc.version_balanza_comparativa)
@@ -434,6 +484,7 @@ def actualizar_paquete_desde_balanza(package_name):
         "notas_actualizadas": 0,
         "reglas_ejecutadas": 0,
         "destinos_bloqueados_manual": 0,
+        "sumarias_fuente_mixta": [],
         "alertas": [],
     }
     touched_states = set()

@@ -85,6 +85,8 @@
   }
 </style>
 {% set structured_sections = doc.get_structured_sections() %}
+{% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
+{% set labels = paquete.get_column_labels() %}
 <div class="nefi-wrap">
   <div class="nefi-head">
     <h1>Nota {{ doc.numero_nota }}. {{ doc.titulo or "Sin titulo" }}</h1>
@@ -102,8 +104,8 @@
       <thead>
         <tr>
           <th>Concepto</th>
-          <th>Monto Actual</th>
-          <th>Monto Comparativo</th>
+          <th>{{ labels.actual }}</th>
+          <th>{{ labels.comparativo }}</th>
         </tr>
       </thead>
       <tbody>

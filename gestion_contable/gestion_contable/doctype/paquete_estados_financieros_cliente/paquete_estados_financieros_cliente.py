@@ -7,6 +7,7 @@ from gestion_contable.gestion_contable.doctype.informe_final_auditoria.informe_f
 from gestion_contable.gestion_contable.services.balanza.mapping import actualizar_paquete_desde_balanza
 from gestion_contable.gestion_contable.utils.estados_financieros import (
     calculate_package_summary,
+    get_package_column_labels,
     get_customer_identity,
     sync_package_summary,
     validate_package_math,
@@ -34,6 +35,7 @@ CONTENT_FIELDS = (
     "expediente_auditoria",
     "periodo_contable",
     "fecha_corte",
+    "fecha_corte_comparativa",
     "fecha_emision",
     "razon_social_reportante",
     "identificacion_fiscal_reportante",
@@ -48,6 +50,8 @@ CONTENT_FIELDS = (
     "dictamen_de_auditoria",
     "version_balanza_actual",
     "version_balanza_comparativa",
+    "etiqueta_columna_actual",
+    "etiqueta_columna_comparativa",
     "esquema_mapeo_contable",
 )
 ESTADOS_PREPARACION = (
@@ -100,6 +104,7 @@ class PaqueteEstadosFinancierosCliente(Document):
     def validate(self):
         ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden gestionar paquetes de estados financieros del cliente."))
         self.sincronizar_contexto()
+        self.normalizar_etiquetas_columnas()
         self.validar_estado_preparacion()
         self.validar_consistencias()
         self.aplicar_resumen(calculate_package_summary(self.name if self.name and not self.name.startswith("new-") else None))
@@ -186,6 +191,15 @@ class PaqueteEstadosFinancierosCliente(Document):
         self.moneda_presentacion = self.moneda_presentacion or identity["moneda"]
         self.marco_contable = self.marco_contable or "NIIF para PYMES"
         self.tipo_paquete = self.tipo_paquete or "Preliminar"
+        if not self.fecha_corte_comparativa and self.version_balanza_comparativa and frappe.db.exists("Version Balanza Cliente", self.version_balanza_comparativa):
+            self.fecha_corte_comparativa = frappe.db.get_value("Version Balanza Cliente", self.version_balanza_comparativa, "fecha_corte")
+
+    def normalizar_etiquetas_columnas(self):
+        self.etiqueta_columna_actual = cstr(self.etiqueta_columna_actual or "").strip() or None
+        self.etiqueta_columna_comparativa = cstr(self.etiqueta_columna_comparativa or "").strip() or None
+
+    def get_column_labels(self, fecha_actual=None, fecha_comparativa=None):
+        return get_package_column_labels(self, fecha_actual=fecha_actual, fecha_comparativa=fecha_comparativa)
 
     def validar_estado_preparacion(self):
         if self.estado_preparacion not in ESTADOS_PREPARACION:
@@ -222,7 +236,7 @@ class PaqueteEstadosFinancierosCliente(Document):
             version_doc = frappe.db.get_value(
                 "Version Balanza Cliente",
                 version_name,
-                ["cliente", "company", "periodo_contable", "rol_periodo", "estado_version"],
+                ["cliente", "company", "periodo_contable", "rol_periodo", "estado_version", "es_version_vigente"],
                 as_dict=True,
             )
             if version_doc.cliente and self.cliente and version_doc.cliente != self.cliente:
@@ -231,6 +245,10 @@ class PaqueteEstadosFinancierosCliente(Document):
                 frappe.throw(_("La balanza vinculada en {0} pertenece a otro periodo contable.").format(fieldname), title=_("Periodo Inconsistente"))
             if version_doc.rol_periodo and version_doc.rol_periodo != rol:
                 frappe.throw(_("La balanza vinculada en {0} debe tener rol de periodo <b>{1}</b>.").format(fieldname, rol), title=_("Rol Periodo Invalido"))
+            if version_doc.estado_version != "Publicada":
+                frappe.throw(_("La balanza vinculada en {0} debe estar en estado <b>Publicada</b>.").format(fieldname), title=_("Balanza No Publicada"))
+            if not cint(version_doc.es_version_vigente):
+                frappe.throw(_("La balanza vinculada en {0} fue reemplazada y ya no es la version vigente.").format(fieldname), title=_("Balanza Reemplazada"))
         if self.esquema_mapeo_contable:
             if not frappe.db.exists("Esquema Mapeo Contable", self.esquema_mapeo_contable):
                 frappe.throw(_("El esquema de mapeo contable indicado no existe."), title=_("Esquema Invalido"))
@@ -542,6 +560,7 @@ def duplicar_paquete_estados_financieros(
     target_package.nombre_del_paquete = None
     target_package.periodo_contable = periodo_contable
     target_package.fecha_corte = fecha_corte
+    target_package.fecha_corte_comparativa = None
     target_package.tipo_paquete = tipo_paquete or source_package.tipo_paquete
     target_package.marco_contable = marco_contable or source_package.marco_contable
     target_package.version = cint(version or 1)
@@ -555,6 +574,8 @@ def duplicar_paquete_estados_financieros(
     target_package.fecha_emision = None
     target_package.version_balanza_actual = None
     target_package.version_balanza_comparativa = None
+    target_package.etiqueta_columna_actual = None
+    target_package.etiqueta_columna_comparativa = None
     target_package.fecha_ultima_actualizacion_automatica = None
     target_package.ultima_ejecucion_actualizacion_eeff = None
     target_package.alertas_actualizacion_automatica = None
@@ -616,6 +637,11 @@ def emitir_paquete_estados_financieros(package_name):
     package.estado_preparacion = "Emitido"
     package.save(ignore_permissions=True)
     return {"name": package.name, "estado_preparacion": package.estado_preparacion, "fecha_emision": package.fecha_emision}
+
+
+@frappe.whitelist()
+def obtener_etiquetas_columnas_eeff(package_name=None, fecha_actual=None, fecha_comparativa=None):
+    return get_package_column_labels(package_name, fecha_actual=fecha_actual, fecha_comparativa=fecha_comparativa)
 
 
 @frappe.whitelist()

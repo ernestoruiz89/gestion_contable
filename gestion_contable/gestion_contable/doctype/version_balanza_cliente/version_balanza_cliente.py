@@ -108,7 +108,11 @@ def publicar_version_balanza(version_name):
     frappe.db.sql(
         """
         UPDATE `tabVersion Balanza Cliente`
-        SET es_version_vigente = 0
+        SET es_version_vigente = 0,
+            estado_version = CASE
+                WHEN estado_version = 'Publicada' THEN 'Reemplazada'
+                ELSE estado_version
+            END
         WHERE name != %s
           AND cliente = %s
           AND IFNULL(company, '') = %s

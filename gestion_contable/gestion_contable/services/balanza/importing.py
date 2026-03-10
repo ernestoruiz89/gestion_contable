@@ -78,6 +78,49 @@ def _decode_content(raw_content):
     return raw_content.decode("utf-8", "ignore")
 
 
+def _parse_numeric_value(value, row_no, label, errors):
+    text = cstr(value or "").strip()
+    if not text:
+        return 0.0
+
+    normalized = text.replace(" ", "").replace("$", "")
+    is_negative_parentheses = normalized.startswith("(") and normalized.endswith(")")
+    if is_negative_parentheses:
+        normalized = normalized[1:-1]
+
+    if normalized.count(",") and normalized.count("."):
+        if normalized.rfind(",") > normalized.rfind("."):
+            normalized = normalized.replace(".", "").replace(",", ".")
+        else:
+            normalized = normalized.replace(",", "")
+    elif normalized.count(","):
+        if normalized.count(",") == 1:
+            normalized = normalized.replace(",", ".")
+        else:
+            normalized = normalized.replace(",", "")
+
+    try:
+        amount = float(normalized)
+    except (TypeError, ValueError):
+        errors.append(_("Fila {0}: el valor de {1} debe ser numerico. Valor recibido: {2}.").format(row_no, label, cstr(value)))
+        return 0.0
+
+    return -amount if is_negative_parentheses else amount
+
+
+def _throw_import_errors(errors):
+    if not errors:
+        return
+    preview = errors[:20]
+    message = "<br>".join(preview)
+    if len(errors) > 20:
+        message += "<br>" + _("...y {0} errores adicionales.").format(len(errors) - 20)
+    frappe.throw(
+        _("La importacion de la balanza contiene errores y no puede procesarse:<br>{0}").format(message),
+        title=_("CSV Invalido"),
+    )
+
+
 def _resolve_file_document(file_reference):
     if not file_reference or not frappe.db.exists("DocType", "File"):
         return None
@@ -137,7 +180,11 @@ def parse_balanza_csv(content):
         )
 
     rows = []
+    errors = []
     for row_no, raw_row in enumerate(reader, start=2):
+        if not any(cstr(value or "").strip() for value in (raw_row or {}).values()):
+            continue
+
         mapped = {}
         for original_key, value in (raw_row or {}).items():
             canonical = header_map.get(original_key)
@@ -146,13 +193,23 @@ def parse_balanza_csv(content):
 
         codigo_cuenta = cstr(mapped.get("cuenta") or "").strip()
         descripcion = cstr(mapped.get("descripcion") or "").strip()
-        if not codigo_cuenta or not descripcion:
+        periodo_linea = cstr(mapped.get("periodo") or "").strip()
+        row_errors = []
+        if not codigo_cuenta:
+            row_errors.append(_("Fila {0}: falta el valor de cuenta.").format(row_no))
+        if not descripcion:
+            row_errors.append(_("Fila {0}: falta la descripcion de la cuenta.").format(row_no))
+        if not periodo_linea:
+            row_errors.append(_("Fila {0}: falta el periodo de la linea.").format(row_no))
+
+        debe_mes_actual = _parse_numeric_value(mapped.get("debe_mes_actual"), row_no, _("Debe Mes Actual"), row_errors)
+        haber_mes_actual = _parse_numeric_value(mapped.get("haber_mes_actual"), row_no, _("Haber Mes Actual"), row_errors)
+        debe_saldo = _parse_numeric_value(mapped.get("debe_saldo"), row_no, _("Debe Saldo"), row_errors)
+        haber_saldo = _parse_numeric_value(mapped.get("haber_saldo"), row_no, _("Haber Saldo"), row_errors)
+        if row_errors:
+            errors.extend(row_errors)
             continue
 
-        debe_mes_actual = flt(mapped.get("debe_mes_actual"))
-        haber_mes_actual = flt(mapped.get("haber_mes_actual"))
-        debe_saldo = flt(mapped.get("debe_saldo"))
-        haber_saldo = flt(mapped.get("haber_saldo"))
         saldo_final = debe_saldo - haber_saldo
         rows.append(
             {
@@ -160,7 +217,7 @@ def parse_balanza_csv(content):
                 "codigo_cuenta": codigo_cuenta,
                 "descripcion_cuenta": descripcion,
                 "centro_costo": cstr(mapped.get("centro_costo") or "").strip(),
-                "periodo_linea": cstr(mapped.get("periodo") or "").strip(),
+                "periodo_linea": periodo_linea,
                 "debe_mes_actual": debe_mes_actual,
                 "haber_mes_actual": haber_mes_actual,
                 "debe_saldo": debe_saldo,
@@ -172,6 +229,7 @@ def parse_balanza_csv(content):
             }
         )
 
+    _throw_import_errors(errors)
     if not rows:
         frappe.throw(_("El archivo CSV no contiene filas validas para importar."), title=_("CSV Vacio"))
     return rows

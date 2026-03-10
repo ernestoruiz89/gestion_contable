@@ -4,6 +4,7 @@ from gestion_contable.gestion_contable.doctype.paquete_estados_financieros_clien
     duplicar_paquete_estados_financieros,
     emitir_paquete_estados_financieros,
 )
+from gestion_contable.gestion_contable.utils.estados_financieros import get_package_column_labels
 from gestion_contable.gestion_contable.tests.base import GestionContableIntegrationTestCase
 
 
@@ -82,6 +83,21 @@ class TestPaqueteEstadosFinancierosCliente(GestionContableIntegrationTestCase):
             }
         )
         self.assertRaises(frappe.ValidationError, another.insert, ignore_permissions=True)
+
+    def test_etiquetas_columnas_usan_mes_ano_y_permiten_override(self):
+        paquete = self._crear_paquete(fecha_corte="2026-08-31", fecha_corte_comparativa="2025-08-31")
+
+        labels = get_package_column_labels(paquete)
+        self.assertEqual(labels["actual"], "Agosto 2026")
+        self.assertEqual(labels["comparativo"], "Agosto 2025")
+
+        paquete.etiqueta_columna_actual = "Junio 2025"
+        paquete.etiqueta_columna_comparativa = "Junio 2024"
+        paquete.save(ignore_permissions=True)
+
+        labels = get_package_column_labels(paquete.name)
+        self.assertEqual(labels["actual"], "Junio 2025")
+        self.assertEqual(labels["comparativo"], "Junio 2024")
 
     def _crear_nota(self, paquete_name, numero_nota="1"):
         payload = {

@@ -58,6 +58,22 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
             ]
         )
 
+    def _crear_esquema(self, reglas=None, version=1):
+        esquema = frappe.get_doc(
+            {
+                "doctype": "Esquema Mapeo Contable",
+                "cliente": self.cliente.name,
+                "company": self.company,
+                "marco_contable": self.paquete.marco_contable,
+                "tipo_paquete": self.paquete.tipo_paquete,
+                "version": version,
+                "es_vigente": 0,
+                "reglas": reglas or [],
+            }
+        ).insert(ignore_permissions=True)
+        self.track_doc("Esquema Mapeo Contable", esquema.name)
+        return esquema
+
     def test_importa_balanza_csv_y_deriva_saldo_neto(self):
         version = self._crear_version_balanza()
         result = importar_version_balanza(version.name, csv_content=self._csv_actual())
@@ -79,6 +95,85 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
         self.assertEqual(flt_or_zero(version.total_haber_saldo), 150)
         self.assertEqual(int(version.cuadra), 1)
 
+    def test_importa_balanza_csv_rechaza_filas_invalidas(self):
+        version = self._crear_version_balanza()
+        csv_invalido = "\n".join(
+            [
+                "cuenta,descripcion,debe_mes_actual,haber_mes_actual,debe_saldo,haber_saldo,centro_costo,periodo",
+                "1101,,100,0,100,0,ADM,2026-12",
+                "1201,Cuentas por cobrar,abc,0,50,0,ADM,2026-12",
+            ]
+        )
+
+        self.assertRaises(frappe.ValidationError, importar_version_balanza, version.name, csv_content=csv_invalido)
+        self.assertFalse(frappe.get_all("Linea Balanza Cliente", filters={"version_balanza_cliente": version.name}, limit_page_length=1))
+
+    def test_publicar_version_reemplaza_la_anterior_y_rechaza_uso_manual(self):
+        version_anterior = self._crear_version_balanza("Actual", 1)
+        version_nueva = self._crear_version_balanza("Actual", 2)
+        importar_version_balanza(version_anterior.name, csv_content=self._csv_actual())
+        importar_version_balanza(version_nueva.name, csv_content=self._csv_actual())
+
+        publicar_version_balanza(version_anterior.name)
+        publicar_version_balanza(version_nueva.name)
+
+        version_anterior.reload()
+        version_nueva.reload()
+        self.assertEqual(version_anterior.estado_version, "Reemplazada")
+        self.assertEqual(int(version_anterior.es_version_vigente), 0)
+        self.assertEqual(version_nueva.estado_version, "Publicada")
+        self.assertEqual(int(version_nueva.es_version_vigente), 1)
+
+        esquema = self._crear_esquema()
+        frappe.db.set_value(
+            "Paquete Estados Financieros Cliente",
+            self.paquete.name,
+            {
+                "version_balanza_actual": version_anterior.name,
+                "esquema_mapeo_contable": esquema.name,
+            },
+            update_modified=False,
+        )
+
+        self.paquete.reload()
+        self.paquete.version_balanza_actual = version_anterior.name
+        self.paquete.esquema_mapeo_contable = esquema.name
+        self.assertRaises(frappe.ValidationError, self.paquete.save, ignore_permissions=True)
+        self.assertRaises(frappe.ValidationError, actualizar_paquete_desde_balanza, self.paquete.name)
+
+    def test_esquema_mapeo_rechaza_regex_y_rango_invalidos(self):
+        self.assertRaises(
+            frappe.ValidationError,
+            self._crear_esquema,
+            [
+                {
+                    "activo": 1,
+                    "destino_tipo": "Cifra Nota",
+                    "selector_tipo": "Regex",
+                    "selector_valor": "(",
+                    "destino_numero_nota": "4",
+                    "destino_codigo_cifra": "EFE",
+                }
+            ],
+            11,
+        )
+
+        self.assertRaises(
+            frappe.ValidationError,
+            self._crear_esquema,
+            [
+                {
+                    "activo": 1,
+                    "destino_tipo": "Cifra Nota",
+                    "selector_tipo": "Rango",
+                    "selector_valor": "1100",
+                    "destino_numero_nota": "4",
+                    "destino_codigo_cifra": "EFE",
+                }
+            ],
+            12,
+        )
+
     def test_actualiza_paquete_desde_balanza_a_estado_y_notas(self):
         current_version = self._crear_version_balanza("Actual", 1)
         comparative_version = self._crear_version_balanza("Comparativo", 1)
@@ -92,6 +187,7 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
                 "doctype": "Estado Financiero Cliente",
                 "paquete_estados_financieros_cliente": self.paquete.name,
                 "tipo_estado": "Otro Estado Complementario",
+                "codigo_estado": "ACT_OP",
                 "lineas": [
                     {"descripcion": "Efectivo", "codigo_linea_estado": "EFE", "monto_actual": 1},
                     {"descripcion": "Cuentas por Cobrar", "codigo_linea_estado": "CXC", "monto_actual": 1},
@@ -100,6 +196,18 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
             }
         ).insert(ignore_permissions=True)
         self.track_doc("Estado Financiero Cliente", estado.name)
+        estado_secundario = frappe.get_doc(
+            {
+                "doctype": "Estado Financiero Cliente",
+                "paquete_estados_financieros_cliente": self.paquete.name,
+                "tipo_estado": "Otro Estado Complementario",
+                "codigo_estado": "INDIC",
+                "lineas": [
+                    {"descripcion": "Indicador", "codigo_linea_estado": "IND", "monto_actual": 777},
+                ],
+            }
+        ).insert(ignore_permissions=True)
+        self.track_doc("Estado Financiero Cliente", estado_secundario.name)
 
         nota = frappe.get_doc(
             {
@@ -140,10 +248,10 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
                 "version": 1,
                 "es_vigente": 1,
                 "reglas": [
-                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_linea_estado": "EFE"},
-                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_linea_estado": "CXC"},
-                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Comparativo", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_linea_estado": "EFE"},
-                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Comparativo", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_linea_estado": "CXC"},
+                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "EFE"},
+                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "CXC"},
+                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Comparativo", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "EFE"},
+                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Comparativo", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "CXC"},
                     {"activo": 1, "destino_tipo": "Cifra Nota", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_numero_nota": "4", "destino_codigo_cifra": "EFE"},
                     {"activo": 1, "destino_tipo": "Cifra Nota", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_numero_nota": "4", "destino_codigo_cifra": "CXC"},
                     {"activo": 1, "destino_tipo": "Cifra Nota", "origen_version": "Comparativo", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_numero_nota": "4", "destino_codigo_cifra": "EFE"},
@@ -169,6 +277,7 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
         result = actualizar_paquete_desde_balanza(self.paquete.name)
 
         estado.reload()
+        estado_secundario.reload()
         nota.reload()
         self.paquete.reload()
 
@@ -180,6 +289,7 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
         self.assertEqual(flt_or_zero(lineas["TOT"].monto_actual), 150)
         self.assertEqual(flt_or_zero(lineas["TOT"].monto_comparativo), 120)
         self.assertEqual(lineas["TOT"].origen_dato, "Formula")
+        self.assertEqual(flt_or_zero(estado_secundario.lineas[0].monto_actual), 777)
 
         cifras = {row.codigo_cifra: row for row in nota.cifras_nota}
         self.assertEqual(flt_or_zero(cifras["EFE"].monto_actual), 100)
@@ -195,6 +305,79 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
         self.assertEqual(int(result["destinos_bloqueados_manual"]), 1)
         self.assertTrue(self.paquete.ultima_ejecucion_actualizacion_eeff)
         self.assertTrue(self.paquete.fecha_ultima_actualizacion_automatica)
+
+    def test_sumaria_mixta_limpia_version_balanza_cliente(self):
+        current_version = self._crear_version_balanza("Actual", 1)
+        comparative_version = self._crear_version_balanza("Comparativo", 1)
+        importar_version_balanza(current_version.name, csv_content=self._csv_actual())
+        importar_version_balanza(comparative_version.name, csv_content=self._csv_comparativo())
+        publicar_version_balanza(current_version.name)
+        publicar_version_balanza(comparative_version.name)
+
+        servicio = self.create_servicio("Servicio Auditoria Balanza", tipo_de_servicio="Auditoria", tarifa_hora=200)
+        encargo = self.create_encargo(
+            self.cliente.name,
+            servicio_contable=servicio.name,
+            periodo_referencia=self.periodo.name,
+            modalidad_honorario="Por Hora",
+            tarifa_hora=200,
+        )
+        expediente = self.create_expediente(encargo.name)
+
+        esquema = self._crear_esquema(
+            [
+                {
+                    "activo": 1,
+                    "destino_tipo": "Cedula Sumaria",
+                    "origen_version": "Actual",
+                    "selector_tipo": "Cuenta Exacta",
+                    "selector_valor": "1101",
+                    "destino_codigo_sumaria": "SUM-A",
+                    "destino_codigo_linea_sumaria": "EFE",
+                    "destino_descripcion": "Efectivo",
+                },
+                {
+                    "activo": 1,
+                    "destino_tipo": "Cedula Sumaria",
+                    "origen_version": "Comparativo",
+                    "selector_tipo": "Cuenta Exacta",
+                    "selector_valor": "1101",
+                    "destino_codigo_sumaria": "SUM-A",
+                    "destino_codigo_linea_sumaria": "EFE",
+                    "destino_descripcion": "Efectivo",
+                },
+            ],
+            21,
+        )
+
+        frappe.db.set_value(
+            "Paquete Estados Financieros Cliente",
+            self.paquete.name,
+            {
+                "encargo_contable": encargo.name,
+                "expediente_auditoria": expediente.name,
+                "version_balanza_actual": current_version.name,
+                "version_balanza_comparativa": comparative_version.name,
+                "esquema_mapeo_contable": esquema.name,
+            },
+            update_modified=False,
+        )
+
+        result = actualizar_paquete_desde_balanza(self.paquete.name)
+        paper_name = frappe.get_all(
+            "Papel Trabajo Auditoria",
+            filters={"expediente_auditoria": expediente.name, "codigo_sumaria": "SUM-A"},
+            pluck="name",
+            limit_page_length=1,
+        )[0]
+        self.track_doc("Papel Trabajo Auditoria", paper_name)
+        paper = frappe.get_doc("Papel Trabajo Auditoria", paper_name)
+
+        self.assertIsNone(paper.version_balanza_cliente)
+        self.assertTrue(any("SUM-A" in alert for alert in result["alertas"]))
+        lineas = {row.codigo_linea: row for row in paper.lineas_cedula_sumaria}
+        self.assertEqual(flt_or_zero(lineas["EFE"].monto_actual), 100)
+        self.assertEqual(flt_or_zero(lineas["EFE"].monto_comparativo), 80)
 
 
 def flt_or_zero(value):

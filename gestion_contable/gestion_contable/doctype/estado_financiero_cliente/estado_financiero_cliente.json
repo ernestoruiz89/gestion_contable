@@ -13,6 +13,7 @@
         "moneda_presentacion",
         "section_definicion",
         "tipo_estado",
+        "codigo_estado",
         "titulo_formal",
         "subtitulo",
         "column_break_2",
@@ -96,6 +97,12 @@
             "label": "Tipo Estado",
             "options": "Estado de Situacion Financiera\nEstado de Resultados\nEstado de Cambios en el Patrimonio\nEstado de Flujos de Efectivo\nOtro Estado Complementario",
             "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "codigo_estado",
+            "fieldtype": "Data",
+            "label": "Codigo Estado",
             "in_list_view": 1
         },
         {

@@ -229,6 +229,7 @@ fields=["name", "numero_nota", "titulo", "orden_presentacion", "estado_aprobacio
 order_by="orden_presentacion asc, creation asc",
 limit_page_length=300
 ) %}
+{% set labels = doc.get_column_labels() %}
 <div class="icea-wrap">
   <div class="icea-cover">
     <div class="icea-cover-kicker">Emision final auditada</div>
@@ -351,8 +352,8 @@ limit_page_length=300
         <thead>
           <tr>
             <th>Descripcion</th>
-            <th>Monto Actual</th>
-            <th>Monto Comparativo</th>
+            <th>{{ labels.actual }}</th>
+            <th>{{ labels.comparativo }}</th>
             <th>Nota</th>
           </tr>
         </thead>
@@ -394,8 +395,8 @@ limit_page_length=300
         <thead>
           <tr>
             <th>Concepto</th>
-            <th>Monto Actual</th>
-            <th>Monto Comparativo</th>
+            <th>{{ labels.actual }}</th>
+            <th>{{ labels.comparativo }}</th>
           </tr>
         </thead>
         <tbody>

@@ -17,6 +17,7 @@ CONTENT_FIELDS = (
     "nombre_del_estado",
     "paquete_estados_financieros_cliente",
     "tipo_estado",
+    "codigo_estado",
     "titulo_formal",
     "subtitulo",
     "fecha_corte",
@@ -34,6 +35,12 @@ TIPOS_ESTADO = (
     "Estado de Flujos de Efectivo",
     "Otro Estado Complementario",
 )
+STATE_CODE_DEFAULTS = {
+    "Estado de Situacion Financiera": "ESF",
+    "Estado de Resultados": "ER",
+    "Estado de Cambios en el Patrimonio": "ECP",
+    "Estado de Flujos de Efectivo": "EFE",
+}
 
 
 class EstadoFinancieroCliente(Document):
@@ -49,8 +56,10 @@ class EstadoFinancieroCliente(Document):
         ensure_supervisor(_("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden gestionar estados financieros del cliente."))
         self.sincronizar_desde_paquete()
         self.validar_tipo_estado()
+        self.normalizar_codigo_estado()
         self.normalizar_lineas()
         self.validar_unicidad_tipo()
+        self.validar_unicidad_codigo_estado()
         validate_state_math(self)
         validate_governance(
             self,
@@ -86,12 +95,13 @@ class EstadoFinancieroCliente(Document):
         package = frappe.db.get_value(
             "Paquete Estados Financieros Cliente",
             self.paquete_estados_financieros_cliente,
-            ["cliente", "periodo_contable", "fecha_corte", "moneda_presentacion"],
+            ["cliente", "periodo_contable", "fecha_corte", "fecha_corte_comparativa", "moneda_presentacion"],
             as_dict=True,
         )
         self.cliente = package.cliente
         self.periodo_contable = package.periodo_contable
         self.fecha_corte = self.fecha_corte or package.fecha_corte
+        self.fecha_comparativa = self.fecha_comparativa or package.fecha_corte_comparativa
         self.moneda_presentacion = self.moneda_presentacion or package.moneda_presentacion
         self.titulo_formal = self.titulo_formal or self.tipo_estado
         self.orden_presentacion = cint(self.orden_presentacion or 0)
@@ -101,6 +111,17 @@ class EstadoFinancieroCliente(Document):
             frappe.throw(_("El tipo de estado financiero seleccionado no es valido."), title=_("Tipo Invalido"))
         if self.tipo_estado == "Estado de Flujos de Efectivo" and not cstr(self.metodo_flujo_efectivo or "").strip():
             frappe.throw(_("Debes indicar el metodo del Estado de Flujos de Efectivo."), title=_("Metodo Requerido"))
+
+    def normalizar_codigo_estado(self):
+        default_code = STATE_CODE_DEFAULTS.get(self.tipo_estado)
+        if not self.codigo_estado:
+            source = default_code or self.titulo_formal or self.tipo_estado or self.nombre_del_estado or "estado"
+            self.codigo_estado = cstr(frappe.scrub(source)).strip().upper()
+        else:
+            self.codigo_estado = cstr(self.codigo_estado).strip().upper()
+
+        if not self.codigo_estado:
+            frappe.throw(_("Debes indicar un codigo de estado financiero valido."), title=_("Codigo Requerido"))
 
     def normalizar_lineas(self):
         if not self.lineas:
@@ -142,3 +163,20 @@ class EstadoFinancieroCliente(Document):
         )
         if existing:
             frappe.throw(_("Ya existe un estado del tipo <b>{0}</b> dentro de este paquete.").format(self.tipo_estado), title=_("Estado Duplicado"))
+
+    def validar_unicidad_codigo_estado(self):
+        existing = frappe.get_all(
+            "Estado Financiero Cliente",
+            filters={
+                "name": ["!=", self.name or ""],
+                "paquete_estados_financieros_cliente": self.paquete_estados_financieros_cliente,
+                "codigo_estado": self.codigo_estado,
+            },
+            fields=["name"],
+            limit_page_length=1,
+        )
+        if existing:
+            frappe.throw(
+                _("Ya existe un estado financiero con codigo <b>{0}</b> dentro de este paquete.").format(self.codigo_estado),
+                title=_("Codigo Duplicado"),
+            )

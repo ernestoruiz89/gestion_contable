@@ -11,7 +11,12 @@
         "column_break_1",
         "periodo_contable",
         "fecha_corte",
+        "fecha_corte_comparativa",
         "moneda_presentacion",
+        "section_presentacion_columnas",
+        "etiqueta_columna_actual",
+        "column_break_presentacion",
+        "etiqueta_columna_comparativa",
         "section_identidad",
         "razon_social_reportante",
         "identificacion_fiscal_reportante",
@@ -107,10 +112,36 @@
             "reqd": 1
         },
         {
+            "fieldname": "fecha_corte_comparativa",
+            "fieldtype": "Date",
+            "label": "Fecha Corte Comparativa"
+        },
+        {
             "fieldname": "moneda_presentacion",
             "fieldtype": "Link",
             "label": "Moneda Presentacion",
             "options": "Currency"
+        },
+        {
+            "fieldname": "section_presentacion_columnas",
+            "fieldtype": "Section Break",
+            "label": "Etiquetas de Columnas"
+        },
+        {
+            "description": "Opcional. Si queda vacia, el sistema usa Mes Ano de la Fecha Corte.",
+            "fieldname": "etiqueta_columna_actual",
+            "fieldtype": "Data",
+            "label": "Etiqueta Columna Actual"
+        },
+        {
+            "fieldname": "column_break_presentacion",
+            "fieldtype": "Column Break"
+        },
+        {
+            "description": "Opcional. Si queda vacia, el sistema usa Mes Ano de la Fecha Corte Comparativa o 'Comparativo'.",
+            "fieldname": "etiqueta_columna_comparativa",
+            "fieldtype": "Data",
+            "label": "Etiqueta Columna Comparativa"
         },
         {
             "fieldname": "section_identidad",

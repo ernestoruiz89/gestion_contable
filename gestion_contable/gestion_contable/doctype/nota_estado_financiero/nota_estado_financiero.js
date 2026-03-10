@@ -11,6 +11,7 @@ frappe.ui.form.on("Nota Estado Financiero", {
 
     paquete_estados_financieros_cliente(frm) {
         sync_generated_note_name(frm);
+        refreshNoteAmountLabels(frm);
     },
 
     numero_nota(frm) {
@@ -20,6 +21,7 @@ frappe.ui.form.on("Nota Estado Financiero", {
     refresh(frm) {
         frm.__original_numero_nota = normalize_note_number(frm.doc.numero_nota || frm.__original_numero_nota || "");
         sync_generated_note_name(frm);
+        refreshNoteAmountLabels(frm);
         refresh_workflow_comment_fields(frm);
 
         if (frm.is_new()) {
@@ -172,6 +174,42 @@ function refresh_workflow_comment_fields(frm) {
     frm.set_df_property("comentarios_socio", "hidden", false);
     frm.set_df_property("comentarios_socio", "read_only", !socioEditable);
     frm.set_df_property("comentarios_socio", "reqd", socioEditable);
+}
+
+function updateGridAmountLabel(grid, fieldname, label) {
+    if (!grid || !fieldname || !label) {
+        return;
+    }
+    if (typeof grid.update_docfield_property === "function") {
+        grid.update_docfield_property(fieldname, "label", label);
+        return;
+    }
+    (grid.docfields || []).forEach((df) => {
+        if (df.fieldname === fieldname) {
+            df.label = label;
+        }
+    });
+}
+
+function refreshNoteAmountLabels(frm) {
+    const packageName = frm.doc.paquete_estados_financieros_cliente;
+    const grid = frm.fields_dict.cifras_nota && frm.fields_dict.cifras_nota.grid;
+    if (!packageName || !grid) {
+        return;
+    }
+
+    frappe.call({
+        method: "gestion_contable.gestion_contable.doctype.paquete_estados_financieros_cliente.paquete_estados_financieros_cliente.obtener_etiquetas_columnas_eeff",
+        args: {
+            package_name: packageName,
+        },
+        callback: (response) => {
+            const labels = response.message || {};
+            updateGridAmountLabel(grid, "monto_actual", labels.actual || __("Actual"));
+            updateGridAmountLabel(grid, "monto_comparativo", labels.comparativo || __("Comparativo"));
+            frm.refresh_field("cifras_nota");
+        },
+    });
 }
 
 function get_sections(frm) {

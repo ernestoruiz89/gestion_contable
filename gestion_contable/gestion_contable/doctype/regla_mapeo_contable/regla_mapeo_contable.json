@@ -20,6 +20,7 @@
         "destino_codigo_linea_sumaria",
         "destino_descripcion",
         "destino_tipo_estado",
+        "destino_codigo_estado",
         "destino_codigo_linea_estado",
         "destino_numero_nota",
         "destino_codigo_cifra",
@@ -120,6 +121,11 @@
             "fieldtype": "Select",
             "label": "Tipo Estado",
             "options": "Estado de Situacion Financiera\nEstado de Resultados\nEstado de Cambios en el Patrimonio\nEstado de Flujos de Efectivo\nOtro Estado Complementario"
+        },
+        {
+            "fieldname": "destino_codigo_estado",
+            "fieldtype": "Data",
+            "label": "Codigo Estado"
         },
         {
             "fieldname": "destino_codigo_linea_estado",

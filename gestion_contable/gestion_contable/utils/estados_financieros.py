@@ -1,6 +1,6 @@
 import frappe
 from frappe import _
-from frappe.utils import cint, cstr, flt
+from frappe.utils import cint, cstr, flt, getdate
 
 from gestion_contable.gestion_contable.utils.governance import ESTADO_APROBACION_APROBADO
 
@@ -11,6 +11,20 @@ ESTADOS_FINANCIEROS_BASE_REQUERIDOS = (
     "Estado de Flujos de Efectivo",
 )
 MATH_TOLERANCE = 0.01
+MONTH_NAMES_ES = {
+    1: "Enero",
+    2: "Febrero",
+    3: "Marzo",
+    4: "Abril",
+    5: "Mayo",
+    6: "Junio",
+    7: "Julio",
+    8: "Agosto",
+    9: "Septiembre",
+    10: "Octubre",
+    11: "Noviembre",
+    12: "Diciembre",
+}
 
 
 def get_required_statement_types(_package=None):
@@ -19,6 +33,78 @@ def get_required_statement_types(_package=None):
 
 def normalize_note_number(note_number):
     return cstr(note_number or "").strip()
+
+
+def format_month_year_label(date_value):
+    if not date_value:
+        return ""
+
+    try:
+        date_obj = getdate(date_value)
+    except Exception:
+        return cstr(date_value or "").strip()
+
+    month_name = MONTH_NAMES_ES.get(cint(getattr(date_obj, "month", 0)))
+    year_value = getattr(date_obj, "year", None)
+    if not month_name or not year_value:
+        return cstr(date_value or "").strip()
+    return f"{month_name} {year_value}"
+
+
+def _get_obj_value(source, fieldname):
+    if not source:
+        return None
+    if isinstance(source, dict):
+        return source.get(fieldname)
+    return getattr(source, fieldname, None)
+
+
+def _as_package_doc(package_doc_or_name):
+    if not package_doc_or_name:
+        return None
+
+    doctype = _get_obj_value(package_doc_or_name, "doctype")
+    if doctype == "Paquete Estados Financieros Cliente":
+        return package_doc_or_name
+
+    package_name = cstr(package_doc_or_name).strip()
+    if package_name and frappe.db.exists("Paquete Estados Financieros Cliente", package_name):
+        return frappe.get_cached_doc("Paquete Estados Financieros Cliente", package_name)
+
+    return None
+
+
+def _get_linked_balance_date(package_doc, fieldname):
+    version_name = cstr(_get_obj_value(package_doc, fieldname) or "").strip()
+    if not version_name or not frappe.db.exists("Version Balanza Cliente", version_name):
+        return None
+    return frappe.db.get_value("Version Balanza Cliente", version_name, "fecha_corte")
+
+
+def _resolve_column_label(custom_label, date_value, fallback):
+    custom_label = cstr(custom_label or "").strip()
+    if custom_label:
+        return custom_label
+
+    generated_label = format_month_year_label(date_value)
+    if generated_label:
+        return generated_label
+
+    return fallback
+
+
+def get_package_column_labels(package_doc_or_name=None, fecha_actual=None, fecha_comparativa=None, etiqueta_actual=None, etiqueta_comparativa=None):
+    package_doc = _as_package_doc(package_doc_or_name)
+
+    fecha_actual = fecha_actual or _get_obj_value(package_doc, "fecha_corte") or _get_linked_balance_date(package_doc, "version_balanza_actual")
+    fecha_comparativa = fecha_comparativa or _get_obj_value(package_doc, "fecha_corte_comparativa") or _get_linked_balance_date(package_doc, "version_balanza_comparativa")
+    etiqueta_actual = etiqueta_actual if etiqueta_actual is not None else _get_obj_value(package_doc, "etiqueta_columna_actual")
+    etiqueta_comparativa = etiqueta_comparativa if etiqueta_comparativa is not None else _get_obj_value(package_doc, "etiqueta_columna_comparativa")
+
+    return {
+        "actual": _resolve_column_label(etiqueta_actual, fecha_actual, _("Actual")),
+        "comparativo": _resolve_column_label(etiqueta_comparativa, fecha_comparativa, _("Comparativo")),
+    }
 
 
 def empty_package_summary():

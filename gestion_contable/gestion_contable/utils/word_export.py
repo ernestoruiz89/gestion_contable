@@ -7,6 +7,8 @@ import frappe
 from frappe import _
 from frappe.utils import cint, cstr, now_datetime
 
+from gestion_contable.gestion_contable.utils.estados_financieros import get_package_column_labels
+
 REPORT_TITLE = "Informe Completo de EEFF Auditados"
 NON_AUDITED_REPORT_TITLE = "Estados Financieros y Notas"
 REMITTANCE_TITLE = "Carta de Remision"
@@ -383,12 +385,17 @@ def _add_estados_section(document, package):
         if index > 0:
             document.add_page_break()
         estado_doc = frappe.get_doc("Estado Financiero Cliente", estado.name)
+        labels = get_package_column_labels(
+            package,
+            fecha_actual=estado_doc.fecha_corte or package.fecha_corte,
+            fecha_comparativa=estado_doc.fecha_comparativa or getattr(package, "fecha_corte_comparativa", None),
+        )
         document.add_paragraph(estado_doc.titulo_formal or estado_doc.tipo_estado, style="Heading 2")
         if estado_doc.subtitulo:
             subtitle = document.add_paragraph(estado_doc.subtitulo)
             _set_paragraph_runs_font(subtitle)
         table = document.add_table(rows=1, cols=4)
-        headers = ["Descripcion", "Nota", "Monto Actual", "Monto Comparativo"]
+        headers = ["Descripcion", "Nota", labels["actual"], labels["comparativo"]]
         for header_index, title in enumerate(headers):
             table.rows[0].cells[header_index].text = title
         total_rows = []
@@ -408,6 +415,7 @@ def _add_estados_section(document, package):
 
 def _add_notas_section(document, package):
     document.add_paragraph("Notas a los Estados Financieros", style="Heading 1")
+    labels = get_package_column_labels(package)
     notas = frappe.get_all(
         "Nota Estado Financiero",
         filters={"paquete_estados_financieros_cliente": package.name},
@@ -432,7 +440,7 @@ def _add_notas_section(document, package):
 
         if nota_doc.cifras_nota:
             table = document.add_table(rows=1, cols=3)
-            headers = ["Concepto", "Monto Actual", "Monto Comparativo"]
+            headers = ["Concepto", labels["actual"], labels["comparativo"]]
             for header_index, title in enumerate(headers):
                 table.rows[0].cells[header_index].text = title
             total_actual = 0.0

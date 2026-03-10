@@ -24,6 +24,7 @@
   .efc-note-comment { margin-top: 4px; }
 </style>
 {% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
+{% set labels = paquete.get_column_labels(doc.fecha_corte or paquete.fecha_corte, doc.fecha_comparativa or paquete.fecha_corte_comparativa) %}
 {% set referenced_numbers = [] %}
 {% for linea in doc.lineas %}
   {% if linea.numero_nota_referencial and linea.numero_nota_referencial not in referenced_numbers %}
@@ -64,8 +65,8 @@
       <tr>
         <th>Descripcion</th>
         <th>Nota</th>
-        <th>Monto Actual</th>
-        <th>Monto Comparativo</th>
+        <th>{{ labels.actual }}</th>
+        <th>{{ labels.comparativo }}</th>
       </tr>
     </thead>
     <tbody>
@@ -123,8 +124,8 @@
                 <thead>
                   <tr>
                     <th>Concepto</th>
-                    <th>Monto Actual</th>
-                    <th>Monto Comparativo</th>
+                    <th>{{ labels.actual }}</th>
+                    <th>{{ labels.comparativo }}</th>
                   </tr>
                 </thead>
                 <tbody>

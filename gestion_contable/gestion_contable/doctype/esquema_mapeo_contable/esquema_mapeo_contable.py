@@ -1,9 +1,22 @@
+import re
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, cstr
 
 from gestion_contable.gestion_contable.utils.security import ensure_manager, ensure_supervisor
+
+RULE_SPLIT_RE = re.compile(r"[\n,;]+")
+SELECTOR_TYPES = ("Cuenta Exacta", "Prefijo", "Rango", "Lista", "Regex", "Todas")
+DESTINO_TYPES = ("Cedula Sumaria", "Linea Estado", "Cifra Nota", "Celda Nota")
+ORIGEN_VERSIONES = ("Actual", "Comparativo")
+OPERACIONES_AGREGACION = ("Saldo Neto", "Debe Mes Actual", "Haber Mes Actual", "Debe Saldo", "Haber Saldo")
+SIGNOS_PRESENTACION = ("Normal", "Inverso")
+
+
+def _split_rule_tokens(value):
+    return [cstr(token).strip() for token in RULE_SPLIT_RE.split(cstr(value or "")) if cstr(token).strip()]
 
 
 class EsquemaMapeoContable(Document):
@@ -28,6 +41,7 @@ class EsquemaMapeoContable(Document):
         if not self.cliente:
             frappe.throw(_("Debes indicar el cliente del esquema de mapeo."), title=_("Cliente Requerido"))
         self._normalizar_reglas()
+        self._validar_reglas()
         self._validar_vigencia_unica()
 
     def on_update(self):
@@ -69,12 +83,78 @@ class EsquemaMapeoContable(Document):
             row.destino_codigo_sumaria = cstr(row.destino_codigo_sumaria or "").strip().upper()
             row.destino_codigo_linea_sumaria = cstr(row.destino_codigo_linea_sumaria or "").strip().upper()
             row.destino_tipo_estado = cstr(row.destino_tipo_estado or "").strip()
+            row.destino_codigo_estado = cstr(row.destino_codigo_estado or "").strip().upper()
             row.destino_codigo_linea_estado = cstr(row.destino_codigo_linea_estado or "").strip().upper()
             row.destino_numero_nota = cstr(row.destino_numero_nota or "").strip().upper()
             row.destino_codigo_cifra = cstr(row.destino_codigo_cifra or "").strip().upper()
             row.destino_seccion_id = cstr(row.destino_seccion_id or "").strip().upper()
             row.destino_codigo_fila = cstr(row.destino_codigo_fila or "").strip().upper()
             row.destino_codigo_columna = cstr(row.destino_codigo_columna or "").strip().upper()
+
+    def _validar_reglas(self):
+        for row in self.reglas or []:
+            idx = cint(row.idx or 0)
+            selector_value = cstr(row.selector_valor or "").strip()
+            selector_tokens = _split_rule_tokens(selector_value)
+
+            if row.destino_tipo not in DESTINO_TYPES:
+                frappe.throw(_("La regla {0} tiene un destino tipo invalido.").format(idx), title=_("Regla Invalida"))
+            if row.origen_version not in ORIGEN_VERSIONES:
+                frappe.throw(_("La regla {0} tiene un origen de version invalido.").format(idx), title=_("Regla Invalida"))
+            if row.selector_tipo not in SELECTOR_TYPES:
+                frappe.throw(_("La regla {0} tiene un selector tipo invalido.").format(idx), title=_("Regla Invalida"))
+            if row.operacion_agregacion not in OPERACIONES_AGREGACION:
+                frappe.throw(_("La regla {0} tiene una operacion de agregacion invalida.").format(idx), title=_("Regla Invalida"))
+            if row.signo_presentacion not in SIGNOS_PRESENTACION:
+                frappe.throw(_("La regla {0} tiene un signo de presentacion invalido.").format(idx), title=_("Regla Invalida"))
+
+            if row.selector_tipo != "Todas" and not selector_value:
+                frappe.throw(_("La regla {0} debe indicar un selector valor.").format(idx), title=_("Regla Invalida"))
+            if row.selector_tipo == "Regex":
+                try:
+                    re.compile(selector_value, re.IGNORECASE)
+                except re.error as exc:
+                    frappe.throw(_("La regla {0} contiene un patron regex invalido: {1}.").format(idx, cstr(exc)), title=_("Regla Invalida"))
+            if row.selector_tipo == "Rango":
+                if not selector_tokens:
+                    frappe.throw(_("La regla {0} debe indicar al menos un rango.").format(idx), title=_("Regla Invalida"))
+                for token in selector_tokens:
+                    if "-" not in token:
+                        frappe.throw(_("La regla {0} contiene un rango invalido: {1}.").format(idx, token), title=_("Regla Invalida"))
+                    start, end = [cstr(part).strip().upper() for part in token.split("-", 1)]
+                    if not start or not end:
+                        frappe.throw(_("La regla {0} contiene un rango incompleto: {1}.").format(idx, token), title=_("Regla Invalida"))
+                    if start > end:
+                        frappe.throw(_("La regla {0} contiene un rango invertido: {1}.").format(idx, token), title=_("Regla Invalida"))
+
+            if row.destino_tipo == "Cedula Sumaria" and not row.destino_codigo_sumaria:
+                frappe.throw(_("La regla {0} de Cedula Sumaria debe indicar un codigo de sumaria.").format(idx), title=_("Regla Invalida"))
+            if row.destino_tipo != "Linea Estado":
+                if row.destino_tipo == "Cifra Nota" and (not row.destino_numero_nota or not row.destino_codigo_cifra):
+                    frappe.throw(_("La regla {0} de Cifra Nota debe indicar numero de nota y codigo de cifra.").format(idx), title=_("Regla Invalida"))
+                if row.destino_tipo == "Celda Nota" and (
+                    not row.destino_numero_nota or not row.destino_seccion_id or not row.destino_codigo_fila or not row.destino_codigo_columna
+                ):
+                    frappe.throw(
+                        _("La regla {0} de Celda Nota debe indicar numero de nota, seccion, fila y columna destino.").format(idx),
+                        title=_("Regla Invalida"),
+                    )
+                continue
+            if not row.destino_codigo_linea_estado:
+                frappe.throw(
+                    _("La regla {0} de Linea Estado debe indicar un codigo de linea destino.").format(idx),
+                    title=_("Regla Invalida"),
+                )
+            if not row.destino_tipo_estado and not row.destino_codigo_estado:
+                frappe.throw(
+                    _("La regla {0} de Linea Estado debe indicar un tipo o codigo de estado destino.").format(idx),
+                    title=_("Regla Invalida"),
+                )
+            if row.destino_tipo_estado == "Otro Estado Complementario" and not row.destino_codigo_estado:
+                frappe.throw(
+                    _("La regla {0} que apunta a Otro Estado Complementario debe indicar un codigo de estado destino para evitar ambiguedad.").format(idx),
+                    title=_("Regla Invalida"),
+                )
 
     def _validar_vigencia_unica(self):
         if not self.es_vigente:
