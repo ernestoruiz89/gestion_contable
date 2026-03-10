@@ -378,7 +378,7 @@ limit_page_length=200
   {% endif %}
 
   {% if paquete.elaborado_por or paquete.revisado_por or paquete.autorizado_por %}
-  <div class="efc-signatures">
+  <div class="efc-signatures-wrapper">
     {% if paquete.elaborado_por %}
     <div class="efc-sig-box">
       <div class="efc-sig-name">{{ paquete.elaborado_por }}</div>
