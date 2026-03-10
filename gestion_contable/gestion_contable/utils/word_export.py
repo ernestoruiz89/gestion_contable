@@ -419,6 +419,7 @@ def _add_estados_section(document, package):
                 total_rows.append(line_index)
             elif linea.es_subtotal:
                 subtotal_rows.append(line_index)
+        _set_table_column_widths(table, [10.0, 1.25, 3.0, 3.0])
         _style_financial_table(table, total_rows=total_rows, subtotal_rows=subtotal_rows)
         for line_index, linea in rendered_rows:
             _apply_estado_line_format(table.rows[line_index], linea)
@@ -624,6 +625,9 @@ def _set_paragraph_runs_font(paragraph, font_name=FONT_NAME, size=BODY_SIZE, bol
     _Document, _Align, _Orientation, _SectionStart, OxmlElement, qn, _Cm, Pt, RGBColor = _docx_imports()
     if not paragraph.runs:
         paragraph.add_run("")
+    paragraph_format = paragraph.paragraph_format
+    paragraph_format.space_before = Pt(0)
+    paragraph_format.space_after = Pt(0)
     for run in paragraph.runs:
         run.font.name = font_name
         run.font.size = Pt(size)
@@ -638,6 +642,24 @@ def _set_paragraph_runs_font(paragraph, font_name=FONT_NAME, size=BODY_SIZE, bol
         rfonts.set(qn("w:ascii"), font_name)
         rfonts.set(qn("w:hAnsi"), font_name)
         rfonts.set(qn("w:eastAsia"), font_name)
+
+
+def _set_table_column_widths(table, widths_cm):
+    _Document, _Align, _Orientation, _SectionStart, OxmlElement, qn, Cm, _Pt, _RGBColor = _docx_imports()
+    table.autofit = False
+    for row in table.rows:
+        for index, width_cm in enumerate(widths_cm):
+            if index >= len(row.cells):
+                break
+            cell = row.cells[index]
+            cell.width = Cm(width_cm)
+            tc_pr = cell._tc.get_or_add_tcPr()
+            tc_w = tc_pr.first_child_found_in("w:tcW")
+            if tc_w is None:
+                tc_w = OxmlElement("w:tcW")
+                tc_pr.append(tc_w)
+            tc_w.set(qn("w:type"), "dxa")
+            tc_w.set(qn("w:w"), str(int(Cm(width_cm).emu / 635)))
 
 
 def _style_table_no_borders(table):
