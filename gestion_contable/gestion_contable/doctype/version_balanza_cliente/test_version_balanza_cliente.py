@@ -174,6 +174,28 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
             12,
         )
 
+        self.assertRaises(
+            frappe.ValidationError,
+            self._crear_esquema,
+            [
+                {
+                    "activo": 1,
+                    "destino_tipo": "Celda Nota",
+                    "origen_version": "Ambas",
+                    "selector_tipo": "Cuenta Exacta",
+                    "selector_valor": "1101",
+                    "destino_numero_nota": "4",
+                    "destino_seccion_id": "SEC-01",
+                    "destino_codigo_fila": "DET",
+                    "destino_codigo_columna": "VIG",
+                    "destino_seccion_id_comparativa": "SEC-01",
+                    "destino_codigo_fila_comparativa": "DET",
+                    "destino_codigo_columna_comparativa": "VIG",
+                }
+            ],
+            13,
+        )
+
     def test_actualiza_paquete_desde_balanza_a_estado_y_notas(self):
         current_version = self._crear_version_balanza("Actual", 1)
         comparative_version = self._crear_version_balanza("Comparativo", 1)
@@ -225,7 +247,8 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
                     {"seccion_id": "SEC-01", "titulo_seccion": "Tabla Automatizada", "tipo_seccion": "Tabla", "orden": 1}
                 ],
                 "columnas_tabulares": [
-                    {"seccion_id": "SEC-01", "codigo_columna": "VIG", "etiqueta": "Vigente", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 1}
+                    {"seccion_id": "SEC-01", "codigo_columna": "VIG", "etiqueta": "Vigente", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 1},
+                    {"seccion_id": "SEC-01", "codigo_columna": "COMP", "etiqueta": "Comparativo", "tipo_dato": "Moneda", "alineacion": "Right", "orden": 2},
                 ],
                 "filas_tabulares": [
                     {"seccion_id": "SEC-01", "codigo_fila": "DET", "descripcion": "Detalle", "tipo_fila": "Detalle", "orden": 1},
@@ -248,15 +271,11 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
                 "version": 1,
                 "es_vigente": 1,
                 "reglas": [
-                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "EFE"},
-                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "CXC"},
-                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Comparativo", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "EFE"},
-                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Comparativo", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "CXC"},
-                    {"activo": 1, "destino_tipo": "Cifra Nota", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_numero_nota": "4", "destino_codigo_cifra": "EFE"},
-                    {"activo": 1, "destino_tipo": "Cifra Nota", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_numero_nota": "4", "destino_codigo_cifra": "CXC"},
-                    {"activo": 1, "destino_tipo": "Cifra Nota", "origen_version": "Comparativo", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_numero_nota": "4", "destino_codigo_cifra": "EFE"},
-                    {"activo": 1, "destino_tipo": "Cifra Nota", "origen_version": "Comparativo", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_numero_nota": "4", "destino_codigo_cifra": "CXC"},
-                    {"activo": 1, "destino_tipo": "Celda Nota", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_numero_nota": "4", "destino_seccion_id": "SEC-01", "destino_codigo_fila": "DET", "destino_codigo_columna": "VIG"},
+                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Ambas", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "EFE"},
+                    {"activo": 1, "destino_tipo": "Linea Estado", "origen_version": "Ambas", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_tipo_estado": "Otro Estado Complementario", "destino_codigo_estado": "ACT_OP", "destino_codigo_linea_estado": "CXC"},
+                    {"activo": 1, "destino_tipo": "Cifra Nota", "origen_version": "Ambas", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_numero_nota": "4", "destino_codigo_cifra": "EFE"},
+                    {"activo": 1, "destino_tipo": "Cifra Nota", "origen_version": "Ambas", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_numero_nota": "4", "destino_codigo_cifra": "CXC"},
+                    {"activo": 1, "destino_tipo": "Celda Nota", "origen_version": "Ambas", "selector_tipo": "Cuenta Exacta", "selector_valor": "1101", "destino_numero_nota": "4", "destino_seccion_id": "SEC-01", "destino_codigo_fila": "DET", "destino_codigo_columna": "VIG", "destino_seccion_id_comparativa": "SEC-01", "destino_codigo_fila_comparativa": "DET", "destino_codigo_columna_comparativa": "COMP"},
                     {"activo": 1, "destino_tipo": "Celda Nota", "origen_version": "Actual", "selector_tipo": "Cuenta Exacta", "selector_valor": "1201", "destino_numero_nota": "4", "destino_seccion_id": "SEC-01", "destino_codigo_fila": "MAN", "destino_codigo_columna": "VIG"},
                 ],
             }
@@ -301,10 +320,58 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
 
         cells = {(row.seccion_id, row.codigo_fila, row.codigo_columna): row for row in nota.celdas_tabulares}
         self.assertEqual(flt_or_zero(cells[("SEC-01", "DET", "VIG")].valor_numero), 100)
+        self.assertEqual(flt_or_zero(cells[("SEC-01", "DET", "COMP")].valor_numero), 80)
         self.assertEqual(flt_or_zero(cells[("SEC-01", "MAN", "VIG")].valor_numero), 999)
         self.assertEqual(int(result["destinos_bloqueados_manual"]), 1)
         self.assertTrue(self.paquete.ultima_ejecucion_actualizacion_eeff)
         self.assertTrue(self.paquete.fecha_ultima_actualizacion_automatica)
+
+    def test_regla_ambas_requiere_balanza_comparativa(self):
+        current_version = self._crear_version_balanza("Actual", 1)
+        importar_version_balanza(current_version.name, csv_content=self._csv_actual())
+        publicar_version_balanza(current_version.name)
+
+        estado = frappe.get_doc(
+            {
+                "doctype": "Estado Financiero Cliente",
+                "paquete_estados_financieros_cliente": self.paquete.name,
+                "tipo_estado": "Otro Estado Complementario",
+                "codigo_estado": "ACT_OP",
+                "lineas": [
+                    {"descripcion": "Efectivo", "codigo_linea_estado": "EFE", "monto_actual": 1},
+                ],
+            }
+        ).insert(ignore_permissions=True)
+        self.track_doc("Estado Financiero Cliente", estado.name)
+
+        esquema = self._crear_esquema(
+            [
+                {
+                    "activo": 1,
+                    "destino_tipo": "Linea Estado",
+                    "origen_version": "Ambas",
+                    "selector_tipo": "Cuenta Exacta",
+                    "selector_valor": "1101",
+                    "destino_tipo_estado": "Otro Estado Complementario",
+                    "destino_codigo_estado": "ACT_OP",
+                    "destino_codigo_linea_estado": "EFE",
+                }
+            ],
+            14,
+        )
+
+        frappe.db.set_value(
+            "Paquete Estados Financieros Cliente",
+            self.paquete.name,
+            {
+                "version_balanza_actual": current_version.name,
+                "version_balanza_comparativa": None,
+                "esquema_mapeo_contable": esquema.name,
+            },
+            update_modified=False,
+        )
+
+        self.assertRaises(frappe.ValidationError, actualizar_paquete_desde_balanza, self.paquete.name)
 
     def test_sumaria_mixta_limpia_version_balanza_cliente(self):
         current_version = self._crear_version_balanza("Actual", 1)
@@ -329,17 +396,7 @@ class TestVersionBalanzaCliente(GestionContableIntegrationTestCase):
                 {
                     "activo": 1,
                     "destino_tipo": "Cedula Sumaria",
-                    "origen_version": "Actual",
-                    "selector_tipo": "Cuenta Exacta",
-                    "selector_valor": "1101",
-                    "destino_codigo_sumaria": "SUM-A",
-                    "destino_codigo_linea_sumaria": "EFE",
-                    "destino_descripcion": "Efectivo",
-                },
-                {
-                    "activo": 1,
-                    "destino_tipo": "Cedula Sumaria",
-                    "origen_version": "Comparativo",
+                    "origen_version": "Ambas",
                     "selector_tipo": "Cuenta Exacta",
                     "selector_valor": "1101",
                     "destino_codigo_sumaria": "SUM-A",

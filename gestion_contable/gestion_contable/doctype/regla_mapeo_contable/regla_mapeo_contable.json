@@ -27,6 +27,9 @@
         "destino_seccion_id",
         "destino_codigo_fila",
         "destino_codigo_columna",
+        "destino_seccion_id_comparativa",
+        "destino_codigo_fila_comparativa",
+        "destino_codigo_columna_comparativa",
         "comentario"
     ],
     "fields": [
@@ -54,7 +57,7 @@
             "fieldname": "origen_version",
             "fieldtype": "Select",
             "label": "Origen Version",
-            "options": "Actual\nComparativo",
+            "options": "Actual\nComparativo\nAmbas",
             "default": "Actual",
             "in_list_view": 1
         },
@@ -156,6 +159,21 @@
             "fieldname": "destino_codigo_columna",
             "fieldtype": "Data",
             "label": "Codigo Columna"
+        },
+        {
+            "fieldname": "destino_seccion_id_comparativa",
+            "fieldtype": "Data",
+            "label": "Seccion ID Comparativa"
+        },
+        {
+            "fieldname": "destino_codigo_fila_comparativa",
+            "fieldtype": "Data",
+            "label": "Codigo Fila Comparativa"
+        },
+        {
+            "fieldname": "destino_codigo_columna_comparativa",
+            "fieldtype": "Data",
+            "label": "Codigo Columna Comparativa"
         },
         {
             "fieldname": "comentario",

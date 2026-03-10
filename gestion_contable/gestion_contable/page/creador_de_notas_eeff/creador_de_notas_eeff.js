@@ -182,6 +182,7 @@ class CreadorNotasEEFF {
             if (doc?.name) frappe.set_route("Form", "Nota Estado Financiero", doc.name);
         });
         this.wrapper.on("click", ".cne-add-section", () => this.add_section());
+        this.wrapper.on("click", ".cne-duplicate-section", () => this.duplicate_current_section());
         this.wrapper.on("click", ".cne-delete-section", () => this.delete_current_section());
         this.wrapper.on("click", ".cne-section-tab", (event) => {
             this.state.current_section_id = event.currentTarget.dataset.sectionId;
@@ -492,6 +493,7 @@ class CreadorNotasEEFF {
                 <div class="cne-card-head"><h3>Secciones</h3><p>Selecciona una seccion y construye su estructura tabular.</p></div>
                 <div class="cne-toolbar">
                     <button class="cne-btn primary cne-add-section">Nueva Seccion</button>
+                    ${section ? '<button class="cne-btn cne-duplicate-section">Duplicar Seccion Actual</button>' : ''}
                     ${section ? '<button class="cne-btn danger cne-delete-section">Eliminar Seccion Actual</button>' : ''}
                 </div>
                 <div class="cne-sections">${this.render_section_tabs()}</div>
@@ -764,11 +766,58 @@ class CreadorNotasEEFF {
         const doc = this.get_doc();
         if (!doc) return;
         const next = (doc.secciones_estructuradas || []).length + 1;
-        const sectionId = `SEC-${String(next).padStart(2, "0")}`;
+        const sectionId = this.build_unique_section_id();
         doc.secciones_estructuradas = doc.secciones_estructuradas || [];
         doc.secciones_estructuradas.push({ seccion_id: sectionId, titulo_seccion: `Seccion ${next}`, tipo_seccion: "Tabla", orden: next, contenido_narrativo: "" });
         this.state.current_section_id = sectionId;
         this.render_editor();
+    }
+
+    duplicate_current_section() {
+        const doc = this.get_doc();
+        const section = this.get_current_section();
+        if (!doc || !section) return;
+
+        const clonedSectionId = this.build_unique_section_id(section.seccion_id);
+        const nextOrder = this.get_sections().reduce((max, row) => Math.max(max, this.as_int(row.orden, 0)), 0) + 1;
+        const clonedTitle = section.titulo_seccion ? `${section.titulo_seccion} (Copia)` : `Seccion ${clonedSectionId}`;
+
+        doc.secciones_estructuradas = doc.secciones_estructuradas || [];
+        doc.columnas_tabulares = doc.columnas_tabulares || [];
+        doc.filas_tabulares = doc.filas_tabulares || [];
+        doc.celdas_tabulares = doc.celdas_tabulares || [];
+
+        doc.secciones_estructuradas.push({
+            ...section,
+            seccion_id: clonedSectionId,
+            titulo_seccion: clonedTitle,
+            orden: nextOrder,
+        });
+
+        this.get_columns(section.seccion_id).forEach((row) => {
+            doc.columnas_tabulares.push({
+                ...row,
+                seccion_id: clonedSectionId,
+            });
+        });
+
+        this.get_rows(section.seccion_id).forEach((row) => {
+            doc.filas_tabulares.push({
+                ...row,
+                seccion_id: clonedSectionId,
+            });
+        });
+
+        this.get_cells(section.seccion_id).forEach((row) => {
+            doc.celdas_tabulares.push({
+                ...row,
+                seccion_id: clonedSectionId,
+            });
+        });
+
+        this.state.current_section_id = clonedSectionId;
+        this.render_editor();
+        frappe.show_alert({ indicator: "green", message: __("Seccion duplicada") });
     }
 
     delete_current_section() {
@@ -792,6 +841,29 @@ class CreadorNotasEEFF {
                 if (row.seccion_id === previousId) row.seccion_id = newId;
             });
         });
+    }
+
+    build_unique_section_id(preferredBase = "SEC") {
+        const existing = new Set((this.get_doc()?.secciones_estructuradas || []).map((row) => String(row.seccion_id || "").trim().toUpperCase()).filter(Boolean));
+        const normalizedBase = String(preferredBase || "SEC").trim().toUpperCase().replace(/[^A-Z0-9-]+/g, "-").replace(/^-+|-+$/g, "") || "SEC";
+
+        if (normalizedBase === "SEC" || /^SEC-(\d+)$/.test(normalizedBase)) {
+            let index = (this.get_doc()?.secciones_estructuradas || []).length + 1;
+            let candidate = `SEC-${String(index).padStart(2, "0")}`;
+            while (existing.has(candidate)) {
+                index += 1;
+                candidate = `SEC-${String(index).padStart(2, "0")}`;
+            }
+            return candidate;
+        }
+
+        let suffix = 1;
+        let candidate = `${normalizedBase}-COPIA`;
+        while (existing.has(candidate)) {
+            suffix += 1;
+            candidate = `${normalizedBase}-COPIA-${suffix}`;
+        }
+        return candidate;
     }
 
     open_csv_picker() {

@@ -176,6 +176,19 @@ def _get_column_format(doc, section_id, column_code):
     return "Numero"
 
 
+def _get_rule_cell_coordinates(rule, origin_version):
+    section_id = _normalize_code(rule.destino_seccion_id)
+    row_code = _normalize_code(rule.destino_codigo_fila)
+    column_code = _normalize_code(rule.destino_codigo_columna)
+
+    if cstr(rule.origen_version or "Actual").strip() == "Ambas" and cstr(origin_version or "Actual").strip() == "Comparativo":
+        section_id = _normalize_code(getattr(rule, "destino_seccion_id_comparativa", "") or section_id)
+        row_code = _normalize_code(getattr(rule, "destino_codigo_fila_comparativa", "") or row_code)
+        column_code = _normalize_code(getattr(rule, "destino_codigo_columna_comparativa", "") or column_code)
+
+    return section_id, row_code, column_code
+
+
 def _compute_formula_rows(rows, amount_fields, code_getter, formula_getter, auto_getter, manual_getter, origin_setter, label_builder):
     row_map = {_normalize_code(code_getter(row)): row for row in rows if _normalize_code(code_getter(row))}
     cache = {}
@@ -277,11 +290,17 @@ def _load_sumaria_docs(expediente_name):
     return docs
 
 
-def _get_rule_source_version(package_doc, rule):
-    return package_doc.version_balanza_comparativa if cstr(rule.origen_version or "Actual").strip() == "Comparativo" else package_doc.version_balanza_actual
+def _get_rule_versions(rule):
+    if cstr(rule.origen_version or "Actual").strip() == "Ambas":
+        return ("Actual", "Comparativo")
+    return (cstr(rule.origen_version or "Actual").strip(),)
 
 
-def _apply_state_rule(state_docs, rule, amount, summary):
+def _get_rule_source_version(package_doc, origin_version):
+    return package_doc.version_balanza_comparativa if cstr(origin_version or "Actual").strip() == "Comparativo" else package_doc.version_balanza_actual
+
+
+def _apply_state_rule(state_docs, rule, amount, summary, origin_version):
     state_doc = None
     state_code = _normalize_code(getattr(rule, "destino_codigo_estado", ""))
     if state_code:
@@ -311,14 +330,14 @@ def _apply_state_rule(state_docs, rule, amount, summary):
         summary["destinos_bloqueados_manual"] += 1
         return None
 
-    amount_field = STATE_AMOUNT_FIELDS.get(cstr(rule.origen_version or "Actual"), "monto_actual")
+    amount_field = STATE_AMOUNT_FIELDS.get(cstr(origin_version or "Actual"), "monto_actual")
     setattr(row, amount_field, amount)
     row.origen_dato = "Balanza"
     row.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}"
     return state_doc
 
 
-def _apply_figure_rule(note_docs, rule, amount, summary):
+def _apply_figure_rule(note_docs, rule, amount, summary, origin_version):
     note_doc = note_docs.get(normalize_note_number(rule.destino_numero_nota))
     if not note_doc:
         summary["alertas"].append(_("No existe la nota {0} para aplicar una regla de cifra.").format(rule.destino_numero_nota))
@@ -333,31 +352,33 @@ def _apply_figure_rule(note_docs, rule, amount, summary):
         summary["destinos_bloqueados_manual"] += 1
         return None
 
-    amount_field = NOTE_AMOUNT_FIELDS.get(cstr(rule.origen_version or "Actual"), "monto_actual")
+    amount_field = NOTE_AMOUNT_FIELDS.get(cstr(origin_version or "Actual"), "monto_actual")
     setattr(row, amount_field, amount)
     row.origen_dato = "Balanza"
     row.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}"
     return note_doc
 
 
-def _apply_cell_rule(note_docs, rule, amount, summary):
+def _apply_cell_rule(note_docs, rule, amount, summary, origin_version):
     note_doc = note_docs.get(normalize_note_number(rule.destino_numero_nota))
     if not note_doc:
         summary["alertas"].append(_("No existe la nota {0} para aplicar una regla de celda.").format(rule.destino_numero_nota))
         return None
 
-    if not _ensure_note_table_coordinates(note_doc, rule.destino_seccion_id, rule.destino_codigo_fila, rule.destino_codigo_columna):
+    section_id, row_code, column_code = _get_rule_cell_coordinates(rule, origin_version)
+
+    if not _ensure_note_table_coordinates(note_doc, section_id, row_code, column_code):
         summary["alertas"].append(
             _("La celda {0}/{1}/{2} no existe como coordenada valida en la nota {3}.").format(
-                rule.destino_seccion_id,
-                rule.destino_codigo_fila,
-                rule.destino_codigo_columna,
+                section_id,
+                row_code,
+                column_code,
                 rule.destino_numero_nota,
             )
         )
         return None
 
-    cell = _find_table_cell(note_doc, rule.destino_seccion_id, rule.destino_codigo_fila, rule.destino_codigo_columna)
+    cell = _find_table_cell(note_doc, section_id, row_code, column_code)
     if cell and cint(getattr(cell, "es_manual", 0)) and not cint(rule.sobrescribir_manual or 0):
         summary["destinos_bloqueados_manual"] += 1
         return None
@@ -366,22 +387,22 @@ def _apply_cell_rule(note_docs, rule, amount, summary):
         cell = note_doc.append(
             "celdas_tabulares",
             {
-                "seccion_id": _normalize_code(rule.destino_seccion_id),
-                "codigo_fila": _normalize_code(rule.destino_codigo_fila),
-                "codigo_columna": _normalize_code(rule.destino_codigo_columna),
+                "seccion_id": section_id,
+                "codigo_fila": row_code,
+                "codigo_columna": column_code,
                 "es_manual": 0,
             },
         )
 
     cell.valor_texto = None
     cell.valor_numero = amount
-    cell.formato_numero = _get_column_format(note_doc, rule.destino_seccion_id, rule.destino_codigo_columna)
+    cell.formato_numero = _get_column_format(note_doc, section_id, column_code)
     cell.origen_dato = "Balanza"
-    cell.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}"
+    cell.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}-{cstr(origin_version or 'Actual')[0]}"
     return note_doc
 
 
-def _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary):
+def _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary, origin_version):
     if not package_doc.expediente_auditoria:
         summary["alertas"].append(_("El paquete no tiene expediente de auditoria y no puede materializar cedulas sumarias."))
         return None
@@ -393,7 +414,7 @@ def _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary):
 
     paper = sumaria_docs.get(sumaria_code)
     if not paper:
-        source_version_name = _get_rule_source_version(package_doc, rule)
+        source_version_name = _get_rule_source_version(package_doc, origin_version)
         paper = frappe.get_doc(
             {
                 "doctype": "Papel Trabajo Auditoria",
@@ -424,12 +445,12 @@ def _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary):
             },
         )
 
-    fieldname = "monto_comparativo" if cstr(rule.origen_version or "Actual") == "Comparativo" else "monto_actual"
+    fieldname = "monto_comparativo" if cstr(origin_version or "Actual") == "Comparativo" else "monto_actual"
     setattr(row, fieldname, amount)
     row.origen_dato = "Balanza"
     row.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}"
 
-    source_version_name = cstr(_get_rule_source_version(package_doc, rule) or "").strip()
+    source_version_name = cstr(_get_rule_source_version(package_doc, origin_version) or "").strip()
     source_versions = getattr(paper, "_source_version_names", None)
     if source_versions is None:
         source_versions = set()
@@ -461,6 +482,14 @@ def actualizar_paquete_desde_balanza(package_name):
         frappe.throw(_("Debes vincular una version de balanza actual para actualizar el paquete."), title=_("Balanza Requerida"))
     if not package_doc.esquema_mapeo_contable:
         frappe.throw(_("Debes vincular un esquema de mapeo contable para actualizar el paquete."), title=_("Esquema Requerido"))
+    scheme_doc = frappe.get_doc("Esquema Mapeo Contable", package_doc.esquema_mapeo_contable)
+    active_rules = [row for row in (scheme_doc.reglas or []) if cint(row.activo or 0)]
+    requires_comparative = any(cstr(rule.origen_version or "Actual").strip() in ("Comparativo", "Ambas") for rule in active_rules)
+    if requires_comparative and not package_doc.version_balanza_comparativa:
+        frappe.throw(
+            _("El esquema de mapeo incluye reglas comparativas o para ambas versiones; debes vincular una version de balanza comparativa."),
+            title=_("Balanza Comparativa Requerida"),
+        )
     for fieldname in ("version_balanza_actual", "version_balanza_comparativa"):
         version_name = package_doc.get(fieldname)
         if not version_name:
@@ -473,7 +502,6 @@ def actualizar_paquete_desde_balanza(package_name):
 
     actual_lines = _load_balance_lines(package_doc.version_balanza_actual)
     comparative_lines = _load_balance_lines(package_doc.version_balanza_comparativa)
-    scheme_doc = frappe.get_doc("Esquema Mapeo Contable", package_doc.esquema_mapeo_contable)
     state_docs = _load_state_docs(package_name)
     note_docs = _load_note_docs(package_name)
     sumaria_docs = _load_sumaria_docs(package_doc.expediente_auditoria)
@@ -491,35 +519,35 @@ def actualizar_paquete_desde_balanza(package_name):
     touched_notes = set()
     touched_sumarias = set()
 
-    active_rules = [row for row in (scheme_doc.reglas or []) if cint(row.activo or 0)]
     active_rules.sort(key=lambda row: (cint(row.orden_ejecucion or 0), cint(row.idx or 0)))
 
     for rule in active_rules:
-        lines = actual_lines if cstr(rule.origen_version or "Actual") != "Comparativo" else comparative_lines
-        selected = _select_rule_lines(lines, rule)
-        amount = _aggregate_lines(selected, rule)
         summary["reglas_ejecutadas"] += 1
+        for origin_version in _get_rule_versions(rule):
+            lines = actual_lines if origin_version != "Comparativo" else comparative_lines
+            selected = _select_rule_lines(lines, rule)
+            amount = _aggregate_lines(selected, rule)
 
-        if not selected and cint(rule.obligatoria or 0):
-            summary["alertas"].append(_("La regla {0} no encontro cuentas coincidentes.").format(rule.idx))
+            if not selected and cint(rule.obligatoria or 0):
+                summary["alertas"].append(_("La regla {0} no encontro cuentas coincidentes para la version {1}.").format(rule.idx, origin_version))
 
-        destino_tipo = cstr(rule.destino_tipo or "").strip()
-        if destino_tipo == "Linea Estado":
-            target_doc = _apply_state_rule(state_docs, rule, amount, summary)
-            if target_doc:
-                touched_states.add(target_doc.name)
-        elif destino_tipo == "Cifra Nota":
-            target_doc = _apply_figure_rule(note_docs, rule, amount, summary)
-            if target_doc:
-                touched_notes.add(target_doc.name)
-        elif destino_tipo == "Celda Nota":
-            target_doc = _apply_cell_rule(note_docs, rule, amount, summary)
-            if target_doc:
-                touched_notes.add(target_doc.name)
-        elif destino_tipo == "Cedula Sumaria":
-            target_doc = _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary)
-            if target_doc:
-                touched_sumarias.add(target_doc.name)
+            destino_tipo = cstr(rule.destino_tipo or "").strip()
+            if destino_tipo == "Linea Estado":
+                target_doc = _apply_state_rule(state_docs, rule, amount, summary, origin_version)
+                if target_doc:
+                    touched_states.add(target_doc.name)
+            elif destino_tipo == "Cifra Nota":
+                target_doc = _apply_figure_rule(note_docs, rule, amount, summary, origin_version)
+                if target_doc:
+                    touched_notes.add(target_doc.name)
+            elif destino_tipo == "Celda Nota":
+                target_doc = _apply_cell_rule(note_docs, rule, amount, summary, origin_version)
+                if target_doc:
+                    touched_notes.add(target_doc.name)
+            elif destino_tipo == "Cedula Sumaria":
+                target_doc = _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary, origin_version)
+                if target_doc:
+                    touched_sumarias.add(target_doc.name)
 
     for doc in state_docs.values():
         if doc.name not in touched_states and not any(cint(getattr(row, "calculo_automatico", 0)) for row in doc.lineas or []):

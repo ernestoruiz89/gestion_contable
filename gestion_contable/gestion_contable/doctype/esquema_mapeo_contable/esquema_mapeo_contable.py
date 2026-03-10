@@ -10,7 +10,7 @@ from gestion_contable.gestion_contable.utils.security import ensure_manager, ens
 RULE_SPLIT_RE = re.compile(r"[\n,;]+")
 SELECTOR_TYPES = ("Cuenta Exacta", "Prefijo", "Rango", "Lista", "Regex", "Todas")
 DESTINO_TYPES = ("Cedula Sumaria", "Linea Estado", "Cifra Nota", "Celda Nota")
-ORIGEN_VERSIONES = ("Actual", "Comparativo")
+ORIGEN_VERSIONES = ("Actual", "Comparativo", "Ambas")
 OPERACIONES_AGREGACION = ("Saldo Neto", "Debe Mes Actual", "Haber Mes Actual", "Debe Saldo", "Haber Saldo")
 SIGNOS_PRESENTACION = ("Normal", "Inverso")
 
@@ -90,6 +90,9 @@ class EsquemaMapeoContable(Document):
             row.destino_seccion_id = cstr(row.destino_seccion_id or "").strip().upper()
             row.destino_codigo_fila = cstr(row.destino_codigo_fila or "").strip().upper()
             row.destino_codigo_columna = cstr(row.destino_codigo_columna or "").strip().upper()
+            row.destino_seccion_id_comparativa = cstr(row.destino_seccion_id_comparativa or "").strip().upper()
+            row.destino_codigo_fila_comparativa = cstr(row.destino_codigo_fila_comparativa or "").strip().upper()
+            row.destino_codigo_columna_comparativa = cstr(row.destino_codigo_columna_comparativa or "").strip().upper()
 
     def _validar_reglas(self):
         for row in self.reglas or []:
@@ -139,6 +142,24 @@ class EsquemaMapeoContable(Document):
                         _("La regla {0} de Celda Nota debe indicar numero de nota, seccion, fila y columna destino.").format(idx),
                         title=_("Regla Invalida"),
                     )
+                if row.destino_tipo == "Celda Nota" and row.origen_version == "Ambas":
+                    comp_section = row.destino_seccion_id_comparativa or row.destino_seccion_id
+                    comp_row = row.destino_codigo_fila_comparativa or row.destino_codigo_fila
+                    comp_column = row.destino_codigo_columna_comparativa or row.destino_codigo_columna
+                    if not comp_section or not comp_row or not comp_column:
+                        frappe.throw(
+                            _("La regla {0} de Celda Nota con origen version <b>Ambas</b> debe indicar coordenadas comparativas validas.").format(idx),
+                            title=_("Regla Invalida"),
+                        )
+                    if (
+                        comp_section == row.destino_seccion_id
+                        and comp_row == row.destino_codigo_fila
+                        and comp_column == row.destino_codigo_columna
+                    ):
+                        frappe.throw(
+                            _("La regla {0} de Celda Nota con origen version <b>Ambas</b> debe apuntar a una celda comparativa distinta para evitar sobreescritura.").format(idx),
+                            title=_("Regla Invalida"),
+                        )
                 continue
             if not row.destino_codigo_linea_estado:
                 frappe.throw(
