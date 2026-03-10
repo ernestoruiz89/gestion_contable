@@ -129,6 +129,42 @@
   .efc-note-comment {
     margin-top: 4px;
   }
+
+  .efc-signatures-wrapper {
+    margin-top: 80px;
+    text-align: center;
+    width: 100%;
+    page-break-inside: avoid;
+  }
+
+  .efc-sig-box {
+    display: inline-block;
+    vertical-align: top;
+    width: 30%;
+    min-width: 180px;
+    margin: 0 10px;
+    text-align: center;
+  }
+
+  .efc-sig-name {
+    margin-bottom: 60px;
+    font-size: 11pt;
+    font-weight: 400;
+  }
+
+  .efc-sig-line {
+    border-top: 1px solid #000000;
+    padding-top: 4px;
+    font-weight: 700;
+    font-size: 10pt;
+    text-transform: uppercase;
+  }
+
+  .efc-sig-title {
+    font-size: 9pt;
+    color: #000000;
+    margin-top: 2px;
+  }
 </style>
 
 {% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
