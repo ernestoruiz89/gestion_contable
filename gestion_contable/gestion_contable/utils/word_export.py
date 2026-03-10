@@ -5,7 +5,7 @@ from html import unescape
 
 import frappe
 from frappe import _
-from frappe.utils import cint, cstr, now_datetime
+from frappe.utils import cint, cstr, formatdate, now_datetime
 
 from gestion_contable.gestion_contable.utils.estados_financieros import get_package_column_labels
 
@@ -391,29 +391,68 @@ def _add_estados_section(document, package):
             fecha_comparativa=estado_doc.fecha_comparativa or getattr(package, "fecha_corte_comparativa", None),
         )
         document.add_paragraph(estado_doc.titulo_formal or estado_doc.tipo_estado, style="Heading 2")
+        period_text = _build_estado_period_text(estado_doc, package)
+        if period_text:
+            period_paragraph = document.add_paragraph(period_text)
+            _set_paragraph_runs_font(period_paragraph)
         if estado_doc.subtitulo:
             subtitle = document.add_paragraph(estado_doc.subtitulo)
             _set_paragraph_runs_font(subtitle)
         table = document.add_table(rows=1, cols=4)
-        headers = ["Descripcion", "Nota", labels["actual"], labels["comparativo"]]
+        headers = ["", "Nota", labels["actual"], labels["comparativo"]]
         for header_index, title in enumerate(headers):
             table.rows[0].cells[header_index].text = title
         total_rows = []
         subtotal_rows = []
+        rendered_rows = []
         for linea in estado_doc.lineas:
             if getattr(linea, "no_imprimir", 0):
                 continue
             line_index = len(table.rows)
             row = table.add_row().cells
             row[0].text = ("    " * max((linea.nivel or 1) - 1, 0)) + (linea.descripcion or "-")
-            row[1].text = cstr(linea.numero_nota_referencial or "-")
-            row[2].text = _fmt_number(linea.monto_actual)
-            row[3].text = _fmt_number(linea.monto_comparativo)
+            row[1].text = cstr(linea.numero_nota_referencial or "")
+            row[2].text = "" if linea.es_titulo else _fmt_number(linea.monto_actual)
+            row[3].text = "" if linea.es_titulo else _fmt_number(linea.monto_comparativo)
+            rendered_rows.append((line_index, linea))
             if linea.es_total:
                 total_rows.append(line_index)
             elif linea.es_subtotal:
                 subtotal_rows.append(line_index)
         _style_financial_table(table, total_rows=total_rows, subtotal_rows=subtotal_rows)
+        for line_index, linea in rendered_rows:
+            _apply_estado_line_format(table.rows[line_index], linea)
+
+
+def _build_estado_period_text(estado_doc, package):
+    target_date = estado_doc.fecha_corte or package.fecha_corte
+    if not target_date:
+        return ""
+    formatted_date = formatdate(target_date, "dd 'de' MMMM 'del' YYYY")
+    if estado_doc.tipo_estado == "Estado de Situacion Financiera":
+        return f"Al {formatted_date}"
+    return f"Del 01 de Enero al {formatted_date}"
+
+
+def _apply_estado_line_format(row, linea):
+    desc_paragraph = row.cells[0].paragraphs[0]
+    _set_paragraph_runs_font(
+        desc_paragraph,
+        bold=bool(linea.negrita or linea.es_titulo or linea.es_total or linea.es_subtotal),
+    )
+    if linea.subrayado:
+        for run in desc_paragraph.runs:
+            run.underline = True
+
+    if linea.es_titulo:
+        for cell in row.cells[1:]:
+            cell.text = ""
+            for paragraph in cell.paragraphs:
+                _set_paragraph_runs_font(paragraph)
+
+    if linea.doble_subrayado and not linea.es_total:
+        for cell in row.cells:
+            _style_cell_border(cell, bottom={"val": "double", "sz": 12})
 
 
 def _add_notas_section(document, package):
