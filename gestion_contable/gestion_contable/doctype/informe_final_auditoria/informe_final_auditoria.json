@@ -65,7 +65,6 @@
             "fieldname": "nombre_del_informe",
             "fieldtype": "Data",
             "label": "Nombre del Informe",
-            "reqd": 1,
             "read_only": 1,
             "in_list_view": 1
         },

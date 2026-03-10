@@ -55,7 +55,6 @@
             "fieldname": "nombre_del_requerimiento",
             "fieldtype": "Data",
             "label": "Nombre del Requerimiento",
-            "reqd": 1,
             "read_only": 1,
             "in_list_view": 1
         },

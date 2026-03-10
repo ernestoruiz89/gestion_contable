@@ -67,7 +67,6 @@
             "fieldname": "nombre_del_expediente",
             "fieldtype": "Data",
             "label": "Nombre del Expediente",
-            "reqd": 1,
             "read_only": 1,
             "in_list_view": 1
         },
