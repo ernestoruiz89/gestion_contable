@@ -1,132 +1,133 @@
-.efc-wrap,
-.efc-wrap * {
-font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important;
-color: #000000 !important;
-font-size: 12pt;
-line-height: 1.25;
-}
+<style>
+  .efc-wrap,
+  .efc-wrap * {
+    font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important;
+    color: #000000 !important;
+    font-size: 12pt;
+    line-height: 1.25;
+  }
 
-.efc-head {
-border-bottom: 2px solid #000000;
-padding-bottom: 10px;
-margin-bottom: 18px;
-}
+  .efc-head {
+    border-bottom: 2px solid #000000;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+  }
 
-.efc-head h1 {
-margin: 0;
-font-size: 18pt;
-}
+  .efc-head h1 {
+    margin: 0;
+    font-size: 18pt;
+  }
 
-.efc-head p {
-margin: 4px 0 0;
-color: #000000;
-font-size: 11pt;
-}
+  .efc-head p {
+    margin: 4px 0 0;
+    color: #000000;
+    font-size: 11pt;
+  }
 
-.efc-table {
-width: 100%;
-border-collapse: collapse;
-margin-top: 8px;
-table-layout: fixed;
-}
+  .efc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    table-layout: fixed;
+  }
 
-.efc-table th,
-.efc-table td {
-border: none;
-padding: 2px !important;
-vertical-align: middle;
-word-wrap: break-word;
-overflow-wrap: break-word;
-}
+  .efc-table th,
+  .efc-table td {
+    border: none;
+    padding: 2px !important;
+    vertical-align: middle;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
 
-.efc-table th {
-background: transparent;
-text-align: left;
-font-weight: 700;
-}
+  .efc-table th {
+    background: transparent;
+    text-align: left;
+    font-weight: 700;
+  }
 
-.efc-col-desc {
-width: 50%;
-}
+  .efc-col-desc {
+    width: 50%;
+  }
 
-.efc-col-nota {
-width: 10%;
-text-align: right;
-}
+  .efc-col-nota {
+    width: 10%;
+    text-align: right;
+  }
 
-.efc-col-monto {
-width: 20%;
-text-align: right;
-}
+  .efc-col-monto {
+    width: 20%;
+    text-align: right;
+  }
 
-.efc-table td.num {
-text-align: right;
-white-space: nowrap;
-}
+  .efc-table td.num {
+    text-align: right;
+    white-space: nowrap;
+  }
 
-.efc-line-total td,
-.efc-line-subtotal td {
-font-weight: 700;
-}
+  .efc-line-total td,
+  .efc-line-subtotal td {
+    font-weight: 700;
+  }
 
-.efc-line-subtotal td {
-border-top: 1px solid #000000;
-border-bottom: 1px solid #000000;
-}
+  .efc-line-subtotal td {
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+  }
 
-.efc-line-total td {
-border-top: 1px solid #000000;
-border-bottom: 3px double #000000;
-}
+  .efc-line-total td {
+    border-top: 1px solid #000000;
+    border-bottom: 3px double #000000;
+  }
 
-.efc-note {
-margin-top: 18px;
-page-break-inside: avoid;
-}
+  .efc-note {
+    margin-top: 18px;
+    page-break-inside: avoid;
+  }
 
-.efc-note h3 {
-margin: 0 0 6px;
-font-size: 13pt;
-}
+  .efc-note h3 {
+    margin: 0 0 6px;
+    font-size: 13pt;
+  }
 
-.efc-note-meta {
-color: #000000;
-margin-bottom: 6px;
-font-size: 11pt;
-}
+  .efc-note-meta {
+    color: #000000;
+    margin-bottom: 6px;
+    font-size: 11pt;
+  }
 
-.efc-ref-list {
-margin: 6px 0 0 16px;
-padding: 0;
-}
+  .efc-ref-list {
+    margin: 6px 0 0 16px;
+    padding: 0;
+  }
 
-.efc-ref-list li {
-margin-bottom: 4px;
-}
+  .efc-ref-list li {
+    margin-bottom: 4px;
+  }
 
-.efc-row-subtotal td,
-.efc-row-total td {
-font-weight: 700;
-}
+  .efc-row-subtotal td,
+  .efc-row-total td {
+    font-weight: 700;
+  }
 
-.efc-row-subtotal td {
-border-top: 1px solid #000000;
-border-bottom: 1px solid #000000;
-}
+  .efc-row-subtotal td {
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+  }
 
-.efc-row-total td {
-border-top: 1px solid #000000;
-border-bottom: 3px double #000000;
-}
+  .efc-row-total td {
+    border-top: 1px solid #000000;
+    border-bottom: 3px double #000000;
+  }
 
-.efc-row-comment td {
-font-style: italic;
-color: #000000;
-}
+  .efc-row-comment td {
+    font-style: italic;
+    color: #000000;
+  }
 
-.efc-note-comment {
-margin-top: 4px;
-}
+  .efc-note-comment {
+    margin-top: 4px;
+  }
 </style>
 
 {% set paquete = frappe.get_doc("Paquete Estados Financieros Cliente", doc.paquete_estados_financieros_cliente) %}
@@ -268,7 +269,7 @@ limit_page_length=200
               {% for grupo in section.grupos_columnas %}
               {% if grupo.standalone %}
               {% set columna = grupo.columns[0] %}
-              <th rowspan="2" style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}
+              <th rowspan="2" style="text-align: {{ (columna.alineacion or 'Left').lower() }};">{{ columna.etiqueta }}
               </th>
               {% else %}
               <th colspan="{{ grupo.span }}" style="text-align: center;">{{ grupo.label }}</th>
@@ -279,7 +280,7 @@ limit_page_length=200
               {% for grupo in section.grupos_columnas %}
               {% if not grupo.standalone %}
               {% for columna in grupo.columns %}
-              <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+              <th style="text-align: {{ (columna.alineacion or 'Left').lower() }};">{{ columna.etiqueta }}</th>
               {% endfor %}
               {% endif %}
               {% endfor %}
@@ -288,17 +289,17 @@ limit_page_length=200
             <tr>
               <th>Concepto</th>
               {% for columna in section.columnas %}
-              <th style="text-align: {{ (columna.alineacion or " Left").lower() }};">{{ columna.etiqueta }}</th>
+              <th style="text-align: {{ (columna.alineacion or 'Left').lower() }};">{{ columna.etiqueta }}</th>
               {% endfor %}
             </tr>
             {% endif %}
           </thead>
           <tbody>
             {% for fila in section.filas %}
-            <tr class="efc-row-{{ (fila.tipo_fila or " Detalle").lower().replace(' ', ' -') }}">
+            <tr class="efc-row-{{ (fila.tipo_fila or 'Detalle').lower().replace(' ', '-') }}">
               <td style="padding-left: {{ ((fila.nivel or 1) - 1) * 16 + 8 }}px;">{{ fila.descripcion }}</td>
               {% for celda in fila.celdas %}
-              <td style="text-align: {{ (section.columnas[loop.index0].alineacion or " Left").lower() }};">
+              <td style="text-align: {{ (section.columnas[loop.index0].alineacion or 'Left').lower() }};">
                 {% if celda.valor_texto %}
                 {{ celda.valor_texto }}
                 {% elif celda.valor_numero is not none %}
