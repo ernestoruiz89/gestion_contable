@@ -34,10 +34,8 @@
   .efc-table th,
   .efc-table td {
     border: none;
-    padding: 2px !important;
+    padding: 1px !important;
     vertical-align: middle;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
   }
 
   .efc-table th {
@@ -229,7 +227,7 @@ limit_page_length=200
       {% endif %}
       <tr class="{{ row_class }}">
         <td
-          style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px;{% if linea.negrita or linea.es_titulo %} font-weight: bold;{% endif %}{% if linea.subrayado %} text-decoration: underline;{% endif %}{% if linea.doble_subrayado %} border-bottom: 3px double #000;{% endif %}">
+          style="padding-left: {{ ((linea.nivel or 1) - 1) * 16 + 8 }}px; white-space: nowrap;{% if linea.negrita or linea.es_titulo %} font-weight: bold;{% endif %}{% if linea.subrayado %} text-decoration: underline;{% endif %}{% if linea.doble_subrayado %} border-bottom: 3px double #000;{% endif %}">
           {{ linea.descripcion }}</td>
         <td class="num">{{ linea.numero_nota_referencial or "" }}</td>
         <td class="num">{% if not linea.es_titulo %}{{ frappe.format_value(linea.monto_actual or 0, {"fieldtype":
