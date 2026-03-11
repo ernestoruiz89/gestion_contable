@@ -131,8 +131,7 @@ def _load_balance_lines(version_name):
 def _find_state_line(doc, code):
     target = _normalize_code(code)
     for row in doc.lineas or []:
-        current = _normalize_code(getattr(row, "codigo_linea_estado", "") or getattr(row, "codigo_rubro", ""))
-        if current == target:
+        if _normalize_code(getattr(row, "codigo_linea_estado", "")) == target or _normalize_code(getattr(row, "codigo_rubro", "")) == target:
             return row
     return None
 
@@ -190,7 +189,13 @@ def _get_rule_cell_coordinates(rule, origin_version):
 
 
 def _compute_formula_rows(rows, amount_fields, code_getter, formula_getter, auto_getter, manual_getter, origin_setter, label_builder):
-    row_map = {_normalize_code(code_getter(row)): row for row in rows if _normalize_code(code_getter(row))}
+    row_map = {}
+    for row in rows:
+        for code in code_getter(row):
+            norm_code = _normalize_code(code)
+            if norm_code:
+                row_map[norm_code] = row
+
     cache = {}
 
     def get_value(code, fieldname, stack=None):
@@ -221,20 +226,28 @@ def _compute_formula_rows(rows, amount_fields, code_getter, formula_getter, auto
             value = flt(getattr(row, fieldname, 0))
 
         cache[key] = value
+        for other_code in code_getter(row):
+            other_norm = _normalize_code(other_code)
+            if other_norm:
+                cache[(other_norm, fieldname)] = value
+
         return value
 
-    for code, row in row_map.items():
+    for row in rows:
         if not cint(auto_getter(row)) or not cstr(formula_getter(row) or "").strip():
             continue
-        for fieldname in amount_fields:
-            get_value(code, fieldname, set())
+        codes = code_getter(row)
+        primary = next((_normalize_code(c) for c in codes if _normalize_code(c)), None)
+        if primary:
+            for fieldname in amount_fields:
+                get_value(primary, fieldname, set())
 
 
 def _compute_state_formulas(state_doc):
     _compute_formula_rows(
         state_doc.lineas or [],
         ("monto_actual", "monto_comparativo"),
-        lambda row: getattr(row, "codigo_linea_estado", "") or getattr(row, "codigo_rubro", ""),
+        lambda row: [getattr(row, "codigo_linea_estado", ""), getattr(row, "codigo_rubro", "")],
         lambda row: getattr(row, "formula_lineas", ""),
         lambda row: getattr(row, "calculo_automatico", 0),
         lambda row: getattr(row, "es_manual", 0),
@@ -247,7 +260,7 @@ def _compute_note_figure_formulas(note_doc):
     _compute_formula_rows(
         note_doc.cifras_nota or [],
         ("monto_actual", "monto_comparativo"),
-        lambda row: getattr(row, "codigo_cifra", ""),
+        lambda row: [getattr(row, "codigo_cifra", "")],
         lambda row: getattr(row, "formula_cifras", ""),
         lambda row: getattr(row, "calculo_automatico", 0),
         lambda row: getattr(row, "es_manual", 0),

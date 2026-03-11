@@ -468,6 +468,10 @@ def _validate_cash_flow_math(state_doc):
 
 
 def validate_state_math(state_doc):
+    # NOTE: Math validation bypassed as per user request to allow saving states with inconsistencies.
+    # A dedicated page/dashboard will be created to review and manage these inconsistencies later.
+    return
+    
     total_rows = [row for row in state_doc.lineas or [] if (cint(row.es_total) or cint(row.es_subtotal)) and not cint(getattr(row, "es_titulo", 0))]
     
     # Permitir montos cero en estado borrador para facilitar el diseño de la estructura
