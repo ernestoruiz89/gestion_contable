@@ -293,8 +293,8 @@ class CreadorMapeoContable {
 
         this.$schemeList.html(this.state.schemes.map((scheme) => `
             <div class="cmc-list-item ${scheme.value === this.state.esquema_name ? "active" : ""}" data-scheme-name="${this.escape(scheme.value)}">
-                <strong>${this.escape(scheme.value)}</strong>
-                <span>${this.escape(scheme.label || "")}</span>
+                <strong>${this.escape(scheme.label || scheme.value)}</strong>
+                <span>${this.escape(scheme.value)}</span>
             </div>
         `).join(""));
     }
