@@ -218,10 +218,11 @@ class CreadorMapeoContable {
                 this.render_editor();
                 this.last_bootstrap_key = bootstrapKey;
                 this.bootstrapped = true;
-            },
-            always: () => {
                 this.loading_bootstrap = false;
             },
+            error: () => {
+                this.loading_bootstrap = false;
+            }
         });
     }
 
