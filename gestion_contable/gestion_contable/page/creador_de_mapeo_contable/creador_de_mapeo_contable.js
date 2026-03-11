@@ -145,7 +145,8 @@ class CreadorMapeoContable {
     bind_events() {
         this.wrapper.on("click", ".cmc-create-scheme", () => this.open_create_scheme_dialog());
         this.wrapper.on("click", ".cmc-list-item", (event) => {
-            const name = event.currentTarget.dataset.schemeName;
+            const $item = $(event.currentTarget);
+            const name = $item.attr("data-scheme-name");
             if (name) this.load_bootstrap({ esquema_name: name });
         });
         this.wrapper.on("change input", ".cmc-meta-field", (event) => this.update_meta_field(event));
@@ -157,7 +158,8 @@ class CreadorMapeoContable {
         this.wrapper.on("click", ".cmc-duplicate-rule", () => this.duplicate_current_rule());
         this.wrapper.on("click", ".cmc-delete-rule", () => this.delete_current_rule());
         this.wrapper.on("click", ".cmc-rule-item", (event) => {
-            this.state.current_rule_id = event.currentTarget.dataset.ruleId || null;
+            const $item = $(event.currentTarget);
+            this.state.current_rule_id = $item.attr("data-rule-id") || null;
             this.render_editor();
         });
         this.wrapper.on("change input", ".cmc-rule-field", (event) => this.update_rule_field(event));
@@ -190,7 +192,7 @@ class CreadorMapeoContable {
         const bootstrapKey = JSON.stringify(args);
         this.state.route_options = {};
 
-        if (this.loading_bootstrap || bootstrapKey === this.last_bootstrap_key) {
+        if (this.loading_bootstrap) {
             return;
         }
         this.loading_bootstrap = true;

@@ -320,6 +320,16 @@ frappe.ui.form.on("Paquete Estados Financieros Cliente", {
             });
         }, __("Estados Financieros"));
 
+        if (frm.doc.esquema_mapeo_contable) {
+            frm.add_custom_button(__("Mapeo (Editor)"), () => {
+                frappe.route_options = {
+                    esquema_name: frm.doc.esquema_mapeo_contable,
+                    cliente: frm.doc.cliente
+                };
+                frappe.set_route("creador-de-mapeo-contable");
+            }, __("Estados Financieros"));
+        }
+
         if (frm.doc.estado_aprobacion === "Aprobado" && frm.doc.estado_preparacion !== "Emitido") {
             frm.add_custom_button(__("Emitir Paquete"), () => {
                 frappe.call({
