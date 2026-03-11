@@ -62,6 +62,7 @@ def get_mapping_editor_bootstrap(esquema_name=None, cliente=None):
         "esquema_name": esquema_doc.name if esquema_doc else None,
         "clients": _get_clients(),
         "schemes": _get_schemes(cliente) if cliente else [],
+        "scheme": _serialize_scheme(esquema_doc),
         "catalogs": _get_catalogs(cliente, esquema_doc.marco_contable if esquema_doc else None),
     }
 
