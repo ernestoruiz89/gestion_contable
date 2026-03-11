@@ -87,6 +87,9 @@ class CreadorMapeoContable {
             .cmc-rule-item .cmc-rule-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.cmc-tag{display:inline-flex;padding:3px 8px;border-radius:999px;background:#f1f5f9;color:#334155;font-size:10px;font-weight:800;text-transform:uppercase}
             .cmc-help{padding:0 18px 16px;color:#566a60;font-size:12px}.cmc-help code{background:#f3f6f4;padding:2px 6px;border-radius:6px}
             @media (max-width:1200px){.cmc-shell,.cmc-board,.cmc-grid.meta,.cmc-grid.rule{grid-template-columns:1fr}}
+            .cmc-sidebar-filters{padding:14px 16px;border-bottom:1px solid #edf2ef;display:flex;flex-direction:column;gap:12px}
+            .cmc-sidebar-filters .cmc-field label{font-size:10px;text-transform:uppercase;font-weight:800;color:#667b6f;margin-bottom:4px}
+            .cmc-sidebar-filters select{width:100%;border:1px solid #c6d4cc;border-radius:8px;padding:6px 8px;font-size:12px;background:#fff}
         `;
         document.head.appendChild(style);
     }
@@ -97,7 +100,17 @@ class CreadorMapeoContable {
                 <aside class="cmc-sidebar">
                     <div class="cmc-sidebar-head">
                         <h3>Esquemas de mapeo</h3>
-                        <p>Selecciona un cliente, abre un esquema y edita sus reglas sin entrar al grid hijo.</p>
+                        <p>Selecciona un cliente y edita sus reglas sin entrar al grid hijo.</p>
+                    </div>
+                    <div class="cmc-sidebar-filters">
+                        <div class="cmc-field">
+                            <label>${__("Cliente")}</label>
+                            <select data-role="field-cliente"><option value=""></option></select>
+                        </div>
+                        <div class="cmc-field">
+                            <label>${__("Esquema")}</label>
+                            <select data-role="field-esquema"><option value=""></option></select>
+                        </div>
                     </div>
                     <div class="cmc-sidebar-actions">
                         <button class="cmc-btn primary cmc-create-scheme">${__("Nuevo Esquema")}</button>
@@ -111,50 +124,19 @@ class CreadorMapeoContable {
             </div>
         `);
 
-        this.clientField = this.page.add_field({
-            fieldtype: "Select",
-            fieldname: "cliente",
-            label: __("Cliente"),
-            options: [""],
-            change: () => this.on_client_change(),
-        });
-        this.schemeField = this.page.add_field({
-            fieldtype: "Select",
-            fieldname: "esquema_name",
-            label: __("Esquema"),
-            options: "\n",
-            change: () => this.on_scheme_change(),
-        });
-
+        this.$clientField = this.wrapper.find('[data-role="field-cliente"]');
+        this.$schemeField = this.wrapper.find('[data-role="field-esquema"]');
         this.$schemeList = this.wrapper.find('[data-role="scheme-list"]');
         this.$editor = this.wrapper.find('[data-role="editor"]');
     }
 
     ensure_filter_bar_visible() {
-        const show = () => {
-            const $pageForm = $(this.page.wrapper).find(".page-form");
-            const $filterBar = $(this.page.wrapper).find(".page-actions");
-
-            if ($pageForm.length) {
-                $pageForm.removeClass("hide hidden d-none").css({
-                    "display": "flex",
-                    "visibility": "visible",
-                    "opacity": "1",
-                    "height": "auto",
-                    "width": "auto",
-                    "padding": "12px 15px",
-                    "gap": "8px",
-                    "align-items": "flex-end"
-                });
-                $pageForm.find(".frappe-control").show().css("visibility", "visible");
-            }
-        };
-        show();
-        setTimeout(show, 100);
-        setTimeout(show, 500);
+        // Obsolete
     }
 
     bind_events() {
+        this.$clientField.on("change", () => this.on_client_change());
+        this.$schemeField.on("change", () => this.on_scheme_change());
         this.wrapper.on("click", ".cmc-create-scheme", () => this.open_create_scheme_dialog());
         this.wrapper.on("click", ".cmc-view-balanza", () => this.view_balanza());
         this.wrapper.on("click", ".cmc-list-item", (event) => {
@@ -180,12 +162,12 @@ class CreadorMapeoContable {
 
     on_client_change() {
         if (this.setting_filters) return;
-        this.load_bootstrap({ cliente: this.clientField.get_value() || null, esquema_name: null });
+        this.load_bootstrap({ cliente: this.$clientField.val() || null, esquema_name: null });
     }
 
     on_scheme_change() {
         if (this.setting_filters) return;
-        const esquema_name = this.schemeField.get_value() || null;
+        const esquema_name = this.$schemeField.val() || null;
         if (!esquema_name) {
             this.state.esquema_name = null;
             this.state.scheme = null;
@@ -199,8 +181,8 @@ class CreadorMapeoContable {
     load_bootstrap(overrides = {}) {
         const route = this.state.route_options || {};
         const args = {
-            cliente: overrides.cliente !== undefined ? overrides.cliente : (route.cliente || this.clientField.get_value() || null),
-            esquema_name: overrides.esquema_name !== undefined ? overrides.esquema_name : (route.esquema_name || this.schemeField.get_value() || null),
+            cliente: overrides.cliente !== undefined ? overrides.cliente : (route.cliente || this.$clientField.val() || null),
+            esquema_name: overrides.esquema_name !== undefined ? overrides.esquema_name : (route.esquema_name || this.$schemeField.val() || null),
         };
         const bootstrapKey = JSON.stringify(args);
         this.state.route_options = {};
@@ -270,30 +252,22 @@ class CreadorMapeoContable {
 
     sync_filter_options() {
         this.setting_filters = true;
-        this.set_select_options(this.clientField, this.state.clients);
-        this.set_select_options(this.schemeField, this.state.schemes);
+        this.set_select_options(this.$clientField, this.state.clients);
+        this.set_select_options(this.$schemeField, this.state.schemes);
 
-        const client_val = this.state.cliente || "";
-        const scheme_val = this.state.esquema_name || "";
-
-        if (this.clientField.$input) this.clientField.$input.val(client_val);
-        this.clientField.value = client_val;
-        this.clientField.last_value = client_val;
-
-        if (this.schemeField.$input) this.schemeField.$input.val(scheme_val);
-        this.schemeField.value = scheme_val;
-        this.schemeField.last_value = scheme_val;
+        this.$clientField.val(this.state.cliente || "");
+        this.$schemeField.val(this.state.esquema_name || "");
 
         this.setting_filters = false;
-        this.ensure_filter_bar_visible();
     }
 
-    set_select_options(field, rows) {
-        if (!field) return;
-        const options = [""];
-        (rows || []).forEach(r => options.push({ value: r.value, label: r.label || r.value }));
-        field.df.options = options;
-        field.refresh();
+    set_select_options($field, rows) {
+        if (!$field) return;
+        const options = ['<option value=""></option>'];
+        (rows || []).forEach(r => {
+            options.push(`<option value="${this.escape(r.value)}">${this.escape(r.label || r.value)}</option>`);
+        });
+        $field.html(options.join(''));
     }
 
     render_schemes() {
