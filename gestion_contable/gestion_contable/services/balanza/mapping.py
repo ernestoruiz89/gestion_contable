@@ -347,7 +347,8 @@ def _apply_state_rule(state_docs, rule, amount, summary, origin_version):
         return None
 
     amount_field = STATE_AMOUNT_FIELDS.get(cstr(origin_version or "Actual"), "monto_actual")
-    setattr(row, amount_field, amount)
+    current_val = flt(getattr(row, amount_field, 0))
+    setattr(row, amount_field, current_val + amount)
     row.origen_dato = "Balanza"
     row.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}"
     return state_doc
@@ -369,7 +370,8 @@ def _apply_figure_rule(note_docs, rule, amount, summary, origin_version):
         return None
 
     amount_field = NOTE_AMOUNT_FIELDS.get(cstr(origin_version or "Actual"), "monto_actual")
-    setattr(row, amount_field, amount)
+    current_val = flt(getattr(row, amount_field, 0))
+    setattr(row, amount_field, current_val + amount)
     row.origen_dato = "Balanza"
     row.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}"
     return note_doc
@@ -411,7 +413,7 @@ def _apply_cell_rule(note_docs, rule, amount, summary, origin_version):
         )
 
     cell.valor_texto = None
-    cell.valor_numero = amount
+    cell.valor_numero = flt(getattr(cell, "valor_numero", 0)) + amount
     cell.formato_numero = _get_column_format(note_doc, section_id, column_code)
     cell.origen_dato = "Balanza"
     cell.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}-{cstr(origin_version or 'Actual')[0]}"
@@ -462,7 +464,8 @@ def _apply_sumaria_rule(package_doc, sumaria_docs, rule, amount, summary, origin
         )
 
     fieldname = "monto_comparativo" if cstr(origin_version or "Actual") == "Comparativo" else "monto_actual"
-    setattr(row, fieldname, amount)
+    current_val = flt(getattr(row, fieldname, 0))
+    setattr(row, fieldname, current_val + amount)
     row.origen_dato = "Balanza"
     row.ultima_regla_mapeo = f"R{cint(rule.idx or 0):03d}"
 
@@ -534,6 +537,25 @@ def actualizar_paquete_desde_balanza(package_name):
     touched_states = set()
     touched_notes = set()
     touched_sumarias = set()
+
+    # Limpiar montos previamente mapeados (no manuales) para permitir acumulacion por reglas
+    for doc in state_docs.get("all", []):
+        for row in doc.lineas or []:
+            if not cint(getattr(row, "es_manual", 0)):
+                row.monto_actual = 0.0
+                row.monto_comparativo = 0.0
+
+    for doc in note_docs.values():
+        for row in doc.cifras_nota or []:
+            if not cint(getattr(row, "es_manual", 0)):
+                row.monto_actual = 0.0
+                row.monto_comparativo = 0.0
+
+    for paper in sumaria_docs.values():
+        for row in paper.lineas_cedula_sumaria or []:
+            if not cint(getattr(row, "es_manual", 0)):
+                row.monto_actual = 0.0
+                row.monto_comparativo = 0.0
 
     active_rules.sort(key=lambda row: (cint(row.orden_ejecucion or 0), cint(row.idx or 0)))
 
