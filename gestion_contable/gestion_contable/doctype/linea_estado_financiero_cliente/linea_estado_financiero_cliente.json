@@ -22,6 +22,7 @@
         "cb_estilo",
         "no_imprimir",
         "calculo_automatico",
+        "formula_lineas",
         "sb_validaciones",
         "es_total",
         "es_subtotal",
@@ -143,6 +144,11 @@
             "fieldtype": "Check",
             "label": "Calculo Automatico",
             "default": 0
+        },
+        {
+            "fieldname": "formula_lineas",
+            "fieldtype": "Small Text",
+            "label": "Formula Lineas"
         },
         {
             "fieldname": "sb_validaciones",
