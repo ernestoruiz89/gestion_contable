@@ -112,10 +112,10 @@ class CreadorMapeoContable {
         `);
 
         this.clientField = this.page.add_field({
-            fieldtype: "Link",
+            fieldtype: "Select",
             fieldname: "cliente",
             label: __("Cliente"),
-            options: "Cliente Contable",
+            options: [""],
             change: () => this.on_client_change(),
         });
         this.schemeField = this.page.add_field({
@@ -133,14 +133,25 @@ class CreadorMapeoContable {
     ensure_filter_bar_visible() {
         const show = () => {
             const $pageForm = $(this.page.wrapper).find(".page-form");
+            const $filterBar = $(this.page.wrapper).find(".page-actions");
+
             if ($pageForm.length) {
-                $pageForm.removeClass("hide hidden d-none");
-                $pageForm.attr("style", "display:flex !important; flex-wrap:wrap; gap:8px; align-items:flex-end; padding:12px 15px;");
+                $pageForm.removeClass("hide hidden d-none").css({
+                    "display": "flex",
+                    "visibility": "visible",
+                    "opacity": "1",
+                    "height": "auto",
+                    "width": "auto",
+                    "padding": "12px 15px",
+                    "gap": "8px",
+                    "align-items": "flex-end"
+                });
+                $pageForm.find(".frappe-control").show().css("visibility", "visible");
             }
         };
         show();
-        setTimeout(show, 0);
-        setTimeout(show, 200);
+        setTimeout(show, 100);
+        setTimeout(show, 500);
     }
 
     bind_events() {
@@ -259,25 +270,22 @@ class CreadorMapeoContable {
 
     sync_filter_options() {
         this.setting_filters = true;
+        this.set_select_options(this.clientField, this.state.clients);
         this.set_select_options(this.schemeField, this.state.schemes);
 
         const client_val = this.state.cliente || "";
         const scheme_val = this.state.esquema_name || "";
 
-        // Use synchronous setter and bypass async change trigger
-        if (this.clientField.set_value) {
-            this.clientField.set_value(client_val);
-        } else if (this.clientField.$input) {
-            this.clientField.$input.val(client_val);
-            this.clientField.value = client_val;
-            this.clientField.last_value = client_val;
-        }
+        if (this.clientField.$input) this.clientField.$input.val(client_val);
+        this.clientField.value = client_val;
+        this.clientField.last_value = client_val;
 
         if (this.schemeField.$input) this.schemeField.$input.val(scheme_val);
         this.schemeField.value = scheme_val;
         this.schemeField.last_value = scheme_val;
 
         this.setting_filters = false;
+        this.ensure_filter_bar_visible();
     }
 
     set_select_options(field, rows) {
