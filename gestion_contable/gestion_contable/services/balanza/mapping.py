@@ -257,9 +257,12 @@ def _compute_note_figure_formulas(note_doc):
 
 
 def _load_state_docs(package_name):
-    docs = {"by_code": {}, "by_type": {}}
-    for name in frappe.get_all("Estado Financiero Cliente", filters={"paquete_estados_financieros_cliente": package_name}, pluck="name", limit_page_length=200):
+    docs = {"by_code": {}, "by_type": {}, "all": []}
+    for name in frappe.get_all(
+        "Estado Financiero Cliente", filters={"paquete_estados_financieros_cliente": package_name}, pluck="name", limit_page_length=200
+    ):
         doc = frappe.get_doc("Estado Financiero Cliente", name)
+        docs["all"].append(doc)
         state_code = _normalize_code(getattr(doc, "codigo_estado", ""))
         if state_code:
             docs["by_code"][state_code] = doc
@@ -549,7 +552,7 @@ def actualizar_paquete_desde_balanza(package_name):
                 if target_doc:
                     touched_sumarias.add(target_doc.name)
 
-    for doc in state_docs.values():
+    for doc in state_docs.get("all", []):
         if doc.name not in touched_states and not any(cint(getattr(row, "calculo_automatico", 0)) for row in doc.lineas or []):
             continue
         _compute_state_formulas(doc)
