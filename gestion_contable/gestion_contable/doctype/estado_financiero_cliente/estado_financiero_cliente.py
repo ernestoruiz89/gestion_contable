@@ -60,7 +60,10 @@ class EstadoFinancieroCliente(Document):
         self.normalizar_lineas()
         self.validar_unicidad_tipo()
         self.validar_unicidad_codigo_estado()
-        validate_state_math(self)
+        
+        # NOTE: validate_state_math no longer called here to allow saving states with inconsistencies.
+        # These will be reviewed later via a dedicated dashboard/page.
+        
         validate_governance(
             self,
             content_fields=CONTENT_FIELDS,
