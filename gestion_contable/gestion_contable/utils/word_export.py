@@ -292,7 +292,7 @@ def _configure_section(section, package, WD_ALIGN_PARAGRAPH, OxmlElement, qn, Cm
     header = section.header
     header_para = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
     header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    header_para.text = f"{package.razon_social_reportante or package.cliente or '-'} | {document_title}"
+    header_para.text = ""
     _set_paragraph_runs_font(header_para, size=10)
 
     footer = section.footer
