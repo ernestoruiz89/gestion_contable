@@ -142,7 +142,7 @@ class CreadorMapeoContable {
         this.wrapper.on("click", ".cmc-list-item", (event) => {
             const $item = $(event.currentTarget);
             const name = $item.attr("data-scheme-name");
-            if (name) this.load_bootstrap({ esquema_name: name });
+            if (name) this.select_scheme(name);
         });
         this.wrapper.on("change input", ".cmc-meta-field", (event) => this.update_meta_field(event));
         this.wrapper.on("click", ".cmc-open-form", () => {
@@ -167,15 +167,23 @@ class CreadorMapeoContable {
 
     on_scheme_change() {
         if (this.setting_filters) return;
-        const esquema_name = this.$schemeField.val() || null;
-        if (!esquema_name) {
+        const name = this.$schemeField.val() || null;
+        this.select_scheme(name);
+    }
+
+    select_scheme(name) {
+        if (!name) {
             this.state.esquema_name = null;
             this.state.scheme = null;
+            this.sync_filter_options();
             this.render_schemes();
             this.render_editor();
             return;
         }
-        this.load_bootstrap({ esquema_name });
+        this.state.esquema_name = name;
+        this.render_schemes(); // Update active state in list
+        this.render_editor(true); // Show loading in editor
+        this.load_bootstrap({ esquema_name: name });
     }
 
     load_bootstrap(overrides = {}) {
@@ -299,7 +307,18 @@ class CreadorMapeoContable {
         `).join(""));
     }
 
-    render_editor() {
+    render_editor(loading = false) {
+        if (loading) {
+            this.$editor.html(`
+                <div class="cmc-empty">
+                    <div class="frappe-spinner"></div>
+                    <strong style="margin-top:10px;">${__("Cargando configuracion...")}</strong>
+                    <p>${__("Estamos obteniendo las reglas y catálogos para este esquema.")}</p>
+                </div>
+            `);
+            return;
+        }
+
         const doc = this.get_doc();
         if (!doc) {
             this.$editor.html(`
