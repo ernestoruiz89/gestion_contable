@@ -62,8 +62,7 @@ def get_mapping_editor_bootstrap(esquema_name=None, cliente=None):
         "esquema_name": esquema_doc.name if esquema_doc else None,
         "clients": _get_clients(),
         "schemes": _get_schemes(cliente) if cliente else [],
-        "scheme": _serialize_scheme(esquema_doc) if esquema_doc else None,
-        "catalogs": _get_catalogs(),
+        "catalogs": _get_catalogs(cliente, esquema_doc.marco_contable if esquema_doc else None),
     }
 
 
@@ -101,7 +100,7 @@ def create_scheme_for_editor(cliente, nombre_esquema=None, company=None, marco_c
         "clients": _get_clients(),
         "schemes": _get_schemes(doc.cliente),
         "scheme": _serialize_scheme(doc),
-        "catalogs": _get_catalogs(),
+        "catalogs": _get_catalogs(doc.cliente, doc.marco_contable),
     }
 
 
@@ -127,7 +126,7 @@ def save_mapping_scheme_editor(esquema_payload):
         "clients": _get_clients(),
         "schemes": _get_schemes(doc.cliente),
         "scheme": _serialize_scheme(doc),
-        "catalogs": _get_catalogs(),
+        "catalogs": _get_catalogs(doc.cliente, doc.marco_contable),
     }
 
 
@@ -229,7 +228,7 @@ def _get_select_options(doctype, fieldname):
     return [row.strip() for row in options.split("\n") if row.strip()]
 
 
-def _get_catalogs():
+def _get_catalogs(cliente=None, marco_contable=None):
     return {
         "marcos_contables": _get_select_options("Esquema Mapeo Contable", "marco_contable"),
         "tipos_paquete": _get_select_options("Esquema Mapeo Contable", "tipo_paquete"),
@@ -239,6 +238,7 @@ def _get_catalogs():
         "operaciones_agregacion": _get_select_options("Regla Mapeo Contable", "operacion_agregacion"),
         "signos_presentacion": _get_select_options("Regla Mapeo Contable", "signo_presentacion"),
         "tipos_estado": _get_select_options("Regla Mapeo Contable", "destino_tipo_estado"),
+        "estados_y_rubros": _get_states_catalog(cliente, marco_contable),
     }
 
 
@@ -258,3 +258,78 @@ def _get_next_version(cliente, company, marco_contable, tipo_paquete):
     if not rows:
         return 1
     return cint(rows[0].version or 0) + 1
+
+
+def _get_states_catalog(cliente, marco_contable):
+    if not cliente:
+        return {}
+    
+    packages = frappe.get_all(
+        "Paquete Estados Financieros Cliente",
+        filters={"cliente": cliente, "es_version_vigente": 1},
+        pluck="name",
+        limit_page_length=5
+    )
+    if not packages:
+        packages = frappe.get_all("Paquete Estados Financieros Cliente", filters={"cliente": cliente}, pluck="name", limit_page_length=5)
+    
+    if not packages:
+        return {}
+        
+    states = frappe.get_all(
+        "Estado Financiero Cliente",
+        filters={"paquete_estados_financieros_cliente": ["in", packages]},
+        fields=["name", "tipo_estado", "codigo_estado", "nombre_del_estado"]
+    )
+    
+    catalog = {}
+    for st in states:
+        if st.tipo_estado not in catalog:
+            catalog[st.tipo_estado] = {}
+        if st.codigo_estado not in catalog[st.tipo_estado]:
+            catalog[st.tipo_estado][st.codigo_estado] = []
+            
+        lines = frappe.get_all(
+            "Linea Estado Financiero Cliente",
+            filters={"parent": st.name},
+            fields=["codigo_linea_estado", "codigo_rubro", "descripcion"],
+            order_by="idx asc"
+        )
+        for ln in lines:
+            code = ln.codigo_rubro or ln.codigo_linea_estado
+            if code:
+                if not any(x["value"] == code for x in catalog[st.tipo_estado][st.codigo_estado]):
+                    catalog[st.tipo_estado][st.codigo_estado].append({
+                        "value": code,
+                        "label": f"{code} - {ln.descripcion}"
+                    })
+                    
+    return catalog
+
+
+@frappe.whitelist()
+def get_balanza_para_mapeo(cliente, company=None):
+    _ensure_page_access()
+    filters = {"cliente": cliente, "estado_version": "Publicada", "es_version_vigente": 1}
+    if company:
+        filters["company"] = company
+        
+    versions = frappe.get_all(
+        "Version Balanza Cliente", 
+        filters=filters,
+        order_by="fecha_corte desc", 
+        limit_page_length=1
+    )
+    if not versions:
+        return []
+        
+    version_doc = frappe.get_doc("Version Balanza Cliente", versions[0].name)
+    balanza_data = []
+    for row in version_doc.lineas_balanza:
+        balanza_data.append({
+            "cuenta": row.numero_cuenta,
+            "nombre": row.nombre_cuenta,
+            "saldo": row.saldo_final
+        })
+    return balanza_data
+

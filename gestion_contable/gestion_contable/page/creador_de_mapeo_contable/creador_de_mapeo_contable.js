@@ -101,6 +101,7 @@ class CreadorMapeoContable {
                     </div>
                     <div class="cmc-sidebar-actions">
                         <button class="cmc-btn primary cmc-create-scheme">${__("Nuevo Esquema")}</button>
+                        <button class="cmc-btn cmc-view-balanza" style="margin-top: 6px; width: 100%;">${__("Ver Balanza")}</button>
                     </div>
                     <div class="cmc-list" data-role="scheme-list"></div>
                 </aside>
@@ -144,6 +145,7 @@ class CreadorMapeoContable {
 
     bind_events() {
         this.wrapper.on("click", ".cmc-create-scheme", () => this.open_create_scheme_dialog());
+        this.wrapper.on("click", ".cmc-view-balanza", () => this.view_balanza());
         this.wrapper.on("click", ".cmc-list-item", (event) => {
             const $item = $(event.currentTarget);
             const name = $item.attr("data-scheme-name");
@@ -514,6 +516,26 @@ class CreadorMapeoContable {
             `;
         }
         if (rule.destino_tipo === "Linea Estado") {
+            const catalog = this.state.catalogs.estados_y_rubros || {};
+            const available_estados = Object.keys(catalog[rule.destino_tipo_estado] || {});
+
+            let select_estado = `<input class="cmc-rule-field" data-fieldname="destino_codigo_estado" type="text" value="${this.escape(rule.destino_codigo_estado || "")}" />`;
+            if (available_estados.length > 0) {
+                select_estado = `<select class="cmc-rule-field" data-fieldname="destino_codigo_estado"><option value=""></option>${available_estados.map(st => `<option value="${this.escape(st)}" ${st === rule.destino_codigo_estado ? 'selected' : ''}>${this.escape(st)}</option>`).join('')}</select>`;
+            }
+
+            const available_lineas = rule.destino_codigo_estado ? (catalog[rule.destino_tipo_estado]?.[rule.destino_codigo_estado] || []) : [];
+            let select_linea = `<input class="cmc-rule-field" data-fieldname="destino_codigo_linea_estado" type="text" value="${this.escape(rule.destino_codigo_linea_estado || "")}" />`;
+
+            if (available_lineas.length > 0) {
+                select_linea = `
+                    <input list="lineas_estado_${rule.__editor_id}" class="cmc-rule-field" data-fieldname="destino_codigo_linea_estado" type="text" value="${this.escape(rule.destino_codigo_linea_estado || "")}" placeholder="Escribe o selecciona..." />
+                    <datalist id="lineas_estado_${rule.__editor_id}">
+                        ${available_lineas.map(ln => `<option value="${this.escape(ln.value)}">${this.escape(ln.label)}</option>`).join('')}
+                    </datalist>
+               `;
+            }
+
             return `
                 <div class="cmc-field">
                     <label>${__("Tipo Estado")}</label>
@@ -521,11 +543,11 @@ class CreadorMapeoContable {
                 </div>
                 <div class="cmc-field">
                     <label>${__("Codigo Estado")}</label>
-                    <input class="cmc-rule-field" data-fieldname="destino_codigo_estado" type="text" value="${this.escape(rule.destino_codigo_estado || "")}" />
+                    ${select_estado}
                 </div>
                 <div class="cmc-field">
                     <label>${__("Codigo Linea Estado")}</label>
-                    <input class="cmc-rule-field" data-fieldname="destino_codigo_linea_estado" type="text" value="${this.escape(rule.destino_codigo_linea_estado || "")}" />
+                    ${select_linea}
                 </div>
             `;
         }
@@ -600,7 +622,6 @@ class CreadorMapeoContable {
         }
         return __("Destino sin definir");
     }
-
     open_create_scheme_dialog() {
         const dialog = new frappe.ui.Dialog({
             title: __("Nuevo Esquema de Mapeo"),
@@ -834,7 +855,82 @@ class CreadorMapeoContable {
         return Number.isNaN(parsed) ? fallback : parsed;
     }
 
-    escape(value) {
-        return frappe.utils.escape_html(String(value ?? ""));
+    view_balanza() {
+        if (!this.state.cliente) {
+            frappe.msgprint(__("Por favor, selecciona un cliente para ver su balanza."));
+            return;
+        }
+
+        frappe.call({
+            method: "gestion_contable.gestion_contable.page.creador_de_mapeo_contable.creador_de_mapeo_contable.get_balanza_para_mapeo",
+            args: {
+                cliente: this.state.cliente,
+                company: this.get_doc()?.company || null
+            },
+            freeze: true,
+            freeze_message: __("Cargando balanza..."),
+            callback: (r) => {
+                const balanza = r.message || [];
+                if (!balanza.length) {
+                    frappe.msgprint(__("No se encontro una version de balanza vigente/publicada para este cliente."));
+                    return;
+                }
+
+                const dialog = new frappe.ui.Dialog({
+                    title: __("Balanza de Comprobacion"),
+                    size: 'extra-large',
+                    fields: [
+                        {
+                            fieldname: "filtro",
+                            fieldtype: "Data",
+                            label: __("Filtrar Cuentas"),
+                            placeholder: __("Escribe cuenta o nombre...")
+                        },
+                        {
+                            fieldname: "balanza_html",
+                            fieldtype: "HTML",
+                        }
+                    ],
+                });
+
+                const render_html = (filtro) => {
+                    const lowered = (filtro || "").toLowerCase();
+                    const html = `
+                        <div style="max-height: 50vh; overflow-y: auto;">
+                            <table class="table table-bordered table-sm cmc-balanza-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Cuenta</th>
+                                        <th>Nombre</th>
+                                        <th style="text-align: right; width: 25%;">Saldo Final</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${balanza.filter(r => (r.cuenta || "").toLowerCase().includes(lowered) || (r.nombre || "").toLowerCase().includes(lowered)).map(line => `
+                                        <tr>
+                                            <td style="font-family: monospace;">${line.cuenta}</td>
+                                            <td>${line.nombre}</td>
+                                            <td style="text-align: right;">${format_currency(line.saldo)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    dialog.fields_dict.balanza_html.$wrapper.html(html);
+                };
+
+                render_html("");
+                dialog.get_field("filtro").$input.on("input", (e) => {
+                    render_html(e.target.value);
+                });
+
+                dialog.show();
+            }
+        });
+    }
+
+    escape(str) {
+        return frappe.utils.escape_html(String(str ?? ""));
     }
 }
