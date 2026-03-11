@@ -67,6 +67,28 @@ frappe.ui.form.on("Estado Financiero Cliente", {
             return;
         }
 
+        if (frm.doc.paquete_estados_financieros_cliente) {
+            frm.add_custom_button(__("Actualizar desde Balanza"), () => {
+                frappe.confirm(
+                    __("¿Actualizar los saldos mapeados desde la balanza? Esto aplicara la actualizacion para todo el Paquete."),
+                    () => {
+                        frappe.call({
+                            method: "gestion_contable.gestion_contable.doctype.paquete_estados_financieros_cliente.paquete_estados_financieros_cliente.actualizar_paquete_desde_balanza_paquete",
+                            args: { package_name: frm.doc.paquete_estados_financieros_cliente },
+                            freeze: true,
+                            freeze_message: __("Ejecutando mapeo contable..."),
+                            callback: (r) => {
+                                if (!r.exc) {
+                                    frappe.show_alert({ message: __("Esquema de mapeo aplicado exitosamente."), indicator: "green" });
+                                    frm.reload_doc();
+                                }
+                            },
+                        });
+                    }
+                );
+            }, __("Mapeo Contable"));
+        }
+
         const formatName = statePrintFormats[frm.doc.tipo_estado];
         if (!formatName) {
             return;
