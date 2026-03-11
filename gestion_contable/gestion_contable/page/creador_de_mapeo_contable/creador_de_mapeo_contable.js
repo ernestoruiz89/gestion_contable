@@ -781,18 +781,36 @@ class CreadorMapeoContable {
         }
         rule[fieldname] = value;
 
+        let structural_change = false;
+
         if (fieldname === "destino_tipo") {
             this.clear_destination_fields(rule);
+            structural_change = true;
         }
         if (fieldname === "origen_version" && value !== "Ambas") {
             rule.destino_seccion_id_comparativa = "";
             rule.destino_codigo_fila_comparativa = "";
             rule.destino_codigo_columna_comparativa = "";
+            structural_change = true;
         }
         if (fieldname === "selector_tipo" && value === "Todas") {
             rule.selector_valor = "";
+            structural_change = true;
         }
-        this.render_editor();
+        if (fieldname === "destino_tipo_estado" || fieldname === "destino_codigo_estado") {
+            structural_change = true;
+        }
+
+        const is_text_input = event.currentTarget.tagName === "INPUT" && ["text", "number"].includes(event.currentTarget.type);
+
+        if (event.type === "change" || (!is_text_input && structural_change)) {
+            this.render_editor();
+        } else if (event.type === "input" && is_text_input) {
+            const sidebarSpan = this.$editor.find(`.cmc-rule-item[data-rule-id="${rule.__editor_id}"] span`);
+            if (sidebarSpan.length) {
+                sidebarSpan.text(this.rule_summary(rule));
+            }
+        }
     }
 
     clear_destination_fields(rule) {
