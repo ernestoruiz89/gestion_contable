@@ -322,14 +322,20 @@ def get_balanza_para_mapeo(cliente, company=None):
     )
     if not versions:
         return []
-        
-    version_doc = frappe.get_doc("Version Balanza Cliente", versions[0].name)
+    lines = frappe.get_all(
+        "Linea Balanza Cliente",
+        filters={"version_balanza_cliente": versions[0].name},
+        fields=["codigo_cuenta", "descripcion_cuenta", "saldo_neto"],
+        order_by="idx_importacion asc, creation asc",
+        limit_page_length=20000
+    )
+    
     balanza_data = []
-    for row in version_doc.lineas_balanza:
+    for row in lines:
         balanza_data.append({
-            "cuenta": row.numero_cuenta,
-            "nombre": row.nombre_cuenta,
-            "saldo": row.saldo_final
+            "cuenta": row.codigo_cuenta,
+            "nombre": row.descripcion_cuenta,
+            "saldo": row.saldo_neto,
         })
     return balanza_data
 
