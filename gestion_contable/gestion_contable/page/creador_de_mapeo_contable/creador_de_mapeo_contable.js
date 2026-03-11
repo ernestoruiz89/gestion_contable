@@ -112,10 +112,10 @@ class CreadorMapeoContable {
         `);
 
         this.clientField = this.page.add_field({
-            fieldtype: "Select",
+            fieldtype: "Link",
             fieldname: "cliente",
             label: __("Cliente"),
-            options: "\n",
+            options: "Cliente Contable",
             change: () => this.on_client_change(),
         });
         this.schemeField = this.page.add_field({
@@ -259,16 +259,19 @@ class CreadorMapeoContable {
 
     sync_filter_options() {
         this.setting_filters = true;
-        this.set_select_options(this.clientField, this.state.clients);
         this.set_select_options(this.schemeField, this.state.schemes);
 
         const client_val = this.state.cliente || "";
         const scheme_val = this.state.esquema_name || "";
 
         // Use synchronous setter and bypass async change trigger
-        if (this.clientField.$input) this.clientField.$input.val(client_val);
-        this.clientField.value = client_val;
-        this.clientField.last_value = client_val;
+        if (this.clientField.set_value) {
+            this.clientField.set_value(client_val);
+        } else if (this.clientField.$input) {
+            this.clientField.$input.val(client_val);
+            this.clientField.value = client_val;
+            this.clientField.last_value = client_val;
+        }
 
         if (this.schemeField.$input) this.schemeField.$input.val(scheme_val);
         this.schemeField.value = scheme_val;
@@ -278,7 +281,10 @@ class CreadorMapeoContable {
     }
 
     set_select_options(field, rows) {
-        field.df.options = [""].concat((rows || []).map((row) => row.value)).join("\n");
+        if (!field) return;
+        const options = [""];
+        (rows || []).forEach(r => options.push({ value: r.value, label: r.label || r.value }));
+        field.df.options = options;
         field.refresh();
     }
 
