@@ -192,9 +192,9 @@ class CreadorMapeoContable {
         const bootstrapKey = JSON.stringify(args);
         this.state.route_options = {};
 
-        if (this.loading_bootstrap) {
-            return;
-        }
+        if (this.loading_bootstrap) return;
+        if (bootstrapKey === this.last_bootstrap_key) return;
+
         this.loading_bootstrap = true;
 
         frappe.call({
@@ -258,8 +258,19 @@ class CreadorMapeoContable {
         this.setting_filters = true;
         this.set_select_options(this.clientField, this.state.clients);
         this.set_select_options(this.schemeField, this.state.schemes);
-        this.clientField.set_value(this.state.cliente || "");
-        this.schemeField.set_value(this.state.esquema_name || "");
+
+        const client_val = this.state.cliente || "";
+        const scheme_val = this.state.esquema_name || "";
+
+        // Use synchronous setter and bypass async change trigger
+        if (this.clientField.$input) this.clientField.$input.val(client_val);
+        this.clientField.value = client_val;
+        this.clientField.last_value = client_val;
+
+        if (this.schemeField.$input) this.schemeField.$input.val(scheme_val);
+        this.schemeField.value = scheme_val;
+        this.schemeField.last_value = scheme_val;
+
         this.setting_filters = false;
     }
 
