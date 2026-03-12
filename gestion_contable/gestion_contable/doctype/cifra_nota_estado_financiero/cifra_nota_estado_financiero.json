@@ -9,13 +9,24 @@
         "codigo_cifra",
         "subconcepto",
         "orden",
+        "sb_estilo",
+        "negrita",
+        "subrayado",
+        "cb_estilo",
+        "no_imprimir",
+        "es_total",
+        "es_subtotal",
+        "sb_calculo",
         "es_manual",
         "origen_dato",
+        "cb_calculo",
         "calculo_automatico",
         "formula_cifras",
+        "sb_montos",
         "monto_actual",
         "monto_comparativo",
         "unidad_presentacion",
+        "sb_otros",
         "ultima_regla_mapeo",
         "comentario"
     ],
@@ -44,6 +55,54 @@
             "default": 0
         },
         {
+            "fieldname": "sb_estilo",
+            "fieldtype": "Section Break",
+            "label": "Estilo y Presentacion"
+        },
+        {
+            "fieldname": "negrita",
+            "fieldtype": "Check",
+            "label": "Negrita",
+            "default": 0
+        },
+        {
+            "fieldname": "subrayado",
+            "fieldtype": "Check",
+            "label": "Subrayado",
+            "default": 0
+        },
+        {
+            "fieldname": "cb_estilo",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "no_imprimir",
+            "fieldtype": "Check",
+            "label": "No Imprimir",
+            "default": 0,
+            "in_list_view": 1,
+            "description": "Oculta esta cifra en los formatos de impresion."
+        },
+        {
+            "fieldname": "es_total",
+            "fieldtype": "Check",
+            "label": "Es Total",
+            "default": 0,
+            "in_list_view": 1,
+            "description": "Marca la fila como total principal."
+        },
+        {
+            "fieldname": "es_subtotal",
+            "fieldtype": "Check",
+            "label": "Es Subtotal",
+            "default": 0
+        },
+        {
+            "fieldname": "sb_calculo",
+            "fieldtype": "Section Break",
+            "label": "Calculo y Datos"
+        },
+        {
             "fieldname": "es_manual",
             "fieldtype": "Check",
             "label": "Es Manual",
@@ -57,15 +116,25 @@
             "default": "Manual"
         },
         {
+            "fieldname": "cb_calculo",
+            "fieldtype": "Column Break"
+        },
+        {
             "fieldname": "calculo_automatico",
             "fieldtype": "Check",
             "label": "Calculo Automatico",
-            "default": 0
+            "default": 0,
+            "in_list_view": 1
         },
         {
             "fieldname": "formula_cifras",
             "fieldtype": "Small Text",
             "label": "Formula Cifras"
+        },
+        {
+            "fieldname": "sb_montos",
+            "fieldtype": "Section Break",
+            "label": "Cifras"
         },
         {
             "fieldname": "monto_actual",
@@ -82,6 +151,11 @@
             "fieldname": "unidad_presentacion",
             "fieldtype": "Data",
             "label": "Unidad Presentacion"
+        },
+        {
+            "fieldname": "sb_otros",
+            "fieldtype": "Section Break",
+            "label": "Otros"
         },
         {
             "fieldname": "ultima_regla_mapeo",

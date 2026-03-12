@@ -116,6 +116,51 @@ class TestNotaEstadoFinanciero(GestionContableIntegrationTestCase):
         )
         self.assertRaises(frappe.ValidationError, duplicate.insert, ignore_permissions=True)
 
+    def test_nota_normaliza_cifras_con_estilo_y_totales(self):
+        nota = self._crear_nota(
+            "2A",
+            cifras_nota=[
+                {
+                    "concepto": "Ingresos Operativos",
+                    "codigo_cifra": "ing",
+                    "monto_actual": 1000,
+                    "monto_comparativo": 900,
+                    "negrita": 1,
+                    "subrayado": 1,
+                },
+                {
+                    "concepto": "Costos",
+                    "codigo_cifra": "cos",
+                    "monto_actual": 400,
+                    "monto_comparativo": 350,
+                    "no_imprimir": 1,
+                },
+                {
+                    "concepto": "Subtotal",
+                    "codigo_cifra": "sub",
+                    "formula_cifras": "+ing,-cos",
+                    "es_subtotal": 1,
+                },
+                {
+                    "concepto": "Total",
+                    "codigo_cifra": "tot",
+                    "formula_cifras": "+sub",
+                    "calculo_automatico": 1,
+                    "es_total": 1,
+                },
+            ],
+        )
+
+        cifras = {row.codigo_cifra: row for row in nota.cifras_nota}
+        self.assertEqual(int(nota.total_cifras), 4)
+        self.assertEqual(cifras["SUB"].formula_cifras, "+ING,-COS")
+        self.assertEqual(int(cifras["SUB"].calculo_automatico), 1)
+        self.assertEqual(int(cifras["ING"].negrita), 1)
+        self.assertEqual(int(cifras["ING"].subrayado), 1)
+        self.assertEqual(int(cifras["COS"].no_imprimir), 1)
+        self.assertEqual(int(cifras["SUB"].es_subtotal), 1)
+        self.assertEqual(int(cifras["TOT"].es_total), 1)
+
     def test_nota_sincroniza_referencias_cruzadas(self):
         estado = self._crear_estado("Estado de Situacion Financiera", requiere_nota=True, numero_nota="3")
         nota = self._crear_nota("3")

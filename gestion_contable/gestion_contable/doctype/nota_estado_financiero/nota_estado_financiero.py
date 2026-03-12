@@ -175,6 +175,11 @@ class NotaEstadoFinanciero(Document):
             row.origen_dato = cstr(row.origen_dato or ("Manual" if cint(row.es_manual or 0) else "")).strip() or None
             row.calculo_automatico = cint(row.calculo_automatico or 0)
             row.formula_cifras = cstr(row.formula_cifras or "").strip().upper()
+            row.no_imprimir = cint(row.no_imprimir or 0)
+            row.negrita = cint(row.negrita or 0)
+            row.subrayado = cint(row.subrayado or 0)
+            row.es_total = cint(row.es_total or 0)
+            row.es_subtotal = cint(row.es_subtotal or 0)
             if row.formula_cifras and not row.calculo_automatico:
                 row.calculo_automatico = 1
             if not cstr(row.concepto or "").strip():

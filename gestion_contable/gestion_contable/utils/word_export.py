@@ -456,6 +456,17 @@ def _apply_estado_line_format(row, linea):
             _style_cell_border(cell, bottom={"val": "double", "sz": 12})
 
 
+def _apply_note_figure_format(row, cifra):
+    desc_paragraph = row.cells[0].paragraphs[0]
+    _set_paragraph_runs_font(
+        desc_paragraph,
+        bold=bool(cint(getattr(cifra, "negrita", 0)) or cint(getattr(cifra, "es_total", 0)) or cint(getattr(cifra, "es_subtotal", 0))),
+    )
+    if cint(getattr(cifra, "subrayado", 0)):
+        for run in desc_paragraph.runs:
+            run.underline = True
+
+
 def _add_notas_section(document, package):
     document.add_paragraph("Notas a los Estados Financieros", style="Heading 1")
     labels = get_package_column_labels(package)
@@ -482,30 +493,48 @@ def _add_notas_section(document, package):
             _add_rich_block(document, nota_doc.contenido_narrativo)
 
         if nota_doc.cifras_nota:
-            table = document.add_table(rows=1, cols=3)
-            headers = ["Concepto", labels["actual"], labels["comparativo"]]
-            for header_index, title in enumerate(headers):
-                table.rows[0].cells[header_index].text = title
-            total_actual = 0.0
-            total_comparativo = 0.0
-            for cifra in nota_doc.cifras_nota:
-                row = table.add_row().cells
-                concept_parts = [cstr(cifra.concepto or "-")]
-                if cifra.subconcepto:
-                    concept_parts.append(cstr(cifra.subconcepto))
-                if cifra.comentario:
-                    concept_parts.append(cstr(cifra.comentario))
-                row[0].text = "\n".join([part for part in concept_parts if part])
-                row[1].text = _fmt_number(cifra.monto_actual)
-                row[2].text = _fmt_number(cifra.monto_comparativo)
-                total_actual += float(cifra.monto_actual or 0)
-                total_comparativo += float(cifra.monto_comparativo or 0)
-            total_row_index = len(table.rows)
-            total_row = table.add_row().cells
-            total_row[0].text = "Total"
-            total_row[1].text = _fmt_number(total_actual)
-            total_row[2].text = _fmt_number(total_comparativo)
-            _style_note_table(table, total_rows=[total_row_index])
+            visible_cifras = [row for row in (nota_doc.cifras_nota or []) if not cint(getattr(row, "no_imprimir", 0))]
+            if visible_cifras:
+                table = document.add_table(rows=1, cols=3)
+                headers = ["Concepto", labels["actual"], labels["comparativo"]]
+                for header_index, title in enumerate(headers):
+                    table.rows[0].cells[header_index].text = title
+                total_actual = 0.0
+                total_comparativo = 0.0
+                total_rows = []
+                subtotal_rows = []
+                rendered_rows = []
+                has_explicit_total = False
+                for cifra in visible_cifras:
+                    line_index = len(table.rows)
+                    row = table.add_row().cells
+                    concept_parts = [cstr(cifra.concepto or "-")]
+                    if cifra.subconcepto:
+                        concept_parts.append(cstr(cifra.subconcepto))
+                    if cifra.comentario:
+                        concept_parts.append(cstr(cifra.comentario))
+                    row[0].text = "\n".join([part for part in concept_parts if part])
+                    row[1].text = _fmt_number(cifra.monto_actual)
+                    row[2].text = _fmt_number(cifra.monto_comparativo)
+                    rendered_rows.append((line_index, cifra))
+                    if cint(getattr(cifra, "es_total", 0)):
+                        total_rows.append(line_index)
+                        has_explicit_total = True
+                    elif cint(getattr(cifra, "es_subtotal", 0)):
+                        subtotal_rows.append(line_index)
+                    else:
+                        total_actual += float(cifra.monto_actual or 0)
+                        total_comparativo += float(cifra.monto_comparativo or 0)
+                if not has_explicit_total:
+                    total_row_index = len(table.rows)
+                    total_row = table.add_row().cells
+                    total_row[0].text = "Total"
+                    total_row[1].text = _fmt_number(total_actual)
+                    total_row[2].text = _fmt_number(total_comparativo)
+                    total_rows.append(total_row_index)
+                _style_note_table(table, total_rows=total_rows, subtotal_rows=subtotal_rows)
+                for line_index, cifra in rendered_rows:
+                    _apply_note_figure_format(table.rows[line_index], cifra)
 
         for section in structured_sections:
             if section.get("titulo_seccion"):

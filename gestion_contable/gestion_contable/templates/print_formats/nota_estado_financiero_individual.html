@@ -99,6 +99,11 @@
   {% endif %}
 
   {% if doc.cifras_nota %}
+  {% set ns_fig = namespace(tiene=0) %}
+  {% for cifra in doc.cifras_nota %}
+  {% if not cifra.no_imprimir %}{% set ns_fig.tiene = 1 %}{% endif %}
+  {% endfor %}
+  {% if ns_fig.tiene %}
   <div class="nefi-section">
     <table class="nefi-table">
       <thead>
@@ -109,28 +114,41 @@
         </tr>
       </thead>
       <tbody>
-        {% set ns = namespace(total_actual=0, total_comparativo=0) %}
+        {% set ns = namespace(total_actual=0, total_comparativo=0, tiene_total=0) %}
         {% for cifra in doc.cifras_nota %}
+        {% if not cifra.no_imprimir %}
+        {% set row_class = "" %}
+        {% if cifra.es_total %}
+        {% set row_class = "nefi-row-total" %}
+        {% set ns.tiene_total = 1 %}
+        {% elif cifra.es_subtotal %}
+        {% set row_class = "nefi-row-subtotal" %}
+        {% else %}
         {% set ns.total_actual = ns.total_actual + (cifra.monto_actual or 0) %}
         {% set ns.total_comparativo = ns.total_comparativo + (cifra.monto_comparativo or 0) %}
-        <tr>
-          <td>
-            <div><strong>{{ cifra.concepto or "-" }}</strong></div>
+        {% endif %}
+        <tr class="{{ row_class }}">
+          <td style="{% if cifra.negrita %}font-weight: 700;{% endif %}{% if cifra.subrayado %}text-decoration: underline;{% endif %}">
+            <div>{{ cifra.concepto or "-" }}</div>
             {% if cifra.subconcepto %}<div>{{ cifra.subconcepto }}</div>{% endif %}
             {% if cifra.comentario %}<div class="nefi-note-comment">{{ cifra.comentario }}</div>{% endif %}
           </td>
           <td class="num">{{ frappe.format_value(cifra.monto_actual or 0, {"fieldtype": "Currency"}) }}</td>
           <td class="num">{{ frappe.format_value(cifra.monto_comparativo or 0, {"fieldtype": "Currency"}) }}</td>
         </tr>
+        {% endif %}
         {% endfor %}
+        {% if not ns.tiene_total %}
         <tr class="nefi-row-total">
           <td>Total</td>
           <td class="num">{{ frappe.format_value(ns.total_actual, {"fieldtype": "Currency"}) }}</td>
           <td class="num">{{ frappe.format_value(ns.total_comparativo, {"fieldtype": "Currency"}) }}</td>
         </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
+  {% endif %}
   {% endif %}
 
   {% if structured_sections %}
