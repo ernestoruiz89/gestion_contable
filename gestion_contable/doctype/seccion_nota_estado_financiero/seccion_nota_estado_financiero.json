@@ -1,0 +1,57 @@
+{
+    "actions": [],
+    "creation": "2026-03-08 23:30:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "seccion_id",
+        "titulo_seccion",
+        "tipo_seccion",
+        "orden",
+        "contenido_narrativo"
+    ],
+    "fields": [
+        {
+            "fieldname": "seccion_id",
+            "fieldtype": "Data",
+            "label": "Seccion ID",
+            "reqd": 1,
+            "hidden": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "titulo_seccion",
+            "fieldtype": "Data",
+            "label": "Titulo Seccion",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "tipo_seccion",
+            "fieldtype": "Select",
+            "label": "Tipo Seccion",
+            "options": "Narrativa\nTabla\nTexto y Tabla",
+            "default": "Narrativa",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "orden",
+            "fieldtype": "Int",
+            "label": "Orden",
+            "default": 0
+        },
+        {
+            "fieldname": "contenido_narrativo",
+            "fieldtype": "Text Editor",
+            "label": "Contenido Narrativo"
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Seccion Nota Estado Financiero",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

@@ -1,0 +1,19 @@
+<style>
+  .mg-wrap { font-family: Georgia, serif; color: #111827; line-height: 1.7; }
+  .mg-head { margin-bottom: 20px; }
+  .mg-head h1 { margin: 0 0 6px; font-size: 24px; }
+  .mg-meta { color: #4b5563; font-size: 12px; margin-bottom: 18px; }
+  .mg-section { margin-bottom: 18px; }
+  .mg-section h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; }
+</style>
+<div class="mg-wrap">
+  <div class="mg-head">
+    <h1>{{ doc.titulo_informe or doc.nombre_del_informe }}</h1>
+    <div class="mg-meta">Destinatario: {{ doc.destinatario or "-" }} | Fecha: {{ doc.fecha_informe or "-" }}</div>
+  </div>
+  <div class="mg-section"><h3>Comunicacion</h3>{{ doc.resumen_ejecutivo or "<p>Sin contenido.</p>" }}</div>
+  <div class="mg-section"><h3>Asuntos Relevantes</h3>{{ doc.principales_hallazgos or "<p>No aplica.</p>" }}</div>
+  <div class="mg-section"><h3>Recomendaciones</h3>{{ doc.recomendaciones_clave or "<p>No aplica.</p>" }}</div>
+  <div class="mg-section"><h3>Cierre</h3>{{ doc.conclusion_final or "<p>Sin cierre.</p>" }}</div>
+  <p><strong>{{ doc.firmado_por or "-" }}</strong><br>{{ doc.cargo_firmante or "Firmante" }}</p>
+</div>

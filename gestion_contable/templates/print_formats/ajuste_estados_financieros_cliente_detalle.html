@@ -1,0 +1,130 @@
+<style>
+  .aeef-wrap, .aeef-wrap * { font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif !important; color: #000000 !important; font-size: 12pt; line-height: 1.25; }
+  .aeef-head { border-bottom: 2px solid #000000; padding-bottom: 10px; margin-bottom: 18px; }
+  .aeef-head h1 { margin: 0; font-size: 18pt; }
+  .aeef-head p { margin: 4px 0 0; font-size: 11pt; }
+  .aeef-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  .aeef-meta td { border: 1px solid #dbe3ef; padding: 6px 8px; vertical-align: top; font-size: 11pt; }
+  .aeef-section { margin: 0 0 18px; }
+  .aeef-section h2 { margin: 0 0 8px; font-size: 14pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+  .aeef-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .aeef-table th, .aeef-table td { border: none; padding: 4px 8px; vertical-align: middle; }
+  .aeef-table th { background: transparent; text-align: left; font-weight: 700; }
+  .aeef-table td.num { text-align: right; white-space: nowrap; }
+  .aeef-total td { font-weight: 700; border-top: 1px solid #000000; border-bottom: 3px double #000000; }
+</style>
+<div class="aeef-wrap">
+  <div class="aeef-head">
+    <h1>{{ doc.nombre_del_ajuste or doc.name }}</h1>
+    <p>Ajuste de Estados Financieros del Cliente</p>
+  </div>
+
+  <table class="aeef-meta">
+    <tr>
+      <td><strong>Cliente</strong><br>{{ doc.cliente or "-" }}</td>
+      <td><strong>Paquete EEFF</strong><br>{{ doc.paquete_estados_financieros_cliente or "-" }}</td>
+      <td><strong>Periodo</strong><br>{{ doc.periodo_contable or "-" }}</td>
+      <td><strong>Fecha Ajuste</strong><br>{{ doc.fecha_ajuste or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Estado Financiero</strong><br>{{ doc.estado_financiero_cliente or "-" }}</td>
+      <td><strong>Tipo Ajuste</strong><br>{{ doc.tipo_ajuste or "-" }}</td>
+      <td><strong>Origen</strong><br>{{ doc.origen_ajuste or "-" }}</td>
+      <td><strong>Estado Ajuste</strong><br>{{ doc.estado_ajuste or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Encargo</strong><br>{{ doc.encargo_contable or "-" }}</td>
+      <td><strong>Expediente</strong><br>{{ doc.expediente_auditoria or "-" }}</td>
+      <td><strong>Fecha Corte</strong><br>{{ doc.fecha_corte or "-" }}</td>
+      <td><strong>Estado Aprobacion</strong><br>{{ doc.estado_aprobacion or "-" }}</td>
+    </tr>
+  </table>
+
+  <div class="aeef-section">
+    <h2>Clasificacion</h2>
+    <table class="aeef-meta">
+      <tr>
+        <td><strong>Material</strong><br>{{ "Si" if doc.material else "No" }}</td>
+        <td><strong>Generalizado</strong><br>{{ "Si" if doc.generalizado else "No" }}</td>
+        <td><strong>Impacta Dictamen</strong><br>{{ "Si" if doc.impacta_dictamen else "No" }}</td>
+        <td><strong>Impacta Informe Final</strong><br>{{ "Si" if doc.impacta_informe_final else "No" }}</td>
+      </tr>
+      <tr>
+        <td><strong>Aceptado por Cliente</strong><br>{{ "Si" if doc.aceptado_por_cliente else "No" }}</td>
+        <td><strong>Registrado en Version Final</strong><br>{{ "Si" if doc.registrado_en_version_final else "No" }}</td>
+        <td><strong>Revisado por Supervisor</strong><br>{{ doc.revisado_por_supervisor or "-" }}</td>
+        <td><strong>Aprobado por Socio</strong><br>{{ doc.aprobado_por_socio or "-" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="aeef-section">
+    <h2>Detalle del Ajuste</h2>
+    <div><strong>Descripcion</strong></div>
+    <div>{{ doc.descripcion or "-" }}</div>
+    {% if doc.justificacion %}
+      <div style="margin-top: 10px;"><strong>Justificacion</strong></div>
+      <div>{{ doc.justificacion | safe }}</div>
+    {% endif %}
+  </div>
+
+  <div class="aeef-section">
+    <h2>Lineas Ajuste</h2>
+    <table class="aeef-table">
+      <thead>
+        <tr>
+          <th>Estado Financiero</th>
+          <th>Codigo</th>
+          <th>Descripcion</th>
+          <th>Nota</th>
+          <th>Monto Previo</th>
+          <th>Monto Ajuste</th>
+          <th>Monto Ajustado</th>
+          <th>Afecta Resultado</th>
+          <th>Afecta Patrimonio</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in doc.lineas_ajuste %}
+          <tr>
+            <td>{{ row.estado_financiero_cliente or "-" }}</td>
+            <td>{{ row.codigo_rubro or "-" }}</td>
+            <td>{{ row.descripcion_linea or "-" }}</td>
+            <td>{{ row.numero_nota_referencial or "-" }}</td>
+            <td class="num">{{ frappe.format_value(row.monto_previo or 0, {"fieldtype": "Currency"}) }}</td>
+            <td class="num">{{ frappe.format_value(row.monto_ajuste or 0, {"fieldtype": "Currency"}) }}</td>
+            <td class="num">{{ frappe.format_value(row.monto_ajustado or 0, {"fieldtype": "Currency"}) }}</td>
+            <td>{{ "Si" if row.afecta_resultado else "No" }}</td>
+            <td>{{ "Si" if row.afecta_patrimonio else "No" }}</td>
+          </tr>
+        {% endfor %}
+        <tr class="aeef-total">
+          <td colspan="5">Monto Total</td>
+          <td class="num">{{ frappe.format_value(doc.monto_total or 0, {"fieldtype": "Currency"}) }}</td>
+          <td colspan="3"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  {% if doc.comentarios_supervisor or doc.comentarios_socio %}
+    <div class="aeef-section">
+      <h2>Comentarios de Revision</h2>
+      {% if doc.comentarios_supervisor %}
+        <div><strong>Supervisor</strong></div>
+        <div>{{ doc.comentarios_supervisor }}</div>
+      {% endif %}
+      {% if doc.comentarios_socio %}
+        <div style="margin-top: 10px;"><strong>Socio</strong></div>
+        <div>{{ doc.comentarios_socio }}</div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if doc.observaciones %}
+    <div class="aeef-section">
+      <h2>Observaciones</h2>
+      <div>{{ doc.observaciones }}</div>
+    </div>
+  {% endif %}
+</div>

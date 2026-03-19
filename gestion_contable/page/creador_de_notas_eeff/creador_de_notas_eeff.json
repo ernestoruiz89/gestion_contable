@@ -1,0 +1,24 @@
+{
+    "content": "[]",
+    "creation": "2026-03-08 20:30:00.000000",
+    "doctype": "Page",
+    "icon": "table",
+    "idx": 0,
+    "modified": "2026-03-08 20:30:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "creador-de-notas-eeff",
+    "owner": "Administrator",
+    "page_name": "creador-de-notas-eeff",
+    "roles": [
+        {"role": "System Manager"},
+        {"role": "Contador del Despacho"},
+        {"role": "Supervisor del Despacho"},
+        {"role": "Socio del Despacho"}
+    ],
+    "script": null,
+    "standard": "Yes",
+    "style": null,
+    "system_page": 0,
+    "title": "Creador de Notas EEFF"
+}

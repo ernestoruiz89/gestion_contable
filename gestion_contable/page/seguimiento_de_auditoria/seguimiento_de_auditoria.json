@@ -1,0 +1,16 @@
+{
+    "title": "Seguimiento de Auditoria",
+    "content": "",
+    "doctype": "Page",
+    "icon": "pie-chart",
+    "module": "Gestion Contable",
+    "name": "seguimiento-de-auditoria",
+    "standard": "Yes",
+    "roles": [
+        {"role": "System Manager"},
+        {"role": "Contador del Despacho"},
+        {"role": "Auxiliar Contable del Despacho"},
+        {"role": "Supervisor del Despacho"},
+        {"role": "Socio del Despacho"}
+    ]
+}

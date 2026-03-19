@@ -1,0 +1,16 @@
+{% set titulo_documento = "Contrato de Servicios de Consultoria" %}
+{% set subtitulo_documento = "Plantilla para asesoria, acompanamiento tecnico y recomendaciones especializadas." %}
+{% set objeto_principal = "El Despacho brindara servicios de consultoria para analizar situaciones del cliente, formular recomendaciones, acompanar decisiones y apoyar la implementacion del alcance definido en este contrato." %}
+{% set entregables_texto = "Los entregables podran incluir diagnosticos, sesiones de trabajo, memorandos tecnicos, hojas de ruta, recomendaciones, capacitaciones, informes ejecutivos o acompanamiento especializado, segun el alcance contratado." %}
+{% set clausulas_especificas = [
+    "La consultoria se basa en analisis profesional y recomendaciones tecnicas; su implementacion y decisiones finales corresponden al cliente, salvo pacto distinto en el alcance.",
+    "El despacho podra apoyarse en reuniones, talleres y revisiones iterativas para construir recomendaciones, sin que ello implique asumir funciones ejecutivas del cliente.",
+    "El valor del servicio puede responder a horas, honorario fijo o esquema mixto, conforme a las lineas de alcance aprobadas."
+] %}
+{% set obligaciones_cliente = [
+    "Designar interlocutores con capacidad de decision para atender sesiones, validar definiciones y habilitar la implementacion del servicio.",
+    "Proveer informacion suficiente, acceso a procesos y contexto de negocio para formular recomendaciones consistentes.",
+    "Comunicar oportunamente cambios estrategicos, regulatorios o de operacion que puedan afectar las recomendaciones o el cronograma."
+] %}
+{% set consideraciones_finales = "Si el cliente requiere que la consultoria evolucione hacia implementacion operativa, soporte recurrente o nuevos frentes de trabajo, el despacho debera documentar la ampliacion contractual correspondiente." %}
+{% include "gestion_contable/templates/print_formats/contrato_comercial_base.html" %}

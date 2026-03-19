@@ -1,0 +1,19 @@
+<style>
+  .fh-wrap { font-family: Arial, sans-serif; color: #0f172a; }
+  .fh-wrap h1 { margin-bottom: 6px; }
+  .fh-wrap h3 { margin: 18px 0 8px; font-size: 14px; text-transform: uppercase; }
+</style>
+<div class="fh-wrap">
+  <h1>{{ doc.titulo_informe or doc.nombre_del_informe }}</h1>
+  <p><strong>Cliente:</strong> {{ doc.cliente or "-" }} | <strong>Periodo:</strong> {{ doc.periodo or "-" }}</p>
+  <h3>Resumen</h3>
+  {{ doc.resumen_ejecutivo or "<p>Sin resumen.</p>" }}
+  <h3>Alcance</h3>
+  {{ doc.alcance_del_trabajo or "<p>Sin alcance.</p>" }}
+  <h3>Hallazgos</h3>
+  {{ doc.principales_hallazgos or "<p>No hay hallazgos.</p>" }}
+  <h3>Recomendaciones</h3>
+  {{ doc.recomendaciones_clave or "<p>No hay recomendaciones.</p>" }}
+  <h3>Conclusion</h3>
+  {{ doc.conclusion_final or "<p>Sin conclusion.</p>" }}
+</div>

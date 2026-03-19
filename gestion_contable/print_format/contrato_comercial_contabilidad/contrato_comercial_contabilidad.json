@@ -1,0 +1,20 @@
+{
+    "align_labels_right": 0,
+    "creation": "2026-03-06 18:30:00.000000",
+    "custom_format": 1,
+    "default_print_language": "es",
+    "disabled": 0,
+    "doc_type": "Contrato Comercial",
+    "doctype": "Print Format",
+    "format": "Custom",
+    "html": "{% include \"gestion_contable/templates/print_formats/contrato_comercial_contabilidad.html\" %}",
+    "module": "Gestion Contable",
+    "name": "Contrato Comercial - Contabilidad",
+    "owner": "Administrator",
+    "print_format_builder": 0,
+    "print_format_for": "DocType",
+    "print_format_type": "Jinja",
+    "raw_printing": 0,
+    "show_section_headings": 0,
+    "standard": "Yes"
+}

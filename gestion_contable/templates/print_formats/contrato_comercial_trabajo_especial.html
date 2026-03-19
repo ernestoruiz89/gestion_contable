@@ -1,0 +1,16 @@
+{% set titulo_documento = "Contrato para Trabajo Especial" %}
+{% set subtitulo_documento = "Plantilla para encargos puntuales, extraordinarios o no recurrentes." %}
+{% set objeto_principal = "El Despacho desarrollara un trabajo especial de naturaleza puntual, extraordinaria o especifica, con entregables y alcance definidos para resolver una necesidad concreta del cliente." %}
+{% set entregables_texto = "Los entregables podran consistir en informes tecnicos, reconstrucciones, certificaciones, revisiones focalizadas, analisis especiales, regularizaciones o cualquier producto especificado en las lineas de alcance." %}
+{% set clausulas_especificas = [
+    "El trabajo especial se limita estrictamente al objetivo y entregables definidos en este contrato y no implica servicios recurrentes no incluidos expresamente.",
+    "Si durante la ejecucion se detectan necesidades adicionales, informacion faltante o actividades no previstas, el despacho debera emitir un cambio de alcance antes de continuar.",
+    "Los plazos del trabajo dependen de la disponibilidad de informacion, de revisiones del cliente y de terceros relacionados con el asunto objeto del encargo."
+] %}
+{% set obligaciones_cliente = [
+    "Entregar los antecedentes, soportes y autorizaciones necesarios para ejecutar el trabajo especial en el tiempo acordado.",
+    "Revisar los avances o borradores cuando el despacho requiera validacion intermedia para continuar con la siguiente fase.",
+    "Notificar oportunamente cualquier hecho nuevo que pueda alterar el objetivo, la metodologia o el uso esperado del entregable."
+] %}
+{% set consideraciones_finales = "Los trabajos especiales suelen tener alta sensibilidad a cambios de hechos y de informacion, por lo que toda desviacion relevante debe registrarse y aprobarse formalmente para preservar costo, plazo y responsabilidad." %}
+{% include "gestion_contable/templates/print_formats/contrato_comercial_base.html" %}

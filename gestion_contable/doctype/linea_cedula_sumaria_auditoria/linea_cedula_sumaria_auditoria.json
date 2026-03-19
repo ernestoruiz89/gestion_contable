@@ -1,0 +1,73 @@
+{
+    "actions": [],
+    "creation": "2026-03-10 11:16:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "codigo_linea",
+        "descripcion",
+        "orden",
+        "monto_actual",
+        "monto_comparativo",
+        "origen_dato",
+        "ultima_regla_mapeo",
+        "comentario"
+    ],
+    "fields": [
+        {
+            "fieldname": "codigo_linea",
+            "fieldtype": "Data",
+            "label": "Codigo Linea",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Data",
+            "label": "Descripcion",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "orden",
+            "fieldtype": "Int",
+            "label": "Orden",
+            "default": 0
+        },
+        {
+            "fieldname": "monto_actual",
+            "fieldtype": "Currency",
+            "label": "Monto Actual",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "monto_comparativo",
+            "fieldtype": "Currency",
+            "label": "Monto Comparativo"
+        },
+        {
+            "fieldname": "origen_dato",
+            "fieldtype": "Select",
+            "label": "Origen Dato",
+            "options": "Manual\nBalanza\nFormula",
+            "default": "Balanza"
+        },
+        {
+            "fieldname": "ultima_regla_mapeo",
+            "fieldtype": "Data",
+            "label": "Ultima Regla Mapeo"
+        },
+        {
+            "fieldname": "comentario",
+            "fieldtype": "Small Text",
+            "label": "Comentario"
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Linea Cedula Sumaria Auditoria",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

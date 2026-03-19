@@ -1,0 +1,51 @@
+<style>
+  .da-wrap { font-family: Georgia, serif; color: #111827; line-height: 1.7; }
+  .da-wrap h1 { margin-bottom: 6px; }
+  .da-meta { font-size: 12px; color: #4b5563; margin-bottom: 18px; }
+  .da-flags { font-size: 12px; color: #6b7280; margin-bottom: 18px; }
+  .da-section { margin-bottom: 18px; }
+  .da-section h3 { font-size: 14px; text-transform: uppercase; margin-bottom: 8px; }
+  .da-sign { margin-top: 42px; }
+</style>
+{% set opinion_standard = "NIA 700" if doc.tipo_opinion == "Favorable" else "NIA 705" %}
+<div class="da-wrap">
+  <h1>{{ doc.titulo_informe or doc.nombre_del_informe }}</h1>
+  <div class="da-meta">{{ doc.tipo_opinion or "Opinion" }} | Destinatario: {{ doc.destinatario or "-" }} | Fecha: {{ doc.fecha_informe or "-" }}</div>
+  <div class="da-flags">
+    Base normativa: {{ doc.base_normativa or opinion_standard }}
+    {% if doc.tipo_opinion in ["Con Salvedades", "Adversa", "Abstencion"] %}
+      | Efecto generalizado: {{ "Si" if doc.efecto_generalizado else "No" }}
+      | Limitacion material al alcance: {{ "Si" if doc.limitacion_alcance_material else "No" }}
+    {% endif %}
+  </div>
+
+  <div class="da-section"><h3>Opinion del Auditor ({{ opinion_standard }})</h3>{{ doc.opinion_o_conclusion or "<p>Sin opinion.</p>" }}</div>
+  <div class="da-section"><h3>Fundamento de la Opinion ({{ opinion_standard }})</h3>{{ doc.fundamento_opinion or "<p>Sin fundamento.</p>" }}</div>
+
+  {% if doc.tipo_opinion in ["Con Salvedades", "Adversa", "Abstencion"] %}
+  <div class="da-section"><h3>Asunto que Origina la Modificacion (NIA 705)</h3>{{ doc.asunto_que_origina_modificacion or "<p>No documentado.</p>" }}</div>
+  <div class="da-section">
+    <h3>
+      {% if doc.tipo_opinion == "Abstencion" %}
+        Fundamento de la Abstencion (NIA 705)
+      {% else %}
+        Fundamento de la Opinion Modificada (NIA 705)
+      {% endif %}
+    </h3>
+    {{ doc.fundamento_salvedad or "<p>No documentado.</p>" }}
+  </div>
+  {% endif %}
+
+  {% if doc.parrafo_enfasis %}
+  <div class="da-section"><h3>Parrafo de Enfasis (NIA 706)</h3>{{ doc.parrafo_enfasis }}</div>
+  {% endif %}
+
+  {% if doc.parrafo_otros_asuntos %}
+  <div class="da-section"><h3>Parrafo de Otros Asuntos (NIA 706)</h3>{{ doc.parrafo_otros_asuntos }}</div>
+  {% endif %}
+
+  <div class="da-section"><h3>Responsabilidades de la Administracion</h3>{{ doc.responsabilidades_administracion or "<p>Sin contenido.</p>" }}</div>
+  <div class="da-section"><h3>Responsabilidades del Auditor</h3>{{ doc.responsabilidades_auditor or "<p>Sin contenido.</p>" }}</div>
+  <div class="da-section"><h3>Conclusion Final</h3>{{ doc.conclusion_final or "<p>Sin conclusion.</p>" }}</div>
+  <div class="da-sign"><strong>{{ doc.firmado_por or "-" }}</strong><br>{{ doc.cargo_firmante or "Firmante" }}</div>
+</div>

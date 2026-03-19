@@ -1,0 +1,177 @@
+{
+    "actions": [],
+    "creation": "2026-03-10 11:15:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "cliente",
+        "paquete_estados_financieros_cliente",
+        "column_break_1",
+        "version_balanza_actual",
+        "version_balanza_comparativa",
+        "esquema_mapeo_contable",
+        "section_control",
+        "fecha_ejecucion",
+        "ejecutado_por",
+        "estado_ejecucion",
+        "sumarias_actualizadas",
+        "estados_actualizados",
+        "notas_actualizadas",
+        "reglas_ejecutadas",
+        "total_alertas",
+        "destinos_bloqueados_manual",
+        "detalle_json"
+    ],
+    "fields": [
+        {
+            "fieldname": "cliente",
+            "fieldtype": "Link",
+            "label": "Cliente",
+            "options": "Cliente Contable",
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "paquete_estados_financieros_cliente",
+            "fieldtype": "Link",
+            "label": "Paquete Estados Financieros Cliente",
+            "options": "Paquete Estados Financieros Cliente",
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "version_balanza_actual",
+            "fieldtype": "Link",
+            "label": "Version Balanza Actual",
+            "options": "Version Balanza Cliente",
+            "read_only": 1
+        },
+        {
+            "fieldname": "version_balanza_comparativa",
+            "fieldtype": "Link",
+            "label": "Version Balanza Comparativa",
+            "options": "Version Balanza Cliente",
+            "read_only": 1
+        },
+        {
+            "fieldname": "esquema_mapeo_contable",
+            "fieldtype": "Link",
+            "label": "Esquema Mapeo Contable",
+            "options": "Esquema Mapeo Contable",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_control",
+            "fieldtype": "Section Break",
+            "label": "Control"
+        },
+        {
+            "fieldname": "fecha_ejecucion",
+            "fieldtype": "Datetime",
+            "label": "Fecha Ejecucion",
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "ejecutado_por",
+            "fieldtype": "Link",
+            "label": "Ejecutado por",
+            "options": "User",
+            "read_only": 1
+        },
+        {
+            "fieldname": "estado_ejecucion",
+            "fieldtype": "Select",
+            "label": "Estado Ejecucion",
+            "options": "En Proceso\nCompletada\nCompletada con Alertas\nFallida",
+            "read_only": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "sumarias_actualizadas",
+            "fieldtype": "Int",
+            "label": "Sumarias Actualizadas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "estados_actualizados",
+            "fieldtype": "Int",
+            "label": "Estados Actualizados",
+            "read_only": 1
+        },
+        {
+            "fieldname": "notas_actualizadas",
+            "fieldtype": "Int",
+            "label": "Notas Actualizadas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "reglas_ejecutadas",
+            "fieldtype": "Int",
+            "label": "Reglas Ejecutadas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "total_alertas",
+            "fieldtype": "Int",
+            "label": "Total Alertas",
+            "read_only": 1
+        },
+        {
+            "fieldname": "destinos_bloqueados_manual",
+            "fieldtype": "Int",
+            "label": "Destinos Bloqueados Manual",
+            "read_only": 1
+        },
+        {
+            "fieldname": "detalle_json",
+            "fieldtype": "Long Text",
+            "label": "Detalle JSON",
+            "read_only": 1
+        }
+    ],
+    "module": "Gestion Contable",
+    "name": "Ejecucion Actualizacion EEFF",
+    "autoname": "hash",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "create": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "read": 1,
+            "create": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "read": 1,
+            "create": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "read": 1,
+            "create": 1,
+            "report": 1,
+            "export": 1,
+            "print": 1
+        }
+    ],
+    "sort_field": "creation",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

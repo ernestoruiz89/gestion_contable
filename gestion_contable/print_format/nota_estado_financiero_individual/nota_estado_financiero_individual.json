@@ -1,0 +1,12 @@
+{
+    "creation": "2026-03-08 02:10:00.000000",
+    "doc_type": "Nota Estado Financiero",
+    "docstatus": 0,
+    "doctype": "Print Format",
+    "html": "{% include \"gestion_contable/templates/print_formats/nota_estado_financiero_individual.html\" %}",
+    "idx": 0,
+    "module": "Gestion Contable",
+    "name": "Nota Estado Financiero - Individual",
+    "print_format_type": "Jinja",
+    "standard": "Yes"
+}

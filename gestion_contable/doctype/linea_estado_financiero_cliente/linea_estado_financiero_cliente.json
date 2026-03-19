@@ -1,0 +1,262 @@
+{
+    "actions": [],
+    "creation": "2026-03-07 23:30:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "codigo_rubro",
+        "codigo_linea_estado",
+        "descripcion",
+        "cb_datos",
+        "es_manual",
+        "origen_dato",
+        "naturaleza",
+        "nivel",
+        "orden",
+        "sb_estilo",
+        "es_titulo",
+        "negrita",
+        "subrayado",
+        "doble_subrayado",
+        "cb_estilo",
+        "no_imprimir",
+        "calculo_automatico",
+        "formula_lineas",
+        "sb_validaciones",
+        "es_total",
+        "es_subtotal",
+        "es_resultado_final",
+        "cb_validaciones",
+        "es_efectivo_inicial",
+        "es_variacion_neta_efectivo",
+        "es_efectivo_final",
+        "sb_montos",
+        "monto_actual",
+        "monto_comparativo",
+        "signo_presentacion",
+        "cb_notas",
+        "numero_nota_referencial",
+        "requiere_nota",
+        "sb_otros",
+        "ultima_regla_mapeo",
+        "comentario_preparacion"
+    ],
+    "fields": [
+        {
+            "fieldname": "codigo_rubro",
+            "fieldtype": "Data",
+            "label": "Codigo Rubro",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "codigo_linea_estado",
+            "fieldtype": "Data",
+            "label": "Codigo Linea Estado"
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Data",
+            "label": "Descripcion",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "cb_datos",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "es_manual",
+            "fieldtype": "Check",
+            "label": "Es Manual",
+            "default": 0
+        },
+        {
+            "fieldname": "origen_dato",
+            "fieldtype": "Select",
+            "label": "Origen Dato",
+            "options": "Manual\nBalanza\nFormula",
+            "default": "Manual"
+        },
+        {
+            "fieldname": "naturaleza",
+            "fieldtype": "Select",
+            "label": "Naturaleza",
+            "options": "Activo\nPasivo\nPatrimonio\nIngreso\nGasto\nOtro",
+            "in_list_view": 1,
+            "description": "Define si la fila es Ingreso, Gasto, Activo, etc. Requerido para validar sumatorias."
+        },
+        {
+            "fieldname": "nivel",
+            "fieldtype": "Int",
+            "label": "Nivel",
+            "default": 1
+        },
+        {
+            "fieldname": "orden",
+            "fieldtype": "Int",
+            "label": "Orden",
+            "default": 0
+        },
+        {
+            "fieldname": "sb_estilo",
+            "fieldtype": "Section Break",
+            "label": "Estilo y Presentación"
+        },
+        {
+            "fieldname": "es_titulo",
+            "fieldtype": "Check",
+            "label": "Es Titulo",
+            "default": 0
+        },
+        {
+            "fieldname": "negrita",
+            "fieldtype": "Check",
+            "label": "Negrita",
+            "default": 0
+        },
+        {
+            "fieldname": "subrayado",
+            "fieldtype": "Check",
+            "label": "Subrayado",
+            "default": 0
+        },
+        {
+            "fieldname": "doble_subrayado",
+            "fieldtype": "Check",
+            "label": "Doble Subrayado",
+            "default": 0
+        },
+        {
+            "fieldname": "cb_estilo",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "no_imprimir",
+            "fieldtype": "Check",
+            "label": "No Imprimir",
+            "default": 0,
+            "in_list_view": 1,
+            "description": "Oculta esta fila en el formato de impresion PDF."
+        },
+        {
+            "fieldname": "calculo_automatico",
+            "fieldtype": "Check",
+            "label": "Calculo Automatico",
+            "default": 0
+        },
+        {
+            "fieldname": "formula_lineas",
+            "fieldtype": "Small Text",
+            "label": "Formula Lineas"
+        },
+        {
+            "fieldname": "sb_validaciones",
+            "fieldtype": "Section Break",
+            "label": "Validación y Control (Matemática)"
+        },
+        {
+            "fieldname": "es_total",
+            "fieldtype": "Check",
+            "label": "Es Total",
+            "default": 0,
+            "in_list_view": 1,
+            "description": "Marca si la fila es un total principal para su naturaleza."
+        },
+        {
+            "fieldname": "es_subtotal",
+            "fieldtype": "Check",
+            "label": "Es Subtotal",
+            "default": 0
+        },
+        {
+            "fieldname": "es_resultado_final",
+            "fieldtype": "Check",
+            "label": "Es Resultado Final",
+            "default": 0,
+            "in_list_view": 1,
+            "description": "Marca la utilidad/perdida neta definitiva."
+        },
+        {
+            "fieldname": "cb_validaciones",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "es_efectivo_inicial",
+            "fieldtype": "Check",
+            "label": "Es Efectivo Inicial",
+            "default": 0
+        },
+        {
+            "fieldname": "es_variacion_neta_efectivo",
+            "fieldtype": "Check",
+            "label": "Es Variacion Neta Efectivo",
+            "default": 0
+        },
+        {
+            "fieldname": "es_efectivo_final",
+            "fieldtype": "Check",
+            "label": "Es Efectivo Final",
+            "default": 0
+        },
+        {
+            "fieldname": "sb_montos",
+            "fieldtype": "Section Break",
+            "label": "Cifras"
+        },
+        {
+            "fieldname": "monto_actual",
+            "fieldtype": "Currency",
+            "label": "Monto Actual",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "monto_comparativo",
+            "fieldtype": "Currency",
+            "label": "Monto Comparativo"
+        },
+        {
+            "fieldname": "signo_presentacion",
+            "fieldtype": "Select",
+            "label": "Signo Presentacion",
+            "options": "Normal\nInverso",
+            "default": "Normal"
+        },
+        {
+            "fieldname": "cb_notas",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "numero_nota_referencial",
+            "fieldtype": "Data",
+            "label": "Numero Nota Referencial"
+        },
+        {
+            "fieldname": "requiere_nota",
+            "fieldtype": "Check",
+            "label": "Requiere Nota",
+            "default": 0
+        },
+        {
+            "fieldname": "sb_otros",
+            "fieldtype": "Section Break",
+            "label": "Otros"
+        },
+        {
+            "fieldname": "ultima_regla_mapeo",
+            "fieldtype": "Data",
+            "label": "Ultima Regla Mapeo"
+        },
+        {
+            "fieldname": "comentario_preparacion",
+            "fieldtype": "Small Text",
+            "label": "Comentario Preparacion"
+        }
+    ],
+    "istable": 1,
+    "module": "Gestion Contable",
+    "name": "Linea Estado Financiero Cliente",
+    "permissions": [],
+    "sort_field": "modified",
+    "sort_order": "DESC"
+}

@@ -1,0 +1,183 @@
+{
+    "actions": [],
+    "creation": "2026-03-06 16:30:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "nombre_de_plantilla",
+        "tipo_de_servicio",
+        "activa",
+        "column_break_1",
+        "servicio_contable",
+        "modalidad_honorario_sugerida",
+        "section_presupuesto",
+        "duracion_dias_sugerida",
+        "presupuesto_horas_sugerido",
+        "presupuesto_monto_sugerido",
+        "section_hitos",
+        "hitos",
+        "section_descripcion",
+        "descripcion"
+    ],
+    "fields": [
+        {
+            "fieldname": "nombre_de_plantilla",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Nombre de Plantilla",
+            "reqd": 1
+        },
+        {
+            "fieldname": "tipo_de_servicio",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Tipo de Servicio",
+            "options": "Contabilidad\nAuditoria\nTrabajo Especial\nConsultoria",
+            "reqd": 1
+        },
+        {
+            "fieldname": "activa",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Activa",
+            "default": "1"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "servicio_contable",
+            "fieldtype": "Link",
+            "label": "Servicio Contable",
+            "options": "Servicio Contable"
+        },
+        {
+            "fieldname": "modalidad_honorario_sugerida",
+            "fieldtype": "Select",
+            "label": "Modalidad Honorario Sugerida",
+            "options": "\nPor Hora\nFijo\nMixto"
+        },
+        {
+            "fieldname": "section_presupuesto",
+            "fieldtype": "Section Break",
+            "label": "Presupuesto Base"
+        },
+        {
+            "fieldname": "duracion_dias_sugerida",
+            "fieldtype": "Int",
+            "label": "Duracion Dias Sugerida"
+        },
+        {
+            "fieldname": "presupuesto_horas_sugerido",
+            "fieldtype": "Float",
+            "label": "Presupuesto Horas Sugerido"
+        },
+        {
+            "fieldname": "presupuesto_monto_sugerido",
+            "fieldtype": "Currency",
+            "label": "Presupuesto Monto Sugerido"
+        },
+        {
+            "fieldname": "section_hitos",
+            "fieldtype": "Section Break",
+            "label": "Hitos de Plantilla"
+        },
+        {
+            "fieldname": "hitos",
+            "fieldtype": "Table",
+            "label": "Hitos",
+            "options": "Hito Plantilla Encargo"
+        },
+        {
+            "fieldname": "section_descripcion",
+            "fieldtype": "Section Break",
+            "label": "Descripcion"
+        },
+        {
+            "fieldname": "descripcion",
+            "fieldtype": "Small Text",
+            "label": "Descripcion"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "group": "Operacion",
+            "link_doctype": "Servicio Contable",
+            "link_fieldname": "plantilla_encargo_contable"
+        },
+        {
+            "group": "Operacion",
+            "link_doctype": "Encargo Contable",
+            "link_fieldname": "plantilla_encargo_contable"
+        }
+    ],
+    "modified": "2026-03-06 16:30:00.000000",
+    "modified_by": "Administrator",
+    "module": "Gestion Contable",
+    "name": "Plantilla Encargo Contable",
+    "naming_rule": "By fieldname",
+    "autoname": "field:nombre_de_plantilla",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "role": "System Manager",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Contador del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Supervisor del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "delete": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Socio del Despacho",
+            "create": 1,
+            "read": 1,
+            "write": 1,
+            "report": 1,
+            "export": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        },
+        {
+            "role": "Auxiliar Contable del Despacho",
+            "read": 1,
+            "report": 1,
+            "email": 1,
+            "print": 1,
+            "share": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "track_changes": 1
+}

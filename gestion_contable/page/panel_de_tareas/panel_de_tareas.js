@@ -1,0 +1,1525 @@
+frappe.pages["panel-de-tareas"].on_page_load = function (wrapper) {
+	const page = frappe.ui.make_app_page({
+		parent: wrapper,
+		title: "Panel de Tareas",
+		single_column: true,
+	});
+
+	frappe.pages["panel-de-tareas"].panel = new PanelDeTareas(page);
+	frappe.pages["panel-de-tareas"].panel.init();
+};
+
+frappe.pages["panel-de-tareas"].on_page_show = function (wrapper) {
+	const panel = frappe.pages["panel-de-tareas"].panel;
+	if (panel) {
+		panel.apply_route_options();
+		panel.load_data();
+	}
+};
+
+const TAREA_ESTADO_REVISION = "Pending Review";
+
+class PanelDeTareas {
+	constructor(page) {
+		this.page = page;
+		this.wrapper = page.main;
+		this.statuses = ["Open", "Working", TAREA_ESTADO_REVISION, "Completed"];
+		this.canMoveCards = this.has_any_role(["Contador del Despacho", "Supervisor del Despacho", "Socio del Despacho", "System Manager"]);
+		this.canCreateTasks = this.has_any_role(["Contador del Despacho", "Supervisor del Despacho", "Socio del Despacho", "System Manager"]);
+		this.canEditTasks = this.has_any_role(["Contador del Despacho", "Supervisor del Despacho", "Socio del Despacho", "System Manager"]);
+		this.draggedTask = null;
+		this.blockCardClickUntil = 0;
+		this.statusMeta = {
+			"Open": { border: "#f59e0b", chip: "#fef3c7", text: "#92400e" },
+			"Working": { border: "#3b82f6", chip: "#dbeafe", text: "#1e3a8a" },
+			[TAREA_ESTADO_REVISION]: { border: "#a855f7", chip: "#f3e8ff", text: "#6b21a8" },
+			"Completed": { border: "#10b981", chip: "#d1fae5", text: "#065f46" },
+		};
+	}
+
+	has_any_role(roles) {
+		const userRoles = frappe.user_roles || [];
+		return roles.some((role) => userRoles.includes(role));
+	}
+
+	init() {
+		this.setup_styles();
+		this.render_shell();
+		this.setup_filters();
+		this.setup_actions();
+	}
+
+	apply_route_options() {
+		if (frappe.route_options) {
+			const ro = frappe.route_options;
+			if (ro.asignado_a) {
+				// Prevent empty options or overriding sync issues
+				if (this.wrapper.find(`.filter-asignado option[value="${ro.asignado_a}"]`).length === 0) {
+					this.wrapper.find(".filter-asignado").append(`<option value="${ro.asignado_a}">${ro.asignado_a}</option>`);
+				}
+				this.wrapper.find(".filter-asignado").val(ro.asignado_a);
+			}
+			if (ro.estado) {
+				this.wrapper.find(".filter-estado").val(ro.estado);
+			}
+			if (ro.vencimiento) {
+				let v = ro.vencimiento.toLowerCase();
+				this.wrapper.find(".filter-vencimiento").val(v);
+			}
+			this.sync_kpi_highlight();
+			frappe.route_options = null; // consume
+		}
+	}
+
+	setup_styles() {
+		if (document.getElementById("panel-tareas-v3-styles")) return;
+
+		const style = document.createElement("style");
+		style.id = "panel-tareas-v3-styles";
+		style.textContent = `
+			:root {
+				--pt-bg-soft: linear-gradient(140deg, #f8fafc 0%, #eef2ff 55%, #ecfeff 100%);
+				--pt-card: #ffffff;
+				--pt-border: #dbe3ef;
+				--pt-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+			}
+
+			.panel-tareas-shell {
+				background: var(--pt-bg-soft);
+				border: 1px solid var(--pt-border);
+				border-radius: 16px;
+				padding: 18px;
+			}
+
+			.panel-tareas-hero {
+				display: grid;
+				grid-template-columns: 1.2fr .8fr;
+				gap: 14px;
+				margin-bottom: 14px;
+			}
+
+			.panel-tareas-title {
+				background: rgba(255, 255, 255, 0.74);
+				border: 1px solid var(--pt-border);
+				border-radius: 14px;
+				padding: 16px;
+				box-shadow: var(--pt-shadow);
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+			}
+
+			.panel-tareas-title h2 {
+				margin: 0;
+				font-size: 24px;
+				font-weight: 800;
+				letter-spacing: .2px;
+				color: #1f2937;
+			}
+
+			.panel-tareas-title p {
+				margin: 6px 0 0;
+				font-size: 13px;
+				color: #475569;
+			}
+
+			.pt-btn-nueva-tarea {
+				background: linear-gradient(135deg, #3b82f6, #2563eb);
+				color: #fff;
+				border: none;
+				border-radius: 10px;
+				padding: 9px 18px;
+				font-size: 13px;
+				font-weight: 700;
+				cursor: pointer;
+				white-space: nowrap;
+				transition: transform .12s ease, box-shadow .12s ease;
+				box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+			}
+
+			.pt-btn-nueva-tarea:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
+			}
+
+			.pt-move-note {
+				margin: 8px 0 0;
+				font-size: 12px;
+				font-weight: 700;
+				color: #065f46;
+			}
+
+			.panel-tareas-kpis {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 10px;
+			}
+
+			.pt-kpi {
+				background: var(--pt-card);
+				border: 1px solid var(--pt-border);
+				border-radius: 12px;
+				padding: 10px 12px;
+				box-shadow: var(--pt-shadow);
+			}
+
+			.pt-kpi .v {
+				display: block;
+				font-size: 24px;
+				font-weight: 800;
+				line-height: 1;
+				color: #0f172a;
+			}
+
+			.pt-kpi .l {
+				display: block;
+				margin-top: 4px;
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: .5px;
+				color: #64748b;
+			}
+
+			.panel-tareas-filters {
+				display: grid;
+				grid-template-columns: repeat(7, minmax(120px, 1fr));
+				gap: 10px;
+				margin-bottom: 14px;
+			}
+
+			.pt-field {
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
+				justify-content: flex-end;
+			}
+
+			.pt-field label {
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: .5px;
+				color: #64748b;
+			}
+
+			.pt-field select,
+			.pt-field input,
+			.pt-reset {
+				height: 36px;
+				border-radius: 10px;
+				border: 1px solid var(--pt-border);
+				padding: 0 10px;
+				font-size: 13px;
+				background: #fff;
+			}
+
+			.pt-reset {
+				cursor: pointer;
+				font-weight: 700;
+				color: #0f172a;
+				background: #f8fafc;
+			}
+
+			.panel-tareas-stats {
+				display: grid;
+				grid-template-columns: repeat(4, minmax(150px, 1fr));
+				gap: 10px;
+				margin-bottom: 14px;
+			}
+
+			.pt-stat {
+				background: var(--pt-card);
+				border-radius: 12px;
+				padding: 12px;
+				border: 1px solid var(--pt-border);
+				border-left: 4px solid;
+				box-shadow: var(--pt-shadow);
+			}
+
+			.pt-stat .n {
+				font-size: 30px;
+				font-weight: 800;
+				line-height: 1;
+			}
+
+			.pt-stat .t {
+				margin-top: 4px;
+				font-size: 12px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: .4px;
+				color: #64748b;
+			}
+
+			.panel-tareas-board {
+				display: grid;
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+				gap: 12px;
+			}
+
+			.pt-col {
+				background: #f8fafc;
+				border: 1px solid var(--pt-border);
+				border-radius: 12px;
+				min-height: 360px;
+				overflow: hidden;
+			}
+
+			.pt-col-h {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 10px 12px;
+				border-bottom: 1px solid var(--pt-border);
+				font-size: 12px;
+				font-weight: 800;
+				text-transform: uppercase;
+				letter-spacing: .5px;
+			}
+
+			.pt-count {
+				padding: 2px 8px;
+				border-radius: 999px;
+				font-size: 11px;
+				font-weight: 800;
+			}
+
+			.pt-col-b {
+				padding: 10px;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				max-height: 75vh;
+				overflow-y: auto;
+			}
+
+			.pt-col-b.pt-dropzone {
+				transition: background-color .12s ease;
+			}
+
+			.pt-col-b.pt-dropzone.pt-drop-active {
+				background: #e2e8f0;
+			}
+
+			.pt-task {
+				position: relative;
+				display: block;
+				background: #fff;
+				border: 1px solid var(--pt-border);
+				border-radius: 10px;
+				box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+				transition: transform .15s ease, box-shadow .15s ease;
+				flex-shrink: 0;
+			}
+
+			.pt-task:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+			}
+
+			.pt-task-content {
+				padding: 12px;
+				cursor: pointer;
+			}
+
+
+			.pt-task-kind {
+				display: inline-flex;
+				padding: 2px 7px;
+				border-radius: 6px;
+				font-size: 10px;
+				font-weight: 800;
+				text-transform: uppercase;
+				background: #eef2ff;
+				color: #4338ca;
+				margin-bottom: 0;
+			}
+
+			.pt-task-head {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				margin-bottom: 8px;
+			}
+
+			.pt-task-title {
+				font-size: 13px;
+				font-weight: 700;
+				color: #111827;
+				line-height: 1.35;
+				margin-bottom: 8px;
+			}
+
+			.pt-drag-handle {
+				padding: 2px 4px;
+				border-radius: 6px;
+				cursor: grab;
+				transition: background .12s ease;
+				margin: -2px -4px 0 0;
+			}
+
+			.pt-drag-handle:hover {
+				background: #f1f5f9;
+			}
+
+			.pt-drag-handle:active {
+				cursor: grabbing;
+				background: #e2e8f0;
+			}
+
+			.pt-drag-dots {
+				display: grid;
+				grid-template-columns: repeat(2, 4px);
+				gap: 2px;
+			}
+
+			.pt-drag-dots span {
+				width: 4px;
+				height: 4px;
+				border-radius: 50%;
+				background: #94a3b8;
+			}
+
+			.pt-task.pt-dragging {
+				opacity: 0.45;
+			}
+
+			.pt-task-meta {
+				display: grid;
+				gap: 4px;
+			}
+
+			.pt-task-meta-row {
+				font-size: 11px;
+				color: #64748b;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			.pt-task-meta-row strong {
+				color: #334155;
+			}
+
+			.pt-due-danger {
+				color: #b91c1c;
+				font-weight: 700;
+			}
+
+			.pt-due-warn {
+				color: #b45309;
+				font-weight: 700;
+			}
+
+			.pt-modal-body {
+				padding: 0;
+			}
+
+			.pt-modal-field {
+				padding: 10px 0;
+				border-bottom: 1px solid #f1f5f9;
+			}
+
+			.pt-modal-field:last-child {
+				border-bottom: none;
+			}
+
+			.pt-modal-label {
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: .4px;
+				color: #64748b;
+				margin-bottom: 4px;
+			}
+
+			.pt-modal-value {
+				font-size: 14px;
+				color: #1e293b;
+				font-weight: 500;
+			}
+
+			.pt-modal-value.pt-due-danger {
+				color: #b91c1c;
+				font-weight: 700;
+			}
+
+			.pt-modal-value.pt-due-warn {
+				color: #b45309;
+				font-weight: 700;
+			}
+
+			.pt-modal-notas {
+				background: #f8fafc;
+				border-radius: 8px;
+				padding: 10px;
+				font-size: 13px;
+				color: #475569;
+				min-height: 40px;
+				white-space: pre-wrap;
+			}
+
+			.pt-modal-edit-field select,
+			.pt-modal-edit-field input,
+			.pt-modal-edit-field textarea {
+				width: 100%;
+				border-radius: 8px;
+				border: 1px solid var(--pt-border);
+				padding: 8px 10px;
+				font-size: 13px;
+				background: #fff;
+			}
+
+			.pt-modal-edit-field textarea {
+				min-height: 70px;
+				resize: vertical;
+			}
+
+			/* Moda Split View & Comms */
+			.pt-modal-split {
+				display: flex;
+				flex-direction: row;
+				min-height: 480px;
+			}
+			.pt-modal-left {
+				flex: 1;
+				padding-right: 20px;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+			.pt-modal-right {
+				width: 320px;
+				background: #f8fafc;
+				border-left: 1px solid var(--pt-border);
+				padding-left: 20px;
+				display: flex;
+				flex-direction: column;
+			}
+			.pt-comm-header {
+				font-size: 14px;
+				font-weight: 800;
+				color: #1e293b;
+				margin-bottom: 12px;
+				display: flex;
+				justify-content: space-between;
+			}
+			.pt-comm-list {
+				flex: 1;
+				overflow-y: auto;
+				padding-right: 5px;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+			.pt-comm-item {
+				background: #fff;
+				border: 1px solid var(--pt-border);
+				border-radius: 8px;
+				padding: 10px;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+			}
+			.pt-comm-meta {
+				display: flex;
+				justify-content: space-between;
+				font-size: 11px;
+				color: #64748b;
+				margin-bottom: 6px;
+			}
+			.pt-comm-sender { font-weight: 700; color: #0f172a; }
+			.pt-comm-subject { font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+			.pt-comm-content { font-size: 12px; color: #475569; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+			.pt-comm-empty { font-size: 12px; color: #94a3b8; font-style: italic; margin-top: 10px; text-align: center; }
+
+			.pt-empty {
+				padding: 26px 10px;
+				text-align: center;
+				font-size: 12px;
+				color: #94a3b8;
+				font-style: italic;
+			}
+
+			.pt-kpi[data-filter] {
+				cursor: pointer;
+				transition: transform .12s ease, box-shadow .12s ease;
+			}
+
+			.pt-kpi[data-filter]:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+			}
+
+			.pt-kpi[data-filter].pt-kpi-active {
+				outline: 2px solid #3b82f6;
+				outline-offset: -2px;
+			}
+
+			@media (max-width: 1200px) {
+				.panel-tareas-filters {
+					grid-template-columns: repeat(4, minmax(120px, 1fr));
+				}
+
+				.panel-tareas-board {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+				}
+			}
+
+			@media (max-width: 900px) {
+				.panel-tareas-hero {
+					grid-template-columns: 1fr;
+				}
+
+				.panel-tareas-kpis {
+					grid-template-columns: repeat(4, minmax(0, 1fr));
+				}
+
+				.panel-tareas-stats {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+				}
+			}
+
+			@media (max-width: 640px) {
+				.panel-tareas-filters {
+					grid-template-columns: 1fr;
+				}
+
+				.panel-tareas-kpis {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+				}
+
+				.panel-tareas-stats,
+				.panel-tareas-board {
+					grid-template-columns: 1fr;
+				}
+			}
+		`;
+
+		document.head.appendChild(style);
+	}
+
+	render_shell() {
+		const moveHint = this.canMoveCards
+			? '<p class="pt-move-note">Arrastra tarjetas entre columnas para cambiar su estado.</p>'
+			: "";
+
+		const createTaskButton = this.canCreateTasks
+			? '<button class="pt-btn-nueva-tarea" type="button">+ Nueva Tarea</button>'
+			: '<span class="pt-move-note" style="color:#64748b;">Solo Supervisor, Socio, Contador o System Manager pueden crear tareas.</span>';
+
+		this.wrapper.html(`
+			<div class="panel-tareas-shell">
+				<div class="panel-tareas-hero">
+					<div class="panel-tareas-title">
+						<div>
+							<h2>Panel de Tareas</h2>
+							<p>Seguimiento operativo por estado, vencimiento y responsable.</p>
+							${moveHint}
+						</div>
+						${createTaskButton}
+					</div>
+					<div class="panel-tareas-kpis">
+						<div class="pt-kpi"><span class="v" data-kpi="total">0</span><span class="l">Total</span></div>
+						<div class="pt-kpi" data-filter="vencidas" title="Click para filtrar"><span class="v" data-kpi="vencidas">0</span><span class="l">Vencidas</span></div>
+						<div class="pt-kpi" data-filter="hoy" title="Click para filtrar"><span class="v" data-kpi="hoy">0</span><span class="l">Vencen Hoy</span></div>
+						<div class="pt-kpi" data-filter="semana" title="Click para filtrar"><span class="v" data-kpi="semana">0</span><span class="l">Prox 7 Dias</span></div>
+					</div>
+				</div>
+				<div class="panel-tareas-filters"></div>
+				<div class="panel-tareas-stats"></div>
+				<div class="panel-tareas-board"></div>
+			</div>
+		`);
+	}
+
+	setup_filters() {
+		const filters = this.wrapper.find(".panel-tareas-filters");
+		filters.html(`
+			<div class="pt-field">
+				<label>Cliente</label>
+				<select class="filter-cliente"><option value="">Todos</option></select>
+			</div>
+			<div class="pt-field">
+				<label>Periodo</label>
+				<select class="filter-periodo"><option value="">Todos</option></select>
+			</div>
+			<div class="pt-field">
+				<label>Tipo</label>
+				<select class="filter-tipo"><option value="">Todos</option></select>
+			</div>
+			<div class="pt-field">
+				<label>Estado</label>
+				<select class="filter-estado">
+					<option value="">Todos</option>
+					<option value="!Completed">Todos (Excepto Completadas)</option>
+					<option value="Open">Open</option>
+					<option value="Working">Working</option>
+					<option value="${TAREA_ESTADO_REVISION}">${TAREA_ESTADO_REVISION}</option>
+					<option value="Completed">Completed</option>
+				</select>
+			</div>
+			<div class="pt-field">
+				<label>Asignado</label>
+				<select class="filter-asignado"><option value="">Todos</option></select>
+			</div>
+			<div class="pt-field">
+				<label>Vencimiento</label>
+				<select class="filter-vencimiento">
+					<option value="">Todos</option>
+					<option value="vencidas">Vencidas</option>
+					<option value="hoy">Vencen Hoy</option>
+					<option value="semana">Pr\u00f3x 7 D\u00edas</option>
+				</select>
+			</div>
+			<div class="pt-field">
+				<label>Buscar Titulo</label>
+				<input type="text" class="filter-search" placeholder="Ej. IVA mayo" />
+			</div>
+			<div class="pt-field">
+				<label>&nbsp;</label>
+				<button class="pt-reset" type="button">Limpiar</button>
+			</div>
+		`);
+
+		this.fill_select_options();
+
+		filters.find("select").on("change", () => {
+			this.sync_kpi_highlight();
+			this.load_data();
+		});
+		filters.find(".filter-search").on("input", frappe.utils.debounce(() => this.load_data(), 240));
+		filters.find(".pt-reset").on("click", () => {
+			filters.find("select").val("");
+			filters.find(".filter-search").val("");
+			this.sync_kpi_highlight();
+			this.load_data();
+		});
+
+		// KPI click -> set vencimiento filter
+		this.wrapper.find(".pt-kpi[data-filter]").on("click", (e) => {
+			const filterVal = $(e.currentTarget).data("filter");
+			const sel = this.wrapper.find(".filter-vencimiento");
+			sel.val(sel.val() === filterVal ? "" : filterVal);
+			this.sync_kpi_highlight();
+			this.load_data();
+		});
+	}
+
+	fill_select_options() {
+		const filters = this.wrapper.find(".panel-tareas-filters");
+
+		frappe.call({
+			method: "frappe.client.get_list",
+			args: { doctype: "Cliente Contable", fields: ["name"], limit_page_length: 0, order_by: "name asc" },
+			callback: (r) => {
+				(r.message || []).forEach((row) => {
+					filters.find(".filter-cliente").append(`<option value="${row.name}">${row.name}</option>`);
+				});
+			},
+		});
+
+		frappe.call({
+			method: "frappe.client.get_list",
+			args: { doctype: "Periodo Contable", fields: ["name"], limit_page_length: 0, order_by: "name desc" },
+			callback: (r) => {
+				(r.message || []).forEach((row) => {
+					filters.find(".filter-periodo").append(`<option value="${row.name}">${row.name}</option>`);
+				});
+			},
+		});
+
+		const tipos = [
+			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
+			"Declaraci\u00f3n DGI", "Estados Financieros", "Facturaci\u00f3n",
+			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite DGI", "Consultor\u00eda", "Otro",
+		];
+		tipos.forEach((tipo) => {
+			filters.find(".filter-tipo").append(`<option value="${tipo}">${tipo}</option>`);
+		});
+
+		frappe.call({
+			method: "frappe.client.get_list",
+			args: {
+				doctype: "User",
+				fields: ["name", "full_name"],
+				filters: { enabled: 1, user_type: "System User" },
+				limit_page_length: 0,
+				order_by: "full_name asc",
+			},
+			callback: (r) => {
+				(r.message || []).forEach((row) => {
+					const label = row.full_name || row.name;
+					filters.find(".filter-asignado").append(`<option value="${row.name}">${label}</option>`);
+				});
+			},
+		});
+	}
+
+	sync_kpi_highlight() {
+		const activeVal = this.wrapper.find(".filter-vencimiento").val();
+		this.wrapper.find(".pt-kpi[data-filter]").removeClass("pt-kpi-active");
+		if (activeVal) {
+			this.wrapper.find(`.pt-kpi[data-filter='${activeVal}']`).addClass("pt-kpi-active");
+		}
+	}
+
+	get_filters() {
+		const filters = {};
+		const shell = this.wrapper;
+		const cliente = shell.find(".filter-cliente").val();
+		const periodo = shell.find(".filter-periodo").val();
+		const tipo = shell.find(".filter-tipo").val();
+		const estado = shell.find(".filter-estado").val();
+		const asignado = shell.find(".filter-asignado").val();
+		const vencimiento = shell.find(".filter-vencimiento").val();
+		const search = (shell.find(".filter-search").val() || "").trim();
+
+		if (cliente) filters.cliente = cliente;
+		if (periodo) filters.periodo = periodo;
+		if (tipo) filters.tipo_de_tarea = tipo;
+		if (estado) {
+			if (estado === "!Completed") {
+				filters.status = ["!=", "Completed"];
+			} else {
+				filters.status = estado;
+			}
+		}
+		if (asignado) filters._assign = ["like", `%${asignado}%`];
+
+		return { filters, search, vencimiento };
+	}
+
+	load_data() {
+		const { filters, search, vencimiento } = this.get_filters();
+		this.currentVencimiento = vencimiento;
+		this.fetch_tasks(filters, search);
+	}
+
+	fetch_tasks(filters, search) {
+		const args = {
+			doctype: "Task",
+			fields: ["name", "subject", "cliente", "periodo", "tipo_de_tarea", "status", "exp_end_date", "_assign", "description"],
+			filters,
+			limit_page_length: 0,
+			order_by: "exp_end_date asc",
+		};
+
+		if (search) {
+			args.or_filters = [["Task", "subject", "like", `%${search}%`]];
+		}
+
+		frappe.call({
+			method: "frappe.client.get_list",
+			args,
+			callback: (r) => {
+				let tasks = r.message || [];
+				tasks = tasks.filter((task) => task.status !== "Cancelled");
+				if (this.currentVencimiento) {
+					tasks = this.apply_due_filter(tasks, this.currentVencimiento);
+				}
+				this.render(tasks);
+			},
+		});
+	}
+
+	apply_due_filter(tasks, vencimiento) {
+		const today = frappe.datetime.get_today();
+		return tasks.filter((task) => {
+			if (task.status === "Completed" || !task.exp_end_date) return false;
+			const diff = frappe.datetime.get_diff(task.exp_end_date, today);
+			if (vencimiento === "vencidas") return diff < 0;
+			if (vencimiento === "hoy") return diff === 0;
+			if (vencimiento === "semana") return diff >= 0 && diff <= 7;
+			return true;
+		});
+	}
+
+	render(tasks) {
+		this.render_kpis(tasks);
+		this.render_stats(tasks);
+		this.render_board(tasks);
+	}
+
+	render_kpis(tasks) {
+		const today = frappe.datetime.get_today();
+		let vencidas = 0;
+		let hoy = 0;
+		let semana = 0;
+
+		tasks.forEach((task) => {
+			if (!task.exp_end_date || task.status === "Completed") return;
+			const diff = frappe.datetime.get_diff(task.exp_end_date, today);
+			if (diff < 0) vencidas += 1;
+			if (diff === 0) hoy += 1;
+			if (diff >= 0 && diff <= 7) semana += 1;
+		});
+
+		this.wrapper.find("[data-kpi='total']").text(tasks.length);
+		this.wrapper.find("[data-kpi='vencidas']").text(vencidas);
+		this.wrapper.find("[data-kpi='hoy']").text(hoy);
+		this.wrapper.find("[data-kpi='semana']").text(semana);
+	}
+
+	render_stats(tasks) {
+		const stats = this.wrapper.find(".panel-tareas-stats");
+		const count = {};
+		this.statuses.forEach((s) => { count[s] = 0; });
+
+		tasks.forEach((task) => {
+			if (count[task.status] !== undefined) count[task.status] += 1;
+		});
+
+		let html = "";
+		this.statuses.forEach((status) => {
+			const meta = this.statusMeta[status];
+			html += `
+				<div class="pt-stat" style="border-left-color:${meta.border};">
+					<div class="n" style="color:${meta.text};">${count[status]}</div>
+					<div class="t">${status}</div>
+				</div>
+			`;
+		});
+
+		stats.html(html);
+	}
+
+	render_board(tasks) {
+		const board = this.wrapper.find(".panel-tareas-board");
+		const grouped = {};
+		this.statuses.forEach((s) => { grouped[s] = []; });
+
+		tasks.forEach((task) => {
+			if (grouped[task.status]) grouped[task.status].push(task);
+		});
+
+		let html = "";
+		this.statuses.forEach((status) => {
+			const meta = this.statusMeta[status];
+			const rows = grouped[status];
+			const dropzoneClass = this.canMoveCards ? " pt-dropzone" : "";
+
+			html += `
+				<div class="pt-col">
+					<div class="pt-col-h" style="border-left:4px solid ${meta.border};">
+						<span>${status}</span>
+						<span class="pt-count" style="background:${meta.chip};color:${meta.text};">${rows.length}</span>
+					</div>
+					<div class="pt-col-b${dropzoneClass}" data-status="${status}">
+			`;
+
+			if (!rows.length) {
+				html += '<div class="pt-empty">Sin tareas en esta etapa</div>';
+			} else {
+				rows.forEach((task) => { html += this.render_task_card(task); });
+			}
+
+			html += "</div></div>";
+		});
+
+		board.html(html);
+
+		board.find(".pt-task-content").on("click", (event) => {
+			if (Date.now() < this.blockCardClickUntil) return;
+			const name = $(event.currentTarget).closest(".pt-task").data("name");
+			this.open_task_modal(name);
+		});
+
+		if (this.canMoveCards) {
+			this.bind_drag_and_drop();
+		}
+	}
+
+	bind_drag_and_drop() {
+		const board = this.wrapper.find(".panel-tareas-board");
+		const handles = board.find(".pt-drag-handle");
+		const cards = board.find(".pt-task");
+		const zones = board.find(".pt-col-b.pt-dropzone");
+
+		// Only allow drag from the handle
+		cards.attr("draggable", "false");
+
+		handles.on("mousedown", (event) => {
+			const card = $(event.currentTarget).closest(".pt-task");
+			card.attr("draggable", "true");
+		});
+
+		handles.on("mouseup", (event) => {
+			const card = $(event.currentTarget).closest(".pt-task");
+			card.attr("draggable", "false");
+		});
+
+		cards.on("dragstart", (event) => {
+			const card = $(event.currentTarget);
+			this.draggedTask = {
+				name: card.data("name"),
+				status: card.data("status"),
+			};
+			card.addClass("pt-dragging");
+
+			if (event.originalEvent && event.originalEvent.dataTransfer) {
+				event.originalEvent.dataTransfer.effectAllowed = "move";
+				event.originalEvent.dataTransfer.setData("text/plain", this.draggedTask.name);
+			}
+		});
+
+		cards.on("dragend", (event) => {
+			$(event.currentTarget).removeClass("pt-dragging");
+			zones.removeClass("pt-drop-active");
+			this.draggedTask = null;
+			this.blockCardClickUntil = Date.now() + 250;
+		});
+
+		zones.on("dragover", (event) => {
+			event.preventDefault();
+			if (!this.draggedTask) return;
+			const zone = $(event.currentTarget);
+			if (zone.data("status") !== this.draggedTask.status) {
+				zone.addClass("pt-drop-active");
+			}
+		});
+
+		zones.on("dragleave", (event) => {
+			$(event.currentTarget).removeClass("pt-drop-active");
+		});
+
+		zones.on("drop", (event) => {
+			event.preventDefault();
+			const zone = $(event.currentTarget);
+			zone.removeClass("pt-drop-active");
+
+			if (!this.draggedTask) return;
+
+			const targetStatus = zone.data("status");
+			if (!targetStatus || targetStatus === this.draggedTask.status) return;
+
+			this.blockCardClickUntil = Date.now() + 350;
+			this.move_task_to_status(this.draggedTask.name, targetStatus);
+		});
+	}
+
+	move_task_to_status(taskName, targetStatus) {
+		frappe.call({
+			method: "frappe.client.set_value",
+			args: {
+				doctype: "Task",
+				name: taskName,
+				fieldname: "status",
+				value: targetStatus,
+			},
+			freeze: true,
+			freeze_message: "Actualizando estado...",
+			callback: (r) => {
+				if (r.exc) {
+					frappe.msgprint("No se pudo mover la tarea.");
+					this.load_data();
+					return;
+				}
+
+				frappe.show_alert({ message: `Tarea movida a ${targetStatus}`, indicator: "green" });
+				this.load_data();
+			},
+			error: () => {
+				frappe.msgprint("Ocurrio un error al mover la tarea.");
+				this.load_data();
+			},
+		});
+	}
+
+	discard_task(taskName, dialog) {
+		frappe.confirm(
+			"\u00bfDeseas descartar esta tarea? Se ocultar\u00e1 del panel Kanban.",
+			() => {
+				frappe.call({
+					method: "frappe.client.set_value",
+					args: {
+						doctype: "Task",
+						name: taskName,
+						fieldname: "status",
+						value: "Cancelled",
+					},
+					freeze: true,
+					freeze_message: "Descartando tarea...",
+					callback: (r) => {
+						if (r.exc) {
+							frappe.msgprint("No se pudo descartar la tarea.");
+							return;
+						}
+
+						frappe.show_alert({ message: "Tarea descartada", indicator: "orange" });
+						dialog.hide();
+						this.load_data();
+					},
+					error: () => {
+						frappe.msgprint("Ocurrio un error al descartar la tarea.");
+					},
+				});
+			}
+		);
+	}
+	render_task_card(task) {
+		const today = frappe.datetime.get_today();
+		let dueClass = "";
+
+		if (task.status !== "Completed" && task.exp_end_date) {
+			const diff = frappe.datetime.get_diff(task.exp_end_date, today);
+			if (diff < 0) dueClass = "pt-due-danger";
+			else if (diff <= 3) dueClass = "pt-due-warn";
+		}
+
+		const fecha = task.exp_end_date
+			? frappe.datetime.str_to_user(task.exp_end_date)
+			: "-";
+
+		const asignado = this.get_primary_assignee(task._assign) || "Sin asignar";
+		const titulo = frappe.utils.escape_html(task.subject || "Sin titulo");
+		const cliente = frappe.utils.escape_html(task.cliente || "-");
+		const periodo = frappe.utils.escape_html(task.periodo || "-");
+		const tipo = task.tipo_de_tarea ? `<span class="pt-task-kind">${frappe.utils.escape_html(task.tipo_de_tarea)}</span>` : "";
+
+		const dragHandle = this.canMoveCards
+			? `<div class="pt-drag-handle" title="Arrastrar para cambiar estado">
+				<div class="pt-drag-dots">
+					<span></span><span></span>
+					<span></span><span></span>
+					<span></span><span></span>
+				</div>
+			   </div>`
+			: "";
+
+		return `
+			<div class="pt-task" data-name="${task.name}" data-status="${task.status || ""}">
+				<div class="pt-task-content">
+					<div class="pt-task-head">
+						${tipo}
+						${dragHandle}
+					</div>
+					<div class="pt-task-title">${titulo}</div>
+					<div class="pt-task-meta">
+						<div class="pt-task-meta-row"><strong>Cliente:</strong> ${cliente}</div>
+						<div class="pt-task-meta-row ${dueClass}"><strong>Vence:</strong> ${fecha}</div>
+						<div class="pt-task-meta-row"><strong>Periodo:</strong> ${periodo}</div>
+						<div class="pt-task-meta-row"><strong>Asignado:</strong> ${frappe.utils.escape_html(asignado)}</div>
+					</div>
+				</div>
+			</div>
+		`;
+	}
+
+	open_task_modal(taskName) {
+		frappe.call({
+			method: "frappe.client.get",
+			args: { doctype: "Task", name: taskName },
+			freeze: true,
+			callback: (r) => {
+				if (!r.message) return;
+				this.show_task_dialog(r.message);
+			}
+		});
+	}
+
+	show_task_dialog(task) {
+		const me = this;
+		const isContador = this.canEditTasks;
+		const today = frappe.datetime.get_today();
+		let dueClass = "";
+
+		if (task.status !== "Completed" && task.exp_end_date) {
+			const diff = frappe.datetime.get_diff(task.exp_end_date, today);
+			if (diff < 0) dueClass = "pt-due-danger";
+			else if (diff <= 3) dueClass = "pt-due-warn";
+		}
+
+		const fecha_display = task.exp_end_date
+			? frappe.datetime.str_to_user(task.exp_end_date)
+			: "-";
+
+		const statusMeta = this.statusMeta[task.status] || { chip: "#f1f5f9", text: "#475569" };
+
+		const readonly_html = `
+			<div class="pt-modal-split">
+				<div class="pt-modal-left">
+					<div class="pt-modal-body">
+						<div class="pt-modal-field">
+							<div class="pt-modal-label">Cliente</div>
+							<div class="pt-modal-value">${frappe.utils.escape_html(task.cliente || "-")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Periodo</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.periodo || "-")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Tipo de Tarea</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.tipo_de_tarea || "-")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Estado</div>
+					<div class="pt-modal-value">
+						<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;
+							background:${statusMeta.chip};color:${statusMeta.text};">
+							${frappe.utils.escape_html(task.status || "-")}
+						</span>
+					</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Fecha de Vencimiento</div>
+					<div class="pt-modal-value ${dueClass}">${fecha_display}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Asignado a</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(this.get_primary_assignee(task._assign) || "Sin asignar")}</div>
+				</div>
+				<div class="pt-modal-field">
+						<div class="pt-modal-label">Notas</div>
+						<div class="pt-modal-notas">${frappe.utils.escape_html(task.description || "Sin notas")}</div>
+					</div>
+				</div>
+			</div>
+			<div class="pt-modal-right">
+				<div class="pt-comm-header">Comunicaciones</div>
+				<div class="pt-comm-list" id="pt-dialog-comms">
+					<div class="pt-comm-empty">Cargando correos/comentarios...</div>
+				</div>
+			</div>
+			</div>
+		`;
+
+		const tipos = [
+			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
+			"Declaraci\u00f3n DGI", "Estados Financieros", "Facturaci\u00f3n",
+			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite DGI", "Consultor\u00eda", "Otro",
+		];
+		const estados = ["Open", "Working", TAREA_ESTADO_REVISION, "Completed"];
+
+		const tipo_options = tipos.map(t =>
+			`<option value="${t}" ${t === task.tipo_de_tarea ? "selected" : ""}>${t}</option>`
+		).join("");
+
+		const estado_options = estados.map(e =>
+			`<option value="${e}" ${e === task.status ? "selected" : ""}>${e}</option>`
+		).join("");
+
+		const edit_html = `
+			<div class="pt-modal-split">
+				<div class="pt-modal-left">
+					<div class="pt-modal-body">
+						<div class="pt-modal-field pt-modal-edit-field">
+							<div class="pt-modal-label">T\u00edtulo</div>
+							<input type="text" class="pt-edit-titulo" value="${frappe.utils.escape_html(task.subject || '')}" />
+						</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Cliente</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.cliente || "-")}</div>
+				</div>
+				<div class="pt-modal-field">
+					<div class="pt-modal-label">Periodo</div>
+					<div class="pt-modal-value">${frappe.utils.escape_html(task.periodo || "-")}</div>
+				</div>
+				<div class="pt-modal-field pt-modal-edit-field">
+					<div class="pt-modal-label">Tipo de Tarea</div>
+					<select class="pt-edit-tipo">${tipo_options}</select>
+				</div>
+				<div class="pt-modal-field pt-modal-edit-field">
+					<div class="pt-modal-label">Estado</div>
+					<select class="pt-edit-estado">${estado_options}</select>
+				</div>
+				<div class="pt-modal-field pt-modal-edit-field">
+					<div class="pt-modal-label">Fecha de Vencimiento</div>
+					<input type="date" class="pt-edit-fecha" value="${task.exp_end_date || ''}" />
+				</div>
+				<div class="pt-modal-field pt-modal-edit-field">
+					<div class="pt-modal-label">Notas</div>
+					<textarea class="pt-edit-notas">${frappe.utils.escape_html(task.description || '')}</textarea>
+				</div>
+					</div>
+				</div>
+				<div class="pt-modal-right" id="pt-dialog-comms-edit">
+					<!-- Se copia el HTML luego -->
+				</div>
+			</div>
+		`;
+
+		const dialog = new frappe.ui.Dialog({
+			title: task.subject || "Detalle de Tarea",
+			size: "large",
+			primary_action_label: "Editar",
+			primary_action: () => {
+				if (!isContador) {
+					frappe.msgprint("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden editar tareas desde este panel.");
+					return;
+				}
+				// Switch to edit mode
+				dialog.$body.html(edit_html);
+				if (this.lastCommsHtml) {
+					dialog.$body.find("#pt-dialog-comms-edit").html(
+						'<div class="pt-comm-header">Comunicaciones</div><div class="pt-comm-list">' + this.lastCommsHtml + '</div>'
+					);
+				}
+				dialog.set_primary_action("Guardar", () => {
+					const body = dialog.$body;
+					const newTitulo = body.find(".pt-edit-titulo").val();
+					const otherValues = {
+						tipo_de_tarea: body.find(".pt-edit-tipo").val(),
+						status: body.find(".pt-edit-estado").val(),
+						exp_end_date: body.find(".pt-edit-fecha").val(),
+						description: body.find(".pt-edit-notas").val(),
+					};
+
+					const save_fields = (docName) => {
+						frappe.call({
+							method: "frappe.client.set_value",
+							args: {
+								doctype: "Task",
+								name: docName,
+								fieldname: otherValues,
+							},
+							freeze: true,
+							freeze_message: "Guardando...",
+							callback: (r) => {
+								if (!r.exc) {
+									frappe.show_alert({ message: "Tarea actualizada", indicator: "green" });
+									dialog.hide();
+									me.load_data();
+								}
+							},
+							error: () => {
+								frappe.msgprint("Error al guardar la tarea.");
+							}
+						});
+					};
+
+					// Si cambio el titulo (que es el name), renombrar primero
+					if (newTitulo && newTitulo !== task.name) {
+						frappe.call({
+							method: "frappe.client.rename_doc",
+							args: {
+								doctype: "Task",
+								old: task.name,
+								new: newTitulo,
+							},
+							freeze: true,
+							freeze_message: "Renombrando...",
+							callback: (r) => {
+								if (!r.exc) {
+									save_fields(newTitulo);
+								}
+							},
+							error: () => {
+								frappe.msgprint("Error al renombrar la tarea.");
+							}
+						});
+					} else {
+						save_fields(task.name);
+					}
+				});
+
+				// Change secondary to "Cancelar" that goes back to read-only
+				dialog.set_secondary_action_label("Cancelar");
+				dialog.set_secondary_action(() => {
+					dialog.$body.html(readonly_html);
+					if (this.lastCommsHtml) {
+						dialog.$body.find("#pt-dialog-comms").html(this.lastCommsHtml);
+					}
+					dialog.set_primary_action("Editar", dialog.primary_action);
+					dialog.set_secondary_action_label("Descartar");
+					dialog.set_secondary_action(() => this.discard_task(task.name, dialog));
+				});
+			},
+			secondary_action_label: "Descartar",
+			secondary_action: () => this.discard_task(task.name, dialog),
+		});
+
+		dialog.add_custom_action("Ver Detalle", () => {
+			dialog.hide();
+			frappe.set_route("Form", "Task", task.name);
+		});
+
+		dialog.$body.html(readonly_html);
+		dialog.show();
+		if (!isContador && dialog.get_primary_btn) {
+			dialog.get_primary_btn().hide();
+		}
+		this.fetch_communications(task.name, dialog);
+	}
+
+	fetch_communications(taskName, dialog) {
+		frappe.call({
+			method: "frappe.client.get_list",
+			args: {
+				doctype: "Communication",
+				filters: { reference_doctype: "Task", reference_name: taskName },
+				fields: ["name", "subject", "sender_full_name", "content", "creation"],
+				order_by: "creation desc",
+				limit_page_length: 50
+			},
+			callback: (r) => {
+				const comms = r.message || [];
+				this.render_communications(comms, dialog);
+			}
+		});
+	}
+
+	render_communications(comms, dialog) {
+		const target = dialog.$body.find("#pt-dialog-comms, #pt-dialog-comms-edit");
+
+		if (!comms.length) {
+			target.html('<div class="pt-comm-empty">No hay comunicaciones.</div>');
+			return;
+		}
+
+		let html = "";
+		comms.forEach(c => {
+			// Strip HTML securely
+			const tmp = document.createElement("DIV");
+			tmp.innerHTML = c.content || "";
+			const textPreview = (tmp.textContent || tmp.innerText || "").substring(0, 100);
+			const when = frappe.datetime.comment_when(c.creation);
+
+			html += `
+				<div class="pt-comm-item">
+					<div class="pt-comm-meta">
+						<span class="pt-comm-sender">${frappe.utils.escape_html(c.sender_full_name || "Sistema")}</span>
+						<span>${when}</span>
+					</div>
+					<div class="pt-comm-subject">${frappe.utils.escape_html(c.subject || "Comentario")}</div>
+					<div class="pt-comm-content">${frappe.utils.escape_html(textPreview)}...</div>
+				</div>
+			`;
+		});
+
+		target.html(html);
+		// Keep a cached copy array to restore it when toggling edit view
+		this.lastCommsHtml = html;
+	}
+
+	setup_actions() {
+		this.wrapper.find(".pt-btn-nueva-tarea").on("click", () => this.open_new_task_modal());
+	}
+
+	open_new_task_modal() {
+		if (!this.canCreateTasks) {
+			frappe.msgprint("Solo Supervisor del Despacho, Socio del Despacho, Contador del Despacho o System Manager pueden crear tareas.");
+			return;
+		}
+
+		const me = this;
+		const tipos = [
+			"Impuestos", "N\u00f3mina", "Cierre Contable", "Auditor\u00eda", "Conciliaci\u00f3n Bancaria",
+			"Declaraci\u00f3n DGI", "Estados Financieros", "Facturaci\u00f3n",
+			"Atenci\u00f3n a Requerimiento", "Tr\u00e1mite DGI", "Consultor\u00eda", "Otro",
+		];
+
+		const dialog = new frappe.ui.Dialog({
+			title: "Nueva Tarea",
+			size: "large",
+			fields: [
+				{ fieldtype: "Select", fieldname: "tipo_de_tarea", label: "Tipo de Tarea", options: tipos.join("\n"), reqd: 1 },
+				{ fieldtype: "Column Break" },
+				{ fieldtype: "Section Break" },
+				{ fieldtype: "Link", fieldname: "cliente", label: "Cliente", options: "Cliente Contable", reqd: 1 },
+				{ fieldtype: "Link", fieldname: "company", label: "Compania", options: "Company", reqd: 1 },
+				{ fieldtype: "Column Break" },
+				{ fieldtype: "Link", fieldname: "periodo", label: "Periodo", options: "Periodo Contable", reqd: 1 },
+				{ fieldtype: "Section Break" },
+				{ fieldtype: "Date", fieldname: "exp_end_date", label: "Fecha de Vencimiento", reqd: 1 },
+				{ fieldtype: "Column Break" },
+				{ fieldtype: "Link", fieldname: "_assign", label: "Asignado a", options: "User" },
+				{ fieldtype: "Section Break" },
+				{ fieldtype: "Data", fieldname: "subject", label: "T\u00edtulo de Tarea", reqd: 1 },
+				{ fieldtype: "Small Text", fieldname: "description", label: "Notas" },
+			],
+			primary_action_label: "Crear Tarea",
+			primary_action: (values) => {
+				frappe.call({
+					method: "frappe.client.insert",
+					args: {
+						doc: {
+							doctype: "Task",
+							subject: values.subject,
+							cliente: values.cliente,
+							company: values.company,
+							periodo: values.periodo,
+							tipo_de_tarea: values.tipo_de_tarea,
+							status: "Open",
+							exp_end_date: values.exp_end_date,
+							_assign: values._assign ? JSON.stringify([values._assign]) : null,
+							description: values.description || "",
+						}
+					},
+					freeze: true,
+					freeze_message: "Creando tarea...",
+					callback: (r) => {
+						if (!r.exc) {
+							frappe.show_alert({ message: "Tarea creada exitosamente", indicator: "green" });
+							dialog.hide();
+							me.load_data();
+						}
+					},
+					error: () => {
+						frappe.msgprint("Error al crear la tarea.");
+					}
+				});
+			},
+			secondary_action_label: "Cancelar",
+			secondary_action: () => dialog.hide(),
+		});
+
+		dialog.show();
+
+		const clienteField = dialog.get_field("cliente");
+		const companyField = dialog.get_field("company");
+		const periodoField = dialog.get_field("periodo");
+
+		periodoField.get_query = () => {
+			const cliente = dialog.get_value("cliente");
+			const company = dialog.get_value("company");
+			if (!cliente || !company) {
+				return { filters: { name: ["in", []] } };
+			}
+			return {
+				filters: {
+					cliente,
+					company,
+				},
+			};
+		};
+
+		const syncCompanyFromCliente = () => {
+			const cliente = dialog.get_value("cliente");
+			if (!cliente) {
+				dialog.set_value("company", "");
+				dialog.set_value("periodo", "");
+				return;
+			}
+			frappe.db.get_value("Cliente Contable", cliente, "company_default").then((r) => {
+				const company = r.message && r.message.company_default;
+				if (company) {
+					dialog.set_value("company", company);
+				}
+				dialog.set_value("periodo", "");
+			});
+		};
+
+		clienteField.df.onchange = syncCompanyFromCliente;
+		if (clienteField.$input) {
+			clienteField.$input.on("change", syncCompanyFromCliente);
+		}
+
+		companyField.df.onchange = () => dialog.set_value("periodo", "");
+		if (companyField.$input) {
+			companyField.$input.on("change", () => dialog.set_value("periodo", ""));
+		}
+	}
+
+	get_primary_assignee(rawAssignments) {
+		if (!rawAssignments) return null;
+		if (Array.isArray(rawAssignments)) {
+			return rawAssignments[0] || null;
+		}
+		try {
+			const parsed = JSON.parse(rawAssignments);
+			return Array.isArray(parsed) && parsed.length ? parsed[0] : null;
+		} catch (error) {
+			return null;
+		}
+	}
+}

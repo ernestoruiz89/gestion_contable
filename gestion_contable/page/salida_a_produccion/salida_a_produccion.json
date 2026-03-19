@@ -1,0 +1,15 @@
+{
+    "title": "Salida a Produccion",
+    "content": "",
+    "doctype": "Page",
+    "icon": "solid-flag",
+    "module": "Gestion Contable",
+    "name": "salida-a-produccion",
+    "standard": "Yes",
+    "roles": [
+        {"role": "System Manager"},
+        {"role": "Contador del Despacho"},
+        {"role": "Supervisor del Despacho"},
+        {"role": "Socio del Despacho"}
+    ]
+}

@@ -1,0 +1,133 @@
+<style>
+  .ha-wrap { font-family: Arial, sans-serif; color: #0f172a; font-size: 12px; }
+  .ha-header { margin-bottom: 18px; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; }
+  .ha-title { margin: 0 0 4px; font-size: 24px; font-weight: 700; }
+  .ha-subtitle { margin: 0; color: #475569; }
+  .ha-pill { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; text-transform: uppercase; border: 1px solid #cbd5e1; margin-right: 6px; }
+  .ha-pill.estado { background: #eff6ff; color: #1d4ed8; }
+  .ha-pill.severidad { background: #fff7ed; color: #c2410c; }
+  .ha-pill.aprobacion { background: #ecfdf5; color: #047857; }
+  .ha-grid { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .ha-grid td { padding: 6px 8px; border: 1px solid #dbe3ef; vertical-align: top; }
+  .ha-grid td.label { width: 18%; font-weight: 700; background: #f8fafc; color: #334155; }
+  .ha-section { margin-top: 18px; }
+  .ha-section h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .4px; color: #0f172a; }
+  .ha-box { border: 1px solid #dbe3ef; border-radius: 10px; padding: 10px 12px; background: #fff; }
+  .ha-comments { white-space: pre-wrap; }
+</style>
+<div class="ha-wrap">
+  <div class="ha-header">
+    <h1 class="ha-title">Hallazgo de Auditor?a</h1>
+    <p class="ha-subtitle"><strong>{{ doc.codigo }}</strong></p>
+    <p class="ha-subtitle">{{ doc.titulo_hallazgo or "Sin t?tulo" }}</p>
+    <p class="ha-subtitle">
+      <span class="ha-pill estado">{{ doc.estado_hallazgo or "Borrador" }}</span>
+      <span class="ha-pill severidad">{{ doc.severidad or "Sin severidad" }}</span>
+      <span class="ha-pill aprobacion">{{ doc.estado_aprobacion or "Borrador" }}</span>
+    </p>
+  </div>
+
+  <table class="ha-grid">
+    <tr>
+      <td class="label">Expediente</td>
+      <td>{{ doc.expediente_auditoria or "-" }}</td>
+      <td class="label">Encargo</td>
+      <td>{{ doc.encargo_contable or "-" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Cliente</td>
+      <td>{{ doc.cliente or "-" }}</td>
+      <td class="label">Periodo</td>
+      <td>{{ doc.periodo or "-" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Compa??a</td>
+      <td>{{ doc.company or "-" }}</td>
+      <td class="label">Fecha Cierre</td>
+      <td>{{ frappe.format(doc.fecha_cierre_hallazgo, {"fieldtype": "Date"}) if doc.fecha_cierre_hallazgo else "-" }}</td>
+    </tr>
+    <tr>
+      <td class="label">Riesgo-Control</td>
+      <td>{{ doc.riesgo_control_auditoria or "-" }}</td>
+      <td class="label">Papel Trabajo</td>
+      <td>{{ doc.papel_trabajo_auditoria or "-" }}</td>
+    </tr>
+  </table>
+
+  <div class="ha-section">
+    <h3>Criterio</h3>
+    <div class="ha-box">{{ doc.criterio or "<p>Sin criterio documentado.</p>" }}</div>
+  </div>
+
+  <div class="ha-section">
+    <h3>Condici?n</h3>
+    <div class="ha-box">{{ doc.condicion or "<p>Sin condici?n documentada.</p>" }}</div>
+  </div>
+
+  <div class="ha-section">
+    <h3>Causa</h3>
+    <div class="ha-box">{{ doc.causa or "<p>Sin causa documentada.</p>" }}</div>
+  </div>
+
+  <div class="ha-section">
+    <h3>Efecto</h3>
+    <div class="ha-box">{{ doc.efecto or "<p>Sin efecto documentado.</p>" }}</div>
+  </div>
+
+  <div class="ha-section">
+    <h3>Recomendaci?n</h3>
+    <div class="ha-box">{{ doc.recomendacion or "<p>Sin recomendaci?n documentada.</p>" }}</div>
+  </div>
+
+  <div class="ha-section">
+    <h3>Respuesta de Administraci?n y Plan de Acci?n</h3>
+    <table class="ha-grid">
+      <tr>
+        <td class="label">Respuesta Administraci?n</td>
+        <td colspan="3">{{ doc.respuesta_administracion or "-" }}</td>
+      </tr>
+      <tr>
+        <td class="label">Responsable Plan Acci?n</td>
+        <td>{{ doc.responsable_plan_accion or "-" }}</td>
+        <td class="label">Fecha Compromiso</td>
+        <td>{{ frappe.format(doc.fecha_compromiso, {"fieldtype": "Date"}) if doc.fecha_compromiso else "-" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="ha-section">
+    <h3>Gobierno y Aprobaci?n</h3>
+    <table class="ha-grid">
+      <tr>
+        <td class="label">Fecha Env?o Revisi?n</td>
+        <td>{{ frappe.format(doc.fecha_envio_revision, {"fieldtype": "Datetime"}) if doc.fecha_envio_revision else "-" }}</td>
+        <td class="label">Supervisor</td>
+        <td>
+          {{ doc.revisado_por_supervisor or "-" }}<br>
+          {{ frappe.format(doc.fecha_revision_supervisor, {"fieldtype": "Datetime"}) if doc.fecha_revision_supervisor else "" }}
+        </td>
+      </tr>
+      <tr>
+        <td class="label">Socio</td>
+        <td>
+          {{ doc.aprobado_por_socio or "-" }}<br>
+          {{ frappe.format(doc.fecha_aprobacion_socio, {"fieldtype": "Datetime"}) if doc.fecha_aprobacion_socio else "" }}
+        </td>
+        <td class="label">Estado Aprobaci?n</td>
+        <td>{{ doc.estado_aprobacion or "Borrador" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  {% if doc.comentarios_supervisor or doc.comentarios_socio %}
+  <div class="ha-section">
+    <h3>Comentarios de Revisi?n</h3>
+    {% if doc.comentarios_supervisor %}
+      <div class="ha-box ha-comments"><strong>Supervisor</strong><br>{{ doc.comentarios_supervisor }}</div>
+    {% endif %}
+    {% if doc.comentarios_socio %}
+      <div class="ha-box ha-comments" style="margin-top:8px;"><strong>Socio</strong><br>{{ doc.comentarios_socio }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>

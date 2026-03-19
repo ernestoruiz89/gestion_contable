@@ -1,0 +1,86 @@
+﻿<style>
+  .ifa-wrap { font-family: "Helvetica Neue", Arial, sans-serif; color: #0f172a; }
+  .ifa-head { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 18px; }
+  .ifa-head h1 { margin: 0; font-size: 24px; }
+  .ifa-head p { margin: 4px 0 0; color: #475569; }
+  .ifa-meta { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+  .ifa-meta td { padding: 6px 8px; border: 1px solid #dbe3ef; font-size: 12px; }
+  .ifa-section { margin-bottom: 18px; }
+  .ifa-section h3 { font-size: 14px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: .4px; }
+  .ifa-body { font-size: 12px; line-height: 1.6; }
+  .ifa-sign { margin-top: 40px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .ifa-sign-box { border-top: 1px solid #0f172a; padding-top: 8px; font-size: 12px; }
+</style>
+
+<div class="ifa-wrap">
+  <div class="ifa-head">
+    <h1>{{ doc.titulo_informe or doc.nombre_del_informe }}</h1>
+    <p>{{ doc.tipo_opinion or "Informe Final de Auditoria" }}</p>
+  </div>
+
+  <table class="ifa-meta">
+    <tr>
+      <td><strong>Cliente</strong><br>{{ doc.cliente or "-" }}</td>
+      <td><strong>Expediente</strong><br>{{ doc.expediente_auditoria or "-" }}</td>
+      <td><strong>Encargo</strong><br>{{ doc.encargo_contable or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Periodo</strong><br>{{ doc.periodo or "-" }}</td>
+      <td><strong>Compania</strong><br>{{ doc.company or "-" }}</td>
+      <td><strong>Fecha Informe</strong><br>{{ doc.fecha_informe or "-" }}</td>
+    </tr>
+    <tr>
+      <td><strong>Destinatario</strong><br>{{ doc.destinatario or "-" }}</td>
+      <td><strong>Estado Emision</strong><br>{{ doc.estado_emision or "-" }}</td>
+      <td><strong>Base Normativa</strong><br>{{ doc.base_normativa or "-" }}</td>
+    </tr>
+  </table>
+
+  <div class="ifa-section">
+    <h3>Resumen Ejecutivo</h3>
+    <div class="ifa-body">{{ doc.resumen_ejecutivo or "<p>Sin contenido.</p>" }}</div>
+  </div>
+
+  <div class="ifa-section">
+    <h3>Alcance del Trabajo</h3>
+    <div class="ifa-body">{{ doc.alcance_del_trabajo or "<p>Sin contenido.</p>" }}</div>
+  </div>
+
+  <div class="ifa-section">
+    <h3>Principales Hallazgos</h3>
+    <div class="ifa-body">{{ doc.principales_hallazgos or "<p>No aplica.</p>" }}</div>
+  </div>
+
+  <div class="ifa-section">
+    <h3>Recomendaciones Clave</h3>
+    <div class="ifa-body">{{ doc.recomendaciones_clave or "<p>No aplica.</p>" }}</div>
+  </div>
+
+  <div class="ifa-section">
+    <h3>Opinion o Conclusion</h3>
+    <div class="ifa-body">{{ doc.opinion_o_conclusion or "<p>Sin conclusion.</p>" }}</div>
+  </div>
+
+  <div class="ifa-section">
+    <h3>Conclusion Final</h3>
+    <div class="ifa-body">{{ doc.conclusion_final or "<p>Sin conclusion final.</p>" }}</div>
+  </div>
+
+  {% if doc.notas_emision %}
+  <div class="ifa-section">
+    <h3>Notas de Emision</h3>
+    <div class="ifa-body"><p>{{ doc.notas_emision }}</p></div>
+  </div>
+  {% endif %}
+
+  <div class="ifa-sign">
+    <div class="ifa-sign-box">
+      <strong>{{ doc.firmado_por or "-" }}</strong><br>
+      {{ doc.cargo_firmante or "Firmante" }}
+    </div>
+    <div class="ifa-sign-box">
+      <strong>{{ doc.revisado_por or doc.revisado_por_supervisor or "-" }}</strong><br>
+      Revisor Interno
+    </div>
+  </div>
+</div>

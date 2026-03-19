@@ -1,0 +1,13 @@
+<style>
+  .ci-wrap { font-family: Arial, sans-serif; color: #0f172a; }
+  .ci-box { border: 1px solid #dbe3ef; padding: 14px; margin-bottom: 14px; border-radius: 10px; }
+</style>
+<div class="ci-wrap">
+  <h1>{{ doc.titulo_informe or doc.nombre_del_informe }}</h1>
+  <div class="ci-box"><strong>Cliente:</strong> {{ doc.cliente or "-" }}<br><strong>Periodo:</strong> {{ doc.periodo or "-" }}<br><strong>Fecha:</strong> {{ doc.fecha_informe or "-" }}</div>
+  <div class="ci-box"><h3>Resumen Ejecutivo</h3>{{ doc.resumen_ejecutivo or "<p>Sin resumen.</p>" }}</div>
+  <div class="ci-box"><h3>Alcance del Trabajo</h3>{{ doc.alcance_del_trabajo or "<p>Sin alcance.</p>" }}</div>
+  <div class="ci-box"><h3>Observaciones de Control Interno</h3>{{ doc.principales_hallazgos or "<p>Sin observaciones.</p>" }}</div>
+  <div class="ci-box"><h3>Recomendaciones Clave</h3>{{ doc.recomendaciones_clave or "<p>Sin recomendaciones.</p>" }}</div>
+  <div class="ci-box"><h3>Conclusion Final</h3>{{ doc.conclusion_final or "<p>Sin conclusion.</p>" }}</div>
+</div>
